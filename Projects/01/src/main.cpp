@@ -6,11 +6,16 @@
  */
 
 #include <iostream>
+#include "parse/helper.h"
 
 using namespace std;
 
 int main() {
 	cout << "Ray Tracer" << endl;
 	cout << "  -- Andrew DeMaria" << endl;
+
+	cout << endl;
+
+	hello();
 }
 
