@@ -6,7 +6,7 @@
  */
 
 #include <iostream>
-#include "raytracer/parse/helper.h"
+#include "raytracer/parse/parser.h"
 
 using namespace std;
 

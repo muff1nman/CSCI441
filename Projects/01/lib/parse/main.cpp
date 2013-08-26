@@ -5,7 +5,7 @@
  * All Rights Reserved.
  */
 
-#include "raytracer/parse/helper.h"
+#include "raytracer/parse/parser.h"
 #include <iostream>
 
 using namespace std;

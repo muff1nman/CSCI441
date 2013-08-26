@@ -1,11 +1,11 @@
 /*
- * helper.cpp
+ * parser.cpp
  * Copyright (C) 2013 Andrew DeMaria (muff1nman) <ademaria@mines.edu>
  *
  * All Rights Reserved.
  */
 
-#include "raytracer/parse/helper.h"
+#include "raytracer/parse/parser.h"
 
 
 void parse( std::string filename ) {

@@ -3,7 +3,7 @@ project(SimpleParser)
 
  
 set(PARSE_SRCS
-	helper.cpp
+	parser.cpp
 )
 
 add_library(Parse ${PARSE_SRCS})
