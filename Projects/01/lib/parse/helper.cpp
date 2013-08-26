@@ -5,7 +5,7 @@
  * All Rights Reserved.
  */
 
-#include "helper.h"
+#include "raytracer/parse/helper.h"
 
 
 void parse( std::string filename ) {
