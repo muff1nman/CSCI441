@@ -5,17 +5,15 @@
  * All Rights Reserved.
  */
 
-#include <iostream>
 #include "helper.h"
+#include <iostream>
 
 using namespace std;
 
 int main() {
-	cout << "Ray Tracer" << endl;
-	cout << "  -- Andrew DeMaria" << endl;
-
-	cout << endl;
-
-	parse("Hello");
+	cout << "Running parser" << endl;
+	parse("somefile");
 }
+
+
 

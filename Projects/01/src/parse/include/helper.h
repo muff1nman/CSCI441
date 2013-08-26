@@ -8,9 +8,12 @@
 #ifndef __helper_h__
 #define __helper_h__
 
-#include <iostream>
+#include <string>
+#include <vector>
 
-void hello();
+void parse( std::string filename );
+
+void parse( std::vector<std::string> text );
 
 #endif /* !__helper_h__ */
 

@@ -7,8 +7,12 @@
 
 #include "helper.h"
 
-void hello() {
-	std::cout <<  "Helloooo!" << std::endl;
+
+void parse( std::string filename ) {
+	// TODO
 }
 
+void parse( std::vector<std::string> text ) {
+	// TODO
+}
 
