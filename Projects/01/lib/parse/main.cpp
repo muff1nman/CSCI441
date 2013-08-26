@@ -5,17 +5,15 @@
  * All Rights Reserved.
  */
 
+#include "raytracer/parse/parser.h"
 #include <iostream>
-#include "parse/helper.h"
 
 using namespace std;
 
 int main() {
-	cout << "Ray Tracer" << endl;
-	cout << "  -- Andrew DeMaria" << endl;
-
-	cout << endl;
-
-	hello();
+	cout << "Running parser" << endl;
+	parse("somefile");
 }
+
+
 
