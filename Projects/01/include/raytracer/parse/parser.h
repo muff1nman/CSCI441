@@ -8,12 +8,13 @@
 #ifndef __parser_h__
 #define __parser_h__
 
-#include <string>
 #include <vector>
+#include <math.h>
+#include <fstream>
+#include <assert.h>
 
-void parse( std::string filename );
 
-void parse( std::vector<std::string> text );
+void parse( const char* filename );
 
 #endif /* !__parser_h__ */
 

@@ -8,10 +8,12 @@
 #include "raytracer/parse/parser.h"
 
 
-void parse( std::string filename ) {
-	ifstream ifs(filename);
+void parse( const char* filename ) {
+	std::ifstream ifs(filename);
 	assert(ifs);
 
+	int resolution_x;
+	int resolution_y;
 	double viewpoint[3];
 	double screen_lower_left_corner[3];
 	double screen_horizontal_vector[3];
@@ -32,6 +34,7 @@ void parse( std::string filename ) {
 	ifs >> number_of_primitives;
 
 	// save all this info to your datastructures or global variables here
+	// TODO
 
 	for ( int i=0; i<number_of_primitives; i++ ) {
 		char primitive_type;
@@ -54,6 +57,7 @@ void parse( std::string filename ) {
 					ifs >> k_specular >> n_specular;
 
 					// add the sphere to your datastructures (primitive list, sphere list or such) here
+					// TODO
 				}
 				break;
 			case 'T':
@@ -75,6 +79,7 @@ void parse( std::string filename ) {
 					ifs >> k_specular >> n_specular; 	    
 
 					// add the triangle to your datastructure (primitive list, sphere list or such) here
+					// TODO
 				}
 				break;
 			default:
