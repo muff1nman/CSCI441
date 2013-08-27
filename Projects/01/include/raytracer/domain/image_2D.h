@@ -21,6 +21,8 @@ class image_2D {
 		int x_size();
 		int y_size();
 
+		~image_2D();
+
 	private:
 		RGB* rgb;
 		int m;
