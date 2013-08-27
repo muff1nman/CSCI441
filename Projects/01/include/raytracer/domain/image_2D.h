@@ -16,7 +16,15 @@ class image_2D {
 
 		RGB& pixel( int i, int j );
 
-		void save_to_ppm_file( char* filename );
+		RGB& pixel( int index );
+
+		int x_size();
+		int y_size();
+
+	private:
+		RGB* rgb;
+		int m;
+		int n;
 
 };
 

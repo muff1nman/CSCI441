@@ -9,10 +9,8 @@
 #define __parser_h__
 
 #include <vector>
-#include <math.h>
 #include <fstream>
 #include <assert.h>
-
 
 void parse( const char* filename );
 

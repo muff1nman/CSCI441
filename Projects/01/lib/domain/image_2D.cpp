@@ -9,15 +9,10 @@
 
 
 image_2D::image_2D( int m, int n ) {
-
+	// TODO
 }
 
 RGB& image_2D::pixel( int i, int j ) {
-
+	// TODO
 }
-
-void image_2D::save_to_ppm_file( char *filename ) {
-
-}
-
 

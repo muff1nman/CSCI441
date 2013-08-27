@@ -9,6 +9,9 @@
 #define __image_output_h__
 
 #include "raytracer/domain/image_2D.h"
+#include <fstream>
+#include <cassert>
+#include <math.h>
 
 void save_to_ppm_file( image_2D image, char* filename );
 
