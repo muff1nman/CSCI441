@@ -17,10 +17,10 @@ class image_2D {
 
 		RGB& pixel( int i, int j );
 
-		RGB& pixel( int index );
+		const RGB& pixel( int index ) const;
 
-		int x_size() { return m; }
-		int y_size() { return n; }
+		int x_size() const { return m; }
+		int y_size() const { return n; }
 
 		~image_2D();
 

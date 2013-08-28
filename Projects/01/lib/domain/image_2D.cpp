@@ -7,7 +7,6 @@
 
 #include "raytracer/domain/image_2D.h"
 
-
 image_2D::image_2D( int m, int n ) : m(m), n(n) {
 	rgb = new RGB[m*n];
 }
@@ -17,11 +16,9 @@ RGB& image_2D::pixel( int i, int j ) {
 }
 
 image_2D::~image_2D() {
-	// TODO
+	delete[] rgb;
 }
 
-RGB& image_2D::pixel( int index ) {
-	// TODO
-	RGB x;
-	return x;
+const RGB& image_2D::pixel( int index ) const {
+	return rgb[index];
 }
