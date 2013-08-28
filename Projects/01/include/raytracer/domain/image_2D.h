@@ -9,6 +9,7 @@
 #define __image_2D_h__
 
 #include "raytracer/domain/RGB.h"
+#include <cstddef>
 
 class image_2D {
 	public:
@@ -18,8 +19,8 @@ class image_2D {
 
 		RGB& pixel( int index );
 
-		int x_size();
-		int y_size();
+		int x_size() { return m; }
+		int y_size() { return n; }
 
 		~image_2D();
 

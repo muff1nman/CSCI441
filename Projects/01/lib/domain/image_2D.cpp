@@ -19,3 +19,9 @@ RGB& image_2D::pixel( int i, int j ) {
 image_2D::~image_2D() {
 	// TODO
 }
+
+RGB& image_2D::pixel( int index ) {
+	// TODO
+	RGB x;
+	return x;
+}
