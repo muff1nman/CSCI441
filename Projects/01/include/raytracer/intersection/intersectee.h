@@ -8,6 +8,8 @@
 #ifndef __intersectee_h__
 #define __intersectee_h__
 
+#include "raytracer/domain/ray.h"
+
 /**
  * An abstract class for adding the capability for a shape to know if it is
  * intersected.

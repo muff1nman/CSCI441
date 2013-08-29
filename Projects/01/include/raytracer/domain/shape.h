@@ -8,6 +8,8 @@
 #ifndef __shape_h__
 #define __shape_h__
 
+#include "raytracer/intersection/intersectee.h"
+
 class Shape : public Intersectee {
 	private:
 		int ID;

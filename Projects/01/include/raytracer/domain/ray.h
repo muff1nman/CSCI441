@@ -8,18 +8,18 @@
 #ifndef __ray_h__
 #define __ray_h__
 
-#include "raytracer/domain/vector.h"
+#include "raytracer/domain/vector_3D.h"
 
 class Ray {
 	public:
-		Ray(const Vector& start, const Vector& end) :  start(start), end(end) { }
+		Ray(const Vector_3D& start, const Vector_3D& end) :  start(start), end(end) { }
 
-		const Vector& get_start() const { return start; }
-		const Vector& get_end() const { return end; }
+		const Vector_3D& get_start() const { return start; }
+		const Vector_3D& get_end() const { return end; }
 
 	private:
-		Vector start;
-		Vector end;
+		Vector_3D start;
+		Vector_3D end;
 
 };
 
