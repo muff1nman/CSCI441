@@ -8,7 +8,7 @@
 #include "raytracer/output/image_output.h"
 #include "util.h"
 
-void save_to_ppm_file( const image_2D& image, char* filename ) {
+void save_to_ppm_file( const Image_2D& image, const char* filename ) {
 	std::ofstream ofs(filename,std::ios::binary);
 	assert(ofs);
 	ofs << "P6" << std::endl;

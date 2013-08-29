@@ -13,7 +13,7 @@
 #include <cassert>
 #include <math.h>
 
-void save_to_ppm_file( const image_2D& image, char* filename );
+void save_to_ppm_file( const Image_2D& image, const char* filename );
 
 #endif /* !__image_output_h__ */
 

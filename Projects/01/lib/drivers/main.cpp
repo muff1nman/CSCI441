@@ -21,7 +21,7 @@ int main() {
 
 	int resolution_x = 500, resolution_y = 500;
 
-	image_2D img(resolution_x,resolution_y);
+	Image_2D img(resolution_x,resolution_y);
 	for ( int x=0; x<resolution_x; x++ ) {
 		for ( int y=0; y<resolution_y; y++ )
 		{

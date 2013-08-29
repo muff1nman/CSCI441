@@ -1,19 +1,19 @@
 /*
- * image_2D.h
+ * Image_2D.h
  * Copyright (C) 2013 Andrew DeMaria (muff1nman) <ademaria@mines.edu>
  *
  * All Rights Reserved.
  */
 
-#ifndef __image_2D_h__
-#define __image_2D_h__
+#ifndef __Image_2D_h__
+#define __Image_2D_h__
 
 #include "raytracer/domain/RGB.h"
 #include <cstddef>
 
-class image_2D {
+class Image_2D {
 	public:
-		image_2D( int m, int n );
+		Image_2D( int m, int n );
 
 		RGB& pixel( int i, int j );
 
@@ -22,7 +22,7 @@ class image_2D {
 		int x_size() const { return m; }
 		int y_size() const { return n; }
 
-		~image_2D();
+		~Image_2D();
 
 	private:
 		RGB* rgb;
@@ -31,5 +31,5 @@ class image_2D {
 
 };
 
-#endif /* !__image_2D_h__ */
+#endif /* !__Image_2D_h__ */
 
