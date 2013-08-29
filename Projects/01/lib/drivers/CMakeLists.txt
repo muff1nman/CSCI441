@@ -1,3 +1,3 @@
 add_executable(Main main.cpp)
-target_link_libraries(Main Parse)
+target_link_libraries(Main ImageOutput Domain Parse)
 
