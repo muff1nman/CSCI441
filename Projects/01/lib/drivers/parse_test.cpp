@@ -4,13 +4,17 @@
  *
  * All Rights Reserved.
  */
+#include "raytracer/parse/parser.h"
+#include "raytracer/environment/simple_environment.h"
+#include "raytracer/config/config.h"
 
 #include <iostream>
 #include <cstdlib>
 
-#include "raytracer/parse/parser.h"
-#include "raytracer/environment/simple_environment.h"
-#include "raytracer/config/config.h"
+#ifdef LOGGING
+#include <glog/logging.h>
+#endif 
+
 
 using namespace std;
 
@@ -27,15 +31,18 @@ int main(int argc, char** argv) {
 	cout << "  -- Parsing" << endl;
 	cout << "  -- Andrew DeMaria" << endl;
 
+#ifdef LOGGING
+	google::InitGoogleLogging("RayTracer");
+	FLAGS_logtostderr = 1;
+	LOG(INFO) << "Found ";
+#endif 
+
 	if( !check_params(argc, argv) ) {
 		exit(1);
 	}
 
 #ifdef DEBUG
 	cout << "DEBUG ON" << endl;
-#endif
-#ifdef LOG
-	cout << "LOG ON" << endl;
 #endif
 
 	SimpleEnvironment test = parse(argv[1]);

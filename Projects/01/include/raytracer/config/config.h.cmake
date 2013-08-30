@@ -1,2 +1,2 @@
 #cmakedefine DEBUG
-#cmakedefine LOG
+#cmakedefine LOGGING
