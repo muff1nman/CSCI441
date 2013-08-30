@@ -8,9 +8,10 @@
 #ifndef __RGB_h__
 #define __RGB_h__
 
-typedef struct {
+struct RGB {
+	RGB( double r = 0.0, double g = 0.0, double b = 0.0 ) : r(r), g(g), b(b) { }
 	double r, g, b; 
-} RGB;
+};
 
 #endif /* !__RGB_h__ */
 

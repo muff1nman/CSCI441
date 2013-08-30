@@ -12,7 +12,9 @@
 #include <fstream>
 #include <assert.h>
 
-void parse( const char* filename );
+#include "raytracer/environment/simple_environment.h"
+
+SimpleEnvironment parse( const char* filename );
 
 #endif /* !__parser_h__ */
 

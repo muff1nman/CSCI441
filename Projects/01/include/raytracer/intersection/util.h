@@ -15,7 +15,7 @@
 /**
  * Returns the ID of the closest shape that is intersected by the given ray
  *
- * Throws an exception if 
+ * Throws an exception if no intersection? TODO
  */
 int closest_intersection( const Ray& ray, const std::vector<Shape>& shape_list) {
 	// TODO

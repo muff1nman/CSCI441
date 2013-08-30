@@ -6,9 +6,13 @@
  */
 
 #include "raytracer/parse/parser.h"
+#include "raytracer/domain/config.h"
+#include "raytracer/domain/vector_3D.h"
+#include "raytracer/domain/RGB.h"
 
 
-void parse( const char* filename ) {
+// TODO return pointer instead?
+SimpleEnvironment parse( const char* filename ) {
 	std::ifstream ifs(filename);
 	assert(ifs);
 
@@ -33,8 +37,41 @@ void parse( const char* filename ) {
 	ifs >> ambient_light_intensity;
 	ifs >> number_of_primitives;
 
-	// save all this info to your datastructures or global variables here
-	// TODO
+	Config conf;
+	conf.resolution_x = resolution_x;
+	conf.resolution_y = resolution_y;
+
+	Vector_3D viewpoint_vector(viewpoint[0], viewpoint[1], viewpoint[2]);
+	conf.viewpoint = viewpoint_vector;
+
+	Vector_3D screen_lower_left_corner_vector(
+			screen_lower_left_corner[0],
+			screen_lower_left_corner[1],
+			screen_lower_left_corner[2]);
+	conf.screen_lower_left_corner = screen_lower_left_corner_vector;
+
+	Vector_3D screen_horizontal_vector_vector(
+			screen_horizontal_vector[0],
+			screen_horizontal_vector[1],
+			screen_horizontal_vector[2]);
+	conf.screen_horizontal = screen_horizontal_vector_vector;
+
+	Vector_3D screen_vertical_vector_vector(
+			screen_vertical_vector[0],
+			screen_vertical_vector[1],
+			screen_vertical_vector[2]);
+	conf.screen_vertical = screen_vertical_vector_vector;
+
+	RGB light_source_rgb(light_source[0], light_source[1], light_source[2]);
+	conf.light_source_color = light_source_rgb;
+
+	conf.light_source_intensity = light_intensity;
+
+	conf.ambient_light_intensity = ambient_light_intensity;
+
+	conf.number_of_primitives = number_of_primitives;
+
+	SimpleEnvironment env(conf);
 
 	for ( int i=0; i<number_of_primitives; i++ ) {
 		char primitive_type;
@@ -86,5 +123,8 @@ void parse( const char* filename ) {
 				assert(0);
 		} // End switch
 	} // End for
+
+	return env;
+
 } // End parse
 
