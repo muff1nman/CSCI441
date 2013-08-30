@@ -6,7 +6,7 @@ set( RAYTRACER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 # Configuration Stuff
 option(DEBUG "Turn debuggin on or off" ON)
-option(LOG "Turn loggin on or off" ON)
+option(LOGGING "Turn loggin on or off" ON)
 
 # Not needed if using the options above
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLOG=1 -DDEBUG=1")

@@ -1,8 +1,13 @@
+set(LINK_LIBRARIES ImageOutput Domain Parse)
+if(${LOGGING})
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} glog)
+endif(${LOGGING})
+
 add_executable(Main main.cpp)
-target_link_libraries(Main ImageOutput Domain Parse)
+target_link_libraries(Main ${LINK_LIBRARIES})
 
 add_executable(intersect find_intersections.cpp)
-target_link_libraries(intersect ImageOutput Domain Parse)
+target_link_libraries(intersect ${LINK_LIBRARIES})
 
 add_executable(ParseTest parse_test.cpp)
-target_link_libraries(ParseTest ImageOutput Domain Parse)
+target_link_libraries(ParseTest ${LINK_LIBRARIES})
