@@ -11,6 +11,8 @@
 #include "raytracer/domain/RGB.h"
 #include "raytracer/domain/vector_3D.h"
 
+#include <string>
+
 struct Config {
 
 	Vector_3D viewpoint;
@@ -27,6 +29,9 @@ struct Config {
 	double ambient_light_intensity;
 
 	int number_of_primitives;
+
+	std::string to_string();
+
 
 };
 

@@ -35,4 +35,8 @@ int main(int argc, char** argv) {
 
 	SimpleEnvironment test = parse(argv[1]);
 
+#ifdef LOGGING
+	test.log_state();
+#endif
+
 }

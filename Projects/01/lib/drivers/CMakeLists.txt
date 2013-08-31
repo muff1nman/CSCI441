@@ -1,4 +1,4 @@
-set(LINK_LIBRARIES ImageOutput Domain Parse)
+set(LINK_LIBRARIES ImageOutput Domain Parse Environment)
 if(${LOGGING})
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} glog)
 endif(${LOGGING})
