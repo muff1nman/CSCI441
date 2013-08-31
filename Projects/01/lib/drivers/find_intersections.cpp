@@ -22,7 +22,7 @@
  */
 
 #include "raytracer/domain/ray.h"
-#include "raytracer/domain/shape.h"
+#include "raytracer/domain/shapes/shape.h"
 #include "raytracer/intersection/util.h"
 
 #include <vector>

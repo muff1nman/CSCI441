@@ -9,7 +9,7 @@
 #define __util_h__
 
 #include "raytracer/domain/ray.h"
-#include "raytracer/domain/shape.h"
+#include "raytracer/domain/shapes/shape.h"
 #include <vector>
 
 /**
