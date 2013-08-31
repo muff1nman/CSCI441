@@ -6,15 +6,14 @@
  */
 
 #include "raytracer/environment/simple_environment.h"
-#include <iostream>
 
+#ifdef LOGGING
 std::string SimpleEnvironment::to_string() {
-	std::string info = "SimpleEnv: ";
-
+	std::string info = "SimpleEnv: \n";
+	info += this->config.to_string();
 	return info;
 }
 
-#ifdef LOGGING
 void SimpleEnvironment::log_state() {
 	LOG(INFO) << this->to_string();
 }

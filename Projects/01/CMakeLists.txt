@@ -23,6 +23,14 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 include_directories( ${RAYTRACER_INCLUDE_DIR} 
 	${CMAKE_CURRENT_BINARY_DIR}/include )
 
+
+if(LOGGING)
+	#set(Boost_USE_STATIC_LIBS ON)
+	find_package(Boost 1.54)
+	include_directories(${Boost_INCLUDE_DIR})
+	message(STATUS "boost include dir: " ${Boost_INCLUDE_DIR} )
+endif(LOGGING)
+
 # Go do work CMake!
 add_subdirectory( lib )
 

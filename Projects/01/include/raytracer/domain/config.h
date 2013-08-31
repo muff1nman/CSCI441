@@ -10,8 +10,11 @@
 
 #include "raytracer/domain/RGB.h"
 #include "raytracer/domain/vector_3D.h"
+#include "raytracer/config/config.h"
 
+#ifdef LOGGING
 #include <string>
+#endif
 
 struct Config {
 
@@ -30,7 +33,9 @@ struct Config {
 
 	int number_of_primitives;
 
+#ifdef LOGGING
 	std::string to_string();
+#endif
 
 
 };

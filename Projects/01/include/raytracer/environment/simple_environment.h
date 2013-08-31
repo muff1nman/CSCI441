@@ -29,7 +29,9 @@ class SimpleEnvironment : public Environment {
 	private:
 		Config config;
 
+#ifdef LOGGING
 		std::string to_string();
+#endif
 
 };
 
