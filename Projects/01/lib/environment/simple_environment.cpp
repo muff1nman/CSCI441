@@ -7,6 +7,18 @@
 
 #include "raytracer/environment/simple_environment.h"
 
+void SimpleEnvironment::~SimpleEnvironment() {
+
+	// deallocate each shape
+	for( Shape* ptr : this->shapes ) {
+		delete ptr;
+	}
+}
+
+void SimpleEnvironment::add_shape(Shape* shape) {
+	this->shapes.push_back( shape );
+}
+
 #ifdef LOGGING
 std::string SimpleEnvironment::to_string() {
 	std::string info = "";

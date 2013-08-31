@@ -12,12 +12,8 @@
 
 class Shape : public Intersectee {
 	private:
-		int ID;
 
 	public:
-		Shape(int ID) : ID(ID) { }
-
-		int get_ID() const { return ID; }
 };
 
 #endif /* !__shape_h__ */

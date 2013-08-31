@@ -11,16 +11,23 @@
 #include "raytracer/environment/environment.h"
 #include "raytracer/config/config.h"
 #include "raytracer/domain/config.h"
+#include "raytracer/domain/shapes/shape.h"
 
 #ifdef LOGGING
 #include <glog/logging.h>
+#include <string>
 #endif
 
-#include <string>
+#include <vector>
 
 class SimpleEnvironment : public Environment {
 	public:
 		SimpleEnvironment(const Config& config) : config(config) { /*TODO*/ }
+
+		~SimpleEnvironment();
+
+		void add_shape(Shape* shape);
+
 
 #ifdef LOGGING
 		void log_state();
@@ -28,6 +35,7 @@ class SimpleEnvironment : public Environment {
 
 	private:
 		Config config;
+		std::vector<Shape*> shapes;
 
 #ifdef LOGGING
 		std::string to_string();

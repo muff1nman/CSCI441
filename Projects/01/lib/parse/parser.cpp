@@ -9,6 +9,12 @@
 #include "raytracer/domain/config.h"
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/domain/RGB.h"
+#include "raytracer/domain/shapes/shape.h"
+#include "raytracer/domain/shapes/sphere.h"
+
+#ifdef LOGGING
+#include <glog/logging.h>
+#endif 
 
 
 // TODO return pointer instead?
@@ -76,10 +82,16 @@ SimpleEnvironment parse( const char* filename ) {
 	for ( int i=0; i<number_of_primitives; i++ ) {
 		char primitive_type;
 		ifs >> primitive_type;
+		Shape* s;
 		switch(primitive_type) {
 			case 's':
 			case 'S':
 				{
+
+#ifdef LOGGING
+					LOG(INFO) << "Adding Sphere";
+#endif
+
 					double center[3];
 					double radius;
 					double k_diffuse[3];
@@ -93,13 +105,21 @@ SimpleEnvironment parse( const char* filename ) {
 					ifs >> k_ambient[0] >> k_ambient[1] >> k_ambient[2];
 					ifs >> k_specular >> n_specular;
 
-					// add the sphere to your datastructures (primitive list, sphere list or such) here
-					// TODO
+					Vector_3D center(
+							center[0],
+							center[1],
+							center[2]);
+					s = new Sphere(center, radius);
 				}
 				break;
 			case 'T':
 			case 't':
 				{
+
+#ifdef LOGGING
+					LOG(INFO) << "Adding Triangle";
+#endif
+
 					double a1[3];
 					double a2[3];
 					double a3[3];
@@ -115,13 +135,19 @@ SimpleEnvironment parse( const char* filename ) {
 					ifs >> k_ambient[0] >> k_ambient[1] >> k_ambient[2];
 					ifs >> k_specular >> n_specular; 	    
 
-					// add the triangle to your datastructure (primitive list, sphere list or such) here
-					// TODO
+#ifdef LOGGING
+					LOG(ERROR) << "Triangle not supported yet";
+#endif
+					assert(0);
 				}
 				break;
 			default:
+#ifdef LOGGING
+				LOG(ERROR) << "Unrecognized shape";
+#endif
 				assert(0);
 		} // End switch
+		env.add_shape(s);
 	} // End for
 
 	return env;
