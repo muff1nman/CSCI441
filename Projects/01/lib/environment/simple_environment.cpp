@@ -9,12 +9,16 @@
 
 #ifdef LOGGING
 std::string SimpleEnvironment::to_string() {
-	std::string info = "SimpleEnv: \n";
-	info += this->config.to_string();
+	std::string info = "";
+	info += nested_start;
+	{
+	info += "config: " + this->config.to_string() + sep;
+	}
+	info += nested_finish;
 	return info;
 }
 
 void SimpleEnvironment::log_state() {
-	LOG(INFO) << this->to_string();
+	LOG(INFO) << "SimpleEnv: " + this->to_string();
 }
 #endif
