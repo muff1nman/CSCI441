@@ -8,7 +8,9 @@
 #ifndef __vector_3D_h__
 #define __vector_3D_h__
 
-class Vector_3D {
+#include "raytracer/util/logging.h"
+
+class Vector_3D : public Logging {
 
 	public:
 		Vector_3D(double x = 0.0, double y = 0.0, double z = 0.0 ) : x(x), y(y), z(z) { }
@@ -20,6 +22,20 @@ class Vector_3D {
 		double get_x() const { return x; }
 		double get_y() const { return y; }
 		double get_z() const { return z; }
+
+#ifdef LOGGING
+		std::string to_string() {
+			std::string info = "";
+			info += nested_start;
+			{
+				info += "x: " + boost::lexical_cast<std::string>(x) + list_sep;
+				info += "y: " + boost::lexical_cast<std::string>(y) + list_sep;
+				info += "z: " + boost::lexical_cast<std::string>(z) + sep;
+			}
+			info += nested_finish;
+			return info;
+		}
+#endif
 
 	private:
 		double x, y, z;
