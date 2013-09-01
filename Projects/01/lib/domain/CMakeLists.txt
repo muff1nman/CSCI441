@@ -3,6 +3,7 @@ set(SRCS
 	config.cpp
 	RGB.cpp
 	ray.cpp
+	vector_3D.cpp
 )
 
 add_library(Domain ${SRCS})

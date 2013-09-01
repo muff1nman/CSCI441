@@ -23,18 +23,15 @@ class Vector_3D : public Logging {
 		double get_y() const { return y; }
 		double get_z() const { return z; }
 
+		Vector_3D operator+( const Vector_3D& other ) const;
+		Vector_3D operator-( const Vector_3D& other ) const;
+		Vector_3D operator*( const Vector_3D& other ) const;
+		Vector_3D operator*( double scalar ) const;
+
+		friend Vector_3D operator*( double scalar, const Vector_3D& other );
+
 #ifdef LOGGING
-		std::string to_string() const {
-			std::string info = "";
-			info += nested_start;
-			{
-				info += "x: " + boost::lexical_cast<std::string>(x) + list_sep;
-				info += "y: " + boost::lexical_cast<std::string>(y) + list_sep;
-				info += "z: " + boost::lexical_cast<std::string>(z) + sep;
-			}
-			info += nested_finish;
-			return info;
-		}
+		std::string to_string() const;
 #endif
 
 	private:
