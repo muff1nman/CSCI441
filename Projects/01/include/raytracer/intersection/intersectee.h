@@ -9,6 +9,7 @@
 #define __intersectee_h__
 
 #include "raytracer/domain/ray.h"
+#include <boost/optional.hpp>
 
 /**
  * An abstract class for adding the capability for a shape to know if it is
@@ -18,7 +19,7 @@ class Intersectee {
 
 	virtual bool is_intersected( Ray r ) const = 0;
 
-	virtual double intersected_at( Ray r ) const = 0;
+	virtual boost::optional<double> intersected_at( Ray r ) const = 0;
 
 };
 #endif /* !__intersectee_h__ */

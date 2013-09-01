@@ -20,7 +20,7 @@ class Sphere : public Shape {
 
 		bool is_intersected( Ray r ) const;
 
-		double intersected_at( Ray r ) const;
+		boost::optional<double> intersected_at( Ray r ) const;
 
 #ifdef LOGGING
 		std::string to_string() const;

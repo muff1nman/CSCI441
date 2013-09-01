@@ -13,7 +13,7 @@ bool Sphere::is_intersected( Ray r ) const {
 	return true;
 }
 
-double Sphere::intersected_at( Ray r ) const {
+boost::optional<double> Sphere::intersected_at( Ray r ) const {
 	// TODO
 	return 1.0;
 }
