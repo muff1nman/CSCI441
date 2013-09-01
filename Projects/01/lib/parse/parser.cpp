@@ -111,6 +111,10 @@ SimpleEnvironment parse( const char* filename ) {
 							center[1],
 							center[2]);
 					s = new Sphere(center_v, radius);
+
+#ifdef LOGGING
+					LOG(INFO) << "Sphere: " << s->to_string();
+#endif
 				}
 				break;
 			case 'T':

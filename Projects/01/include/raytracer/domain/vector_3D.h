@@ -24,7 +24,7 @@ class Vector_3D : public Logging {
 		double get_z() const { return z; }
 
 #ifdef LOGGING
-		std::string to_string() {
+		std::string to_string() const {
 			std::string info = "";
 			info += nested_start;
 			{

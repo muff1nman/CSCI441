@@ -21,7 +21,7 @@ class Logging {
 #ifdef LOGGING
 	public:
 		//std::string to_string() { return "instance of " + std::string(typeid(this).name()); }
-		std::string to_string() { return "Unknown"; }
+		virtual std::string to_string() const { return "Unknown"; }
 #endif
 
 };

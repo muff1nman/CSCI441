@@ -19,7 +19,7 @@ double Sphere::intersected_at( Ray r ) const {
 }
 
 #ifdef LOGGING
-std::string Sphere::to_string() {
+std::string Sphere::to_string() const {
 	std::string info = "";
 	info += nested_start;
 	{

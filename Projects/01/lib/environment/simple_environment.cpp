@@ -24,7 +24,12 @@ std::string SimpleEnvironment::to_string() {
 	std::string info = "";
 	info += nested_start;
 	{
-	info += "config: " + this->config.to_string() + sep;
+		info += "config: " + this->config.to_string() + sep;
+		info += std::string("shapes: ") + nested_start;
+		for( const Shape* const shape : this->shapes ) {
+			info += "shape: " + shape->to_string() + list_sep;
+		}
+		info += nested_finish;
 	}
 	info += nested_finish;
 	return info;

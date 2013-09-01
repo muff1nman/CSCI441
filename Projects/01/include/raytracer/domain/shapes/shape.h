@@ -9,11 +9,9 @@
 #define __shape_h__
 
 #include "raytracer/intersection/intersectee.h"
+#include "raytracer/util/logging.h"
 
-class Shape : public Intersectee {
-	virtual bool is_intersected( Ray r ) const = 0;
-
-	virtual double intersected_at( Ray r ) const = 0;
+class Shape : public Intersectee, public Logging {
 };
 
 #endif /* !__shape_h__ */

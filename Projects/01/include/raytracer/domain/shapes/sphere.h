@@ -13,7 +13,7 @@
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/domain/shapes/shape.h"
 
-class Sphere : public Shape, public Logging {
+class Sphere : public Shape {
 
 	public:
 		Sphere( const Vector_3D& center, double radius ) : center(center), radius(radius) { }
@@ -23,7 +23,7 @@ class Sphere : public Shape, public Logging {
 		double intersected_at( Ray r ) const;
 
 #ifdef LOGGING
-		std::string to_string();
+		std::string to_string() const;
 #endif
 
 	private:
