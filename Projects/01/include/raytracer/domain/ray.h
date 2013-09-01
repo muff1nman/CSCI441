@@ -17,6 +17,10 @@ class Ray {
 		const Vector_3D& get_start() const { return start; }
 		const Vector_3D& get_end() const { return end; }
 
+		Vector_3D direction() const;
+
+		Vector_3D origin() const { return start; }
+
 	private:
 		Vector_3D start;
 		Vector_3D end;

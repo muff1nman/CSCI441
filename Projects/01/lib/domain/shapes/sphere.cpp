@@ -6,6 +6,7 @@
  */
 
 #include "raytracer/domain/shapes/sphere.h"
+#include "raytracer/util/quad.h"
 
 
 bool Sphere::is_intersected( Ray r ) const {
@@ -14,8 +15,17 @@ bool Sphere::is_intersected( Ray r ) const {
 }
 
 boost::optional<double> Sphere::intersected_at( Ray r ) const {
-	// TODO
-	return 1.0;
+	boost::optional<double> t;
+	if (!this->is_intersected(r)) {
+		return t;
+	} else {
+		double A = r.direction() * r.direction();
+		double B = 2.0 * (r.origin() - this->center) * r.direction();
+		double C = (r.origin() - this->center) * (r.origin() - this->center) - this->radius * this->radius;
+		std::vector<double> roots = quadratic_roots( A, B, C );
+		t = roots[0];
+		return t;
+	}
 }
 
 #ifdef LOGGING

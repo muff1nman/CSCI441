@@ -15,7 +15,7 @@
  *
  * 0 = Ax^2 + Bx + C
  */
-int discriminate( double A, double B, double C ) {
+double discriminate( double A, double B, double C ) {
 	// TODO
 }
 
