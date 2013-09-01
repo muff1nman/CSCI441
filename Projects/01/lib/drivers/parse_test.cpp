@@ -14,14 +14,6 @@
 
 using namespace std;
 
-bool check_params(int argc, char** argv) {
-	if( argc != 2 ) {
-		return false;
-	}
-	return true;
-}
-
-
 int main(int argc, char** argv) {
 	cout << "Ray Tracer" << endl;
 	cout << "  -- Parsing" << endl;

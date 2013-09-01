@@ -19,6 +19,13 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 	this->shapes.push_back( shape );
 }
 
+
+boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) {
+	boost::optional<int> index;
+	// TODO
+	return index;
+}
+
 #ifdef LOGGING
 std::string SimpleEnvironment::to_string() {
 	std::string info = "";

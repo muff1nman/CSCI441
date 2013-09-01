@@ -16,6 +16,13 @@
 #include <glog/logging.h>
 #endif 
 
+bool check_params(int argc, char** argv) {
+	if( argc != 2 ) {
+		return false;
+	}
+	return true;
+}
+
 void init_log() {
 #ifdef LOGGING
 	google::InitGoogleLogging("RayTracer");

@@ -21,9 +21,11 @@
  *
  */
 
+#include "raytracer/config/config.h"
 #include "raytracer/domain/ray.h"
-#include "raytracer/domain/shapes/shape.h"
-#include "raytracer/intersection/util.h"
+#include "raytracer/parse/parser.h"
+#include "raytracer/environment/simple_environment.h"
+#include "common.h"
 
 #include <vector>
 #include <iostream>
@@ -41,17 +43,31 @@ Vector_3D prompt_for_vector() {
 	return Vector_3D(x,y,z);
 }
 
-int main() {
+int main(int argc, char** argv) {
 	cout << "Ray Tracer" << endl;
 	cout << "  -- Andrew DeMaria" << endl;
+
+	init();
+
+	if( !check_params(argc, argv) ) {
+		exit(1);
+	}
+
+	SimpleEnvironment test = parse(argv[1]);
+
 	Vector_3D start, finish;
 	start = prompt_for_vector();
 	finish = prompt_for_vector();
 
 	Ray user_ray( start, finish );
-	vector<Shape> shape_list;
 
 	cout << "Does ray intersect any shapes?" << endl;
-	cout << closest_intersection( user_ray, shape_list);
+	boost::optional<int> shape_id = test.closest_intersection( user_ray );
+
+	if(shape_id) {
+		cout << "Intersected shape is: " << *shape_id << endl;
+	} else {
+		cout << "There was no shape intersected" << endl;
+	}
 
 }

@@ -19,6 +19,7 @@
 #endif
 
 #include <vector>
+#include <boost/optional.hpp>
 
 class SimpleEnvironment : public Environment {
 	public:
@@ -27,6 +28,14 @@ class SimpleEnvironment : public Environment {
 		~SimpleEnvironment();
 
 		void add_shape(Shape* shape);
+
+		/**
+		 * Returns the ID of the closest shape that is intersected by the given ray
+		 *
+		 * There may be no intersected shape in which case the return value is false
+		 *
+		 */
+		boost::optional<int> closest_intersection( const Ray& ray );
 
 
 #ifdef LOGGING
