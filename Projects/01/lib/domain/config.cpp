@@ -15,16 +15,12 @@
 std::string Config::to_string() {
 	std::string info = std::string("") + sep + nested_start;
 	{
-		info += "x resolution: " + boost::lexical_cast<std::string>(this->resolution_x) +  list_sep;
-		info += "y resolution: " + boost::lexical_cast<std::string>(this->resolution_y) +  list_sep;
+		info += "viewpoint: " + this->viewpoint.to_string() + list_sep;
+		info += "primitives: " + boost::lexical_cast<std::string>(this->number_of_primitives) + list_sep;
 		info += "ambient_light_intensity: " + boost::lexical_cast<std::string>(this->ambient_light_intensity) + list_sep;
 		info += "light_source_intensity: " + boost::lexical_cast<std::string>(this->light_source_intensity) + list_sep;
 		info += std::string("light_source_color: ") + this->light_source_color.to_string() + list_sep;
-		info += "viewpoint: " + this->viewpoint.to_string() + list_sep;
-		info += "screen lower left: " + this->screen_lower_left_corner.to_string() + list_sep;
-		info += "screen vertical: " + this->screen_vertical.to_string() + list_sep;
-		info += "screen horizontal: " + this->screen_horizontal.to_string() + sep;
-		info += "primitives: " + boost::lexical_cast<std::string>(this->number_of_primitives) + sep;
+		info += "screen: " + this->screen.to_string() + sep;
 	}
 	info += nested_finish;
 	

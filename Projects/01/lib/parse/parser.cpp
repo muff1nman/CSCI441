@@ -12,6 +12,7 @@
 #include "raytracer/domain/RGB.h"
 #include "raytracer/domain/shapes/shape.h"
 #include "raytracer/domain/shapes/sphere.h"
+#include "raytracer/domain/screen.h"
 
 #ifdef LOGGING
 #include <glog/logging.h>
@@ -44,40 +45,30 @@ SimpleEnvironment parse( const char* filename ) {
 	ifs >> ambient_light_intensity;
 	ifs >> number_of_primitives;
 
-	Config conf;
-	conf.resolution_x = resolution_x;
-	conf.resolution_y = resolution_y;
-
-	Vector_3D viewpoint_vector(viewpoint[0], viewpoint[1], viewpoint[2]);
-	conf.viewpoint = viewpoint_vector;
 
 	Vector_3D screen_lower_left_corner_vector(
 			screen_lower_left_corner[0],
 			screen_lower_left_corner[1],
 			screen_lower_left_corner[2]);
-	conf.screen_lower_left_corner = screen_lower_left_corner_vector;
 
 	Vector_3D screen_horizontal_vector_vector(
 			screen_horizontal_vector[0],
 			screen_horizontal_vector[1],
 			screen_horizontal_vector[2]);
-	conf.screen_horizontal = screen_horizontal_vector_vector;
 
 	Vector_3D screen_vertical_vector_vector(
 			screen_vertical_vector[0],
 			screen_vertical_vector[1],
 			screen_vertical_vector[2]);
-	conf.screen_vertical = screen_vertical_vector_vector;
+
+	Screen s( screen_lower_left_corner_vector, screen_horizontal_vector_vector,
+			screen_vertical_vector_vector, resolution_x, resolution_y );
+
+	Vector_3D viewpoint_vector(viewpoint[0], viewpoint[1], viewpoint[2]);
 
 	RGB light_source_rgb(light_source[0], light_source[1], light_source[2]);
-	conf.light_source_color = light_source_rgb;
 
-	conf.light_source_intensity = light_intensity;
-
-	conf.ambient_light_intensity = ambient_light_intensity;
-
-	conf.number_of_primitives = number_of_primitives;
-
+	Config conf( viewpoint_vector, s, light_source_rgb, light_intensity, ambient_light_intensity, number_of_primitives);
 	SimpleEnvironment env(conf);
 
 	for ( int i=0; i<number_of_primitives; i++ ) {
