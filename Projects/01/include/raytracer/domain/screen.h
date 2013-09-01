@@ -17,14 +17,16 @@ class Screen : public Logging {
 
 	public:
 		Screen( 
+				const Vector_3D& viewpoint,
 				const Vector_3D& lower_left,
 				const Vector_3D& vertical,
 				const Vector_3D& horizontal,
 				int x,
 				int y) :
+			viewpoint( viewpoint ),
 			lower_left_corner( lower_left ),
-			vertical( vertical ),
-			horizontal( horizontal ),
+			vertical( vertical.normal() ),
+			horizontal( horizontal.normal() ),
 			resolution_x( x ),
 			resolution_y( y ) { }
 
@@ -39,6 +41,7 @@ class Screen : public Logging {
 #endif
 
 	private:
+		Vector_3D viewpoint;
 		Vector_3D lower_left_corner;
 		Vector_3D vertical;
 		Vector_3D horizontal;

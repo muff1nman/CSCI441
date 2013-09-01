@@ -20,20 +20,16 @@
 struct Config {
 
 	Config(
-			const Vector_3D& viewpoint,
 			const Screen& screen,
 			const RGB& light_source_color,
 			double light_source_intensity,
 			double ambient_light_intensity,
 			int number_of_primitives) : 
-		viewpoint( viewpoint ),
 		screen( screen ),
 		light_source_color( light_source_color ),
 		light_source_intensity( light_source_intensity ),
 		ambient_light_intensity( ambient_light_intensity ),
 		number_of_primitives( number_of_primitives ) { }
-
-	Vector_3D viewpoint;
 
 	Screen screen;
 

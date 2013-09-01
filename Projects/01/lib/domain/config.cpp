@@ -15,7 +15,6 @@
 std::string Config::to_string() {
 	std::string info = std::string("") + sep + nested_start;
 	{
-		info += "viewpoint: " + this->viewpoint.to_string() + list_sep;
 		info += "primitives: " + boost::lexical_cast<std::string>(this->number_of_primitives) + list_sep;
 		info += "ambient_light_intensity: " + boost::lexical_cast<std::string>(this->ambient_light_intensity) + list_sep;
 		info += "light_source_intensity: " + boost::lexical_cast<std::string>(this->light_source_intensity) + list_sep;

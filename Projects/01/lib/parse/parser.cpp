@@ -61,13 +61,16 @@ SimpleEnvironment parse( const char* filename ) {
 			screen_vertical_vector[1],
 			screen_vertical_vector[2]);
 
+	Vector_3D viewpoint_vector(viewpoint[0], viewpoint[1], viewpoint[2]);
+
 #ifdef DEBUG
 	resolution_x = 20;
 	resolution_y = 20;
 #endif
 
-	Screen s( screen_lower_left_corner_vector, screen_horizontal_vector_vector,
-			screen_vertical_vector_vector, resolution_x, resolution_y );
+	Screen s( viewpoint_vector, screen_lower_left_corner_vector,
+			screen_horizontal_vector_vector, screen_vertical_vector_vector,
+			resolution_x, resolution_y );
 
 #ifdef DEBUG
 	ScreenIterator i = s.begin();
@@ -76,21 +79,20 @@ SimpleEnvironment parse( const char* filename ) {
 	LOG(INFO) << std::string("Screen start: ") << i.to_string();
 	LOG(INFO) << std::string("Screen end: ") << f.to_string();
 #endif
-	//for( Ray each : s ) {
-	while( i != s.end() ) {
+	for( Ray each : s ) {
+	//while( i != s.end() ) {
 #ifdef LOGGING
-		//LOG(INFO) << "Ray " + each.to_string() + " in screen";
-		LOG(INFO) << "Ray iter " + i.to_string();
+		LOG(INFO) << "Ray " + each.to_string() + " in screen";
+		//LOG(INFO) << "Ray iter " + i.to_string();
 #endif
-		++i;
+		//++i;
 	}
 #endif
 
-	Vector_3D viewpoint_vector(viewpoint[0], viewpoint[1], viewpoint[2]);
 
 	RGB light_source_rgb(light_source[0], light_source[1], light_source[2]);
 
-	Config conf( viewpoint_vector, s, light_source_rgb, light_intensity, ambient_light_intensity, number_of_primitives);
+	Config conf( s, light_source_rgb, light_intensity, ambient_light_intensity, number_of_primitives);
 	SimpleEnvironment env(conf);
 
 	for ( int i=0; i<number_of_primitives; i++ ) {

@@ -21,6 +21,7 @@ std::string Screen::to_string() {
 	{
 		info += "res x: " + boost::lexical_cast<std::string>( resolution_x ) + list_sep;
 		info += "res y: " + boost::lexical_cast<std::string>( resolution_y ) + list_sep;
+		info += "viewpoint: " + this->viewpoint.to_string() + list_sep;
 		info += "horizontal vector: " + this->horizontal.to_string() + list_sep;
 		info += "vertical vector: " + this->vertical.to_string() + list_sep;
 		info += "lower left corner: " + this->lower_left_corner.to_string() + sep;

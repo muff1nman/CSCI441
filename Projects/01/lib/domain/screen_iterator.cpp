@@ -45,9 +45,10 @@ bool ScreenIterator::operator!=(const ScreenIterator& other) {
 }
 
 Ray ScreenIterator::operator*() {
-	Vector_3D start;
-	Vector_3D direction;
-	// TODO
+	const Vector_3D& start = this->parent->viewpoint;
+	Vector_3D direction = this->parent->lower_left_corner + 
+		(0.5 + this->current_x) / this->parent->resolution_x * this->parent->horizontal + 
+		(0.5 + this->current_y) / this->parent->resolution_y * this->parent->vertical;
 	return Ray(start, direction);
 }
 
