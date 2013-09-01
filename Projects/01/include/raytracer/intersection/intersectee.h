@@ -17,9 +17,10 @@
  */
 class Intersectee {
 
-	virtual bool is_intersected( Ray r ) const = 0;
+	public:
+		virtual bool is_intersected( Ray r ) const = 0;
 
-	virtual boost::optional<double> intersected_at( Ray r ) const = 0;
+		virtual boost::optional<double> intersected_at( Ray r ) const = 0;
 
 };
 #endif /* !__intersectee_h__ */

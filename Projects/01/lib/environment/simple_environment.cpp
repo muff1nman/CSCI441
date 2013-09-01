@@ -22,7 +22,26 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 
 boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) {
 	boost::optional<int> index;
-	// TODO
+	boost::optional<double> closest_intersected_time;
+	boost::optional<double> tested_time;
+	int current_index;
+	for( const Shape* const s : this->shapes ) {
+		tested_time = s->intersected_at( ray );
+		if( tested_time ) {
+			if ( closest_intersected_time ) {
+				if ( *tested_time < *closest_intersected_time ) {
+					// found one closer
+					closest_intersected_time = tested_time;
+					index = current_index;
+				}
+			} else {
+				// First intersection we come acrost
+				closest_intersected_time = tested_time;
+				index = current_index;
+			}
+		}
+		++current_index;
+	}
 	return index;
 }
 
