@@ -22,11 +22,11 @@ Vector_3D Vector_3D::operator-( const Vector_3D& other ) const {
 
 }
 
-Vector_3D Vector_3D::operator*( const Vector_3D& other ) const {
-	return Vector_3D(
-			this->x * other.get_x(),
-			this->y * other.get_y(),
-			this->z * other.get_z());
+double Vector_3D::operator*( const Vector_3D& other ) const {
+	return
+			this->x * other.get_x() +
+			this->y * other.get_y() +
+			this->z * other.get_z();
 }
 
 Vector_3D Vector_3D::operator*( double scalar ) const {

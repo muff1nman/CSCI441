@@ -25,7 +25,7 @@ class Vector_3D : public Logging {
 
 		Vector_3D operator+( const Vector_3D& other ) const;
 		Vector_3D operator-( const Vector_3D& other ) const;
-		Vector_3D operator*( const Vector_3D& other ) const;
+		double operator*( const Vector_3D& other ) const;
 		Vector_3D operator*( double scalar ) const;
 
 		friend Vector_3D operator*( double scalar, const Vector_3D& other );
