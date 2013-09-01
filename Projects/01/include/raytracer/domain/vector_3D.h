@@ -23,6 +23,8 @@ class Vector_3D : public Logging {
 		double get_y() const { return y; }
 		double get_z() const { return z; }
 
+		Vector_3D normal() const;
+
 		Vector_3D operator+( const Vector_3D& other ) const;
 		Vector_3D operator-( const Vector_3D& other ) const;
 		double operator*( const Vector_3D& other ) const;

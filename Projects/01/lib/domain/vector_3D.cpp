@@ -6,6 +6,15 @@
  */
 
 #include "raytracer/domain/vector_3D.h"
+#include <cmath>
+
+Vector_3D Vector_3D::normal() const {
+	double magnitude = std::sqrt(std::pow(this->x,2) + std::pow(this->y,2) + std::pow(this->z,2));
+	return Vector_3D(
+			this->x / magnitude,
+			this->y / magnitude,
+			this->z / magnitude);
+}
 
 Vector_3D Vector_3D::operator+( const Vector_3D& other ) const {
 	return Vector_3D(

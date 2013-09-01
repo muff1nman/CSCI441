@@ -22,7 +22,7 @@
 
 class SimpleEnvironment : public Environment {
 	public:
-		SimpleEnvironment(const Config& config) : config(config) { /*TODO*/ }
+		SimpleEnvironment(const Config& config) : config(config) { }
 
 		~SimpleEnvironment();
 

@@ -9,13 +9,17 @@
 #define __negative_h__
 
 #include <vector>
+#include <algorithm>
 #include <boost/optional.hpp>
 
 /**
  * Returns the first non-negative result
+ *
+ * TODO not ensure ordered?
  */
 template <class T>
-boost::optional<T> first_nonnegative( const std::vector<T>& list ) {
+boost::optional<T> first_nonnegative( std::vector<T> list ) {
+	std::sort(list.begin(), list.end());
 	boost::optional<T> the_item;
 	for( const T& item : list ) {
 		if( item > 0 ) {
