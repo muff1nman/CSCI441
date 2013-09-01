@@ -4,6 +4,8 @@ set(SRCS
 	RGB.cpp
 	ray.cpp
 	vector_3D.cpp
+	screen_iterator.cpp
+	screen.cpp
 )
 
 add_library(Domain ${SRCS})

@@ -11,6 +11,7 @@
 #include "raytracer/config/config.h"
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/util/logging.h"
+#include "raytracer/domain/screen_iterator.h"
 
 class Screen : public Logging {
 
@@ -26,6 +27,16 @@ class Screen : public Logging {
 			horizontal( horizontal ),
 			resolution_x( x ),
 			resolution_y( y ) { }
+
+		ScreenIterator begin() const;
+		ScreenIterator end() const;
+
+		friend class ScreenIterator;
+
+
+#ifdef LOGGING
+		std::string to_string();
+#endif
 
 	private:
 		Vector_3D lower_left_corner;
