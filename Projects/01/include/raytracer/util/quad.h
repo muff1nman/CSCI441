@@ -15,8 +15,9 @@
  *
  * 0 = Ax^2 + Bx + C
  */
-int discriminate( double A, double B, double C ) {
+double discriminate( double A, double B, double C ) {
 	// TODO
+	return 0.0;
 }
 
 /**
@@ -32,6 +33,8 @@ int discriminate( double A, double B, double C ) {
  */
 std::vector<double> quadratic_roots( double A, double B, double C ) {
 	// TODO
+	std::vector<double> roots;
+	return roots;
 }
 
 #endif /* !__quad_h__ */
