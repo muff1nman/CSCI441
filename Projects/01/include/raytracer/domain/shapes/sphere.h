@@ -12,6 +12,7 @@
 #include "raytracer/config/config.h"
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/domain/shapes/shape.h"
+#include "raytracer/domain/ray.h"
 
 class Sphere : public Shape {
 
@@ -29,6 +30,8 @@ class Sphere : public Shape {
 	private:
 		Vector_3D center;
 		double radius;
+
+		std::vector<double> quadratic_numbers( Ray r ) const;
 
 };
 

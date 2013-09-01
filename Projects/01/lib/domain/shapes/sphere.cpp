@@ -7,24 +7,29 @@
 
 #include "raytracer/domain/shapes/sphere.h"
 #include "raytracer/util/quad.h"
+#include "raytracer/util/negative.h"
 
+std::vector<double> Sphere::quadratic_numbers( Ray r ) const {
+	std::vector<double> a_b_c;
+	a_b_c.push_back(r.direction() * r.direction());
+	a_b_c.push_back(2.0 * (r.origin() - this->center) * r.direction());
+	a_b_c.push_back((r.origin() - this->center) * (r.origin() - this->center) - this->radius * this->radius);
+	return a_b_c;
+}
 
 bool Sphere::is_intersected( Ray r ) const {
-	// TODO
-	return true;
+	return intersected_at( r );
 }
 
 boost::optional<double> Sphere::intersected_at( Ray r ) const {
 	boost::optional<double> t;
-	return t;
-	if (!this->is_intersected(r)) {
+	std::vector<double> q_inputs = quadratic_numbers( r );
+	double dis = discriminate( q_inputs[0], q_inputs[1], q_inputs[2] );
+	if (dis < 0 ) {
 		return t;
 	} else {
-		double A = r.direction() * r.direction();
-		double B = 2.0 * (r.origin() - this->center) * r.direction();
-		double C = (r.origin() - this->center) * (r.origin() - this->center) - this->radius * this->radius;
-		std::vector<double> roots = quadratic_roots( A, B, C );
-		t = roots[0];
+		std::vector<double> roots = quadratic_roots( q_inputs[0], q_inputs[1], q_inputs[2] );
+		t = first_nonnegative<double>(roots);
 		return t;
 	}
 }

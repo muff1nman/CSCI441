@@ -10,6 +10,7 @@
 
 Vector_3D Ray::direction() const {
 	// TODO
+	return Vector_3D();
 }
 
 
