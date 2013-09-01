@@ -11,9 +11,9 @@
 #include "raytracer/intersection/intersectee.h"
 
 class Shape : public Intersectee {
-	private:
+	virtual bool is_intersected( Ray r ) const = 0;
 
-	public:
+	virtual double intersected_at( Ray r ) const = 0;
 };
 
 #endif /* !__shape_h__ */

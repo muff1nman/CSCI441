@@ -16,9 +16,9 @@
  */
 class Intersectee {
 
-	virtual bool is_intersected( Ray r ) const;
+	virtual bool is_intersected( Ray r ) const = 0;
 
-	virtual double intersected_at( Ray r ) const;
+	virtual double intersected_at( Ray r ) const = 0;
 
 };
 #endif /* !__intersectee_h__ */

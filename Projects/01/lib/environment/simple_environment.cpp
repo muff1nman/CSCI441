@@ -7,7 +7,7 @@
 
 #include "raytracer/environment/simple_environment.h"
 
-void SimpleEnvironment::~SimpleEnvironment() {
+SimpleEnvironment::~SimpleEnvironment() {
 
 	// deallocate each shape
 	for( Shape* ptr : this->shapes ) {

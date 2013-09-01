@@ -11,6 +11,12 @@ option(LOGGING "Turn loggin on or off" ON)
 # Not needed if using the options above
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLOG=1 -DDEBUG=1")
 
+# c++ 11 stuff
+if(CMAKE_COMPILER_IS_GNUCXX)
+	message(STATUS "enabling c++ 11")
+	add_definitions(-std=gnu++0x)
+endif()
+
 configure_file( 
 	${RAYTRACER_INCLUDE_DIR}/raytracer/config/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/include/raytracer/config/config.h )

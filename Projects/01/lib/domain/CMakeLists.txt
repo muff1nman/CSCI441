@@ -5,3 +5,6 @@ set(SRCS
 )
 
 add_library(Domain ${SRCS})
+
+add_subdirectory(shapes)
+

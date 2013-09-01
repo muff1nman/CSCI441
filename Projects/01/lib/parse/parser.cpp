@@ -5,6 +5,7 @@
  * All Rights Reserved.
  */
 
+#include "raytracer/config/config.h"
 #include "raytracer/parse/parser.h"
 #include "raytracer/domain/config.h"
 #include "raytracer/domain/vector_3D.h"
@@ -105,11 +106,11 @@ SimpleEnvironment parse( const char* filename ) {
 					ifs >> k_ambient[0] >> k_ambient[1] >> k_ambient[2];
 					ifs >> k_specular >> n_specular;
 
-					Vector_3D center(
+					Vector_3D center_v(
 							center[0],
 							center[1],
 							center[2]);
-					s = new Sphere(center, radius);
+					s = new Sphere(center_v, radius);
 				}
 				break;
 			case 'T':
