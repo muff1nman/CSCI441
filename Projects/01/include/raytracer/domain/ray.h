@@ -24,7 +24,7 @@ class Ray : public Logging {
 		Vector_3D origin() const { return start; }
 
 #ifdef LOGGING
-		std::string to_string() {
+		std::string to_string() const {
 			std::string info(nested_start);
 			{
 				info += this->start.to_string() + list_sep;

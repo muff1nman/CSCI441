@@ -1,6 +1,5 @@
 set(SRCS
 	image_2D.cpp
-	config.cpp
 	RGB.cpp
 	ray.cpp
 	vector_3D.cpp

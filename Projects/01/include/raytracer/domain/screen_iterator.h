@@ -11,14 +11,18 @@
 #include "raytracer/config/config.h"
 #include "raytracer/domain/ray.h"
 #include "raytracer/util/logging.h"
+
+#include <iterator>
+
 class Screen;
+
 class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int >, public Logging {
 	public:
-		ScreenIterator(const Screen* screen, int current_x = 0, int current_y = 0) : 
-			parent(screen), current_x( current_x ), current_y( current_y ) { }
+		ScreenIterator(const Screen* screen, int current_x = 0, int current_y = 0);
 
-		ScreenIterator(const ScreenIterator& other) : 
-			current_x(other.current_x), current_y(other.current_y), parent(other.parent) { }
+		ScreenIterator(const ScreenIterator& other);
+
+		~ScreenIterator();
 
 		ScreenIterator& operator=(const ScreenIterator& other );
 
@@ -26,13 +30,13 @@ class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int 
 
 		ScreenIterator operator++(int);
 
-		bool operator==(const ScreenIterator& other);
+		bool operator==(const ScreenIterator& other) const;
 
-		bool operator!=(const ScreenIterator& other);
+		bool operator!=(const ScreenIterator& other) const;
 
-		Ray operator*();
+		const Ray& operator*() const;
 
-		//reference operator->();
+		const Ray* operator->() const;
 		
 		//friend class Screen;
 
@@ -44,6 +48,10 @@ class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int 
 		int current_x;
 		int current_y;
 		const Screen* parent;
+		const Ray* current;
+
+		void populate_ray();
+		void destroy_ray();
 
 };
 

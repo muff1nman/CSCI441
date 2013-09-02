@@ -79,13 +79,16 @@ SimpleEnvironment parse( const char* filename ) {
 	LOG(INFO) << std::string("Screen start: ") << i.to_string();
 	LOG(INFO) << std::string("Screen end: ") << f.to_string();
 #endif
-	for( Ray each : s ) {
-	//while( i != s.end() ) {
+	//for( Ray each : s ) {
+	while( i != s.end() ) {
 #ifdef LOGGING
-		LOG(INFO) << "Ray " + each.to_string() + " in screen";
-		//LOG(INFO) << "Ray iter " + i.to_string();
+		//LOG(INFO) << "Ray " + each.to_string() + " in screen";
+		LOG(INFO) << "Ray iter " + i.to_string();
+		LOG(INFO) << "Ray value " + (*i).to_string();
+		//Ray
+		LOG(INFO) << "Ray value " + i->to_string();
 #endif
-		//++i;
+		++i;
 	}
 #endif
 
