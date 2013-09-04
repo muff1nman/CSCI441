@@ -7,7 +7,6 @@
 
 #include "raytracer/config/config.h"
 #include "raytracer/parse/parser.h"
-#include "raytracer/domain/config.h"
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/domain/RGB.h"
 #include "raytracer/domain/shapes/shape.h"
@@ -67,10 +66,13 @@ SimpleEnvironment parse( const char* filename ) {
 			screen_horizontal_vector_vector, screen_vertical_vector_vector,
 			resolution_x, resolution_y );
 
-	RGB light_source_rgb(light_source[0], light_source[1], light_source[2]);
+	Vector_3D light_source_vector(light_source[0], light_source[1], light_source[2]);
+	LightSource light;
+	light.ambient_intensity = ambient_light_intensity;
+	light.light_source_intensity = light_intensity;
+	light.light_source_location = light_source_vector;
 
-	Config conf( s, light_source_rgb, light_intensity, ambient_light_intensity, number_of_primitives);
-	SimpleEnvironment env(conf);
+	SimpleEnvironment env(s, light, number_of_primitives);
 
 	for ( int i=0; i<number_of_primitives; i++ ) {
 		char primitive_type;

@@ -23,7 +23,7 @@ class Sphere : public Shape {
 
 		boost::optional<double> intersected_at( Ray r ) const;
 
-		RGB illuminate(const Vector_3D& light_source_location, double light_source_intensity, const Vector_3D view_direction) const {
+		RGB illuminate(const LightSource& light, const Vector_3D view_direction) const {
 			return RGB( 0.75,0.75,0.75 );
 		}
 

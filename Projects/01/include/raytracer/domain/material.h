@@ -9,10 +9,11 @@
 #define __material_h__
 
 #include "raytracer/domain/RGB.h"
+#include "raytracer/domain/light_source.h"
 
 class Material {
   public:
-		virtual RGB illuminate(const Vector_3D& light_source_location, double light_source_intensity, const Vector_3D view_direction) const = 0 ;
+		virtual RGB illuminate(const LightSource& light, const Vector_3D view_direction) const = 0;
 
 	private:
     RGB k_diff;

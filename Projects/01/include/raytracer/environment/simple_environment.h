@@ -10,12 +10,14 @@
 
 #include "raytracer/environment/environment.h"
 #include "raytracer/config/config.h"
-#include "raytracer/domain/config.h"
 #include "raytracer/domain/shapes/shape.h"
+#include "raytracer/domain/screen.h"
+#include "raytracer/domain/light_source.h"
 
 #ifdef LOGGING
 #include <glog/logging.h>
 #include <string>
+#include <boost/lexical_cast.hpp>
 #endif
 
 #include <vector>
@@ -23,7 +25,13 @@
 
 class SimpleEnvironment : public Environment {
 	public:
-		SimpleEnvironment(const Config& config) : config(config) { }
+		SimpleEnvironment(
+			const Screen& screen,
+			const LightSource& light,
+			int number_of_primitives) : 
+		screen( screen ),
+		light( light ),
+		number_of_primitives( number_of_primitives ) { }
 
 		~SimpleEnvironment();
 
@@ -48,7 +56,9 @@ class SimpleEnvironment : public Environment {
 #endif
 
 	private:
-		Config config;
+		Screen screen;
+		LightSource light;
+		int number_of_primitives;
 		std::vector<Shape*> shapes;
 
 #ifdef LOGGING
