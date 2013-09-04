@@ -7,6 +7,23 @@
 
 #include "raytracer/domain/screen.h"
 
+
+Screen::Screen( 
+		const Vector_3D& viewpoint,
+		const Vector_3D& lower_left,
+		const Vector_3D& horizontal,
+		const Vector_3D& vertical,
+		int x,
+		int y) :
+	viewpoint( viewpoint ),
+	lower_left_corner( lower_left ),
+	horizontal( horizontal ),
+	vertical( vertical ),
+	resolution_x( x ),
+	resolution_y( y ) {
+		this->upper_left_corner = this->lower_left_corner + this->vertical;
+	}
+
 ScreenIterator Screen::begin() const { 
 	return ScreenIterator(this);
 }
@@ -28,7 +45,10 @@ std::string Screen::to_string() {
 		info += "viewpoint: " + this->viewpoint.to_string() + list_sep;
 		info += "horizontal vector: " + this->horizontal.to_string() + list_sep;
 		info += "vertical vector: " + this->vertical.to_string() + list_sep;
-		info += "lower left corner: " + this->lower_left_corner.to_string() + sep;
+		info += "lower left corner: " + this->lower_left_corner.to_string() + list_sep;
+		info += "upper left corner: " + (this->lower_left_corner + this->vertical ).to_string() + list_sep;
+		info += "upper right corner: " + (this->lower_left_corner + this->vertical + this->horizontal ).to_string() + list_sep;
+		info += "lower right corner: " + (this->lower_left_corner + this->horizontal ).to_string() + sep;
 	}
 	info += nested_finish;
 	return info;

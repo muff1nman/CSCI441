@@ -30,6 +30,10 @@ class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int 
 
 		ScreenIterator operator++(int);
 
+		ScreenIterator& operator--();
+
+		ScreenIterator operator--(int);
+
 		bool operator==(const ScreenIterator& other) const;
 
 		bool operator!=(const ScreenIterator& other) const;
@@ -40,16 +44,17 @@ class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int 
 
 		int get_x() const { return current_x; }
 		int get_y() const { return current_y; }
-		
-		//friend class Screen;
 
 #ifdef LOGGING
-		std::string to_string() { return std::string("ray at: (") + boost::lexical_cast<std::string>(current_x) + ", " + boost::lexical_cast<std::string>(current_y) + ")"; }
+		std::string to_string() const;
 #endif
 
 	private:
 		int current_x;
 		int current_y;
+
+		Vector_3D current_point;
+		
 		const Screen* parent;
 		const Ray* current;
 

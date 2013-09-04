@@ -20,16 +20,10 @@ class Screen : public Logging {
 		Screen( 
 				const Vector_3D& viewpoint,
 				const Vector_3D& lower_left,
-				const Vector_3D& vertical,
 				const Vector_3D& horizontal,
+				const Vector_3D& vertical,
 				int x,
-				int y) :
-			viewpoint( viewpoint ),
-			lower_left_corner( lower_left ),
-			vertical( vertical.normal() ),
-			horizontal( horizontal.normal() ),
-			resolution_x( x ),
-			resolution_y( y ) { }
+				int y);
 
 		Image_2D blank_image() const;
 
@@ -46,6 +40,7 @@ class Screen : public Logging {
 	private:
 		Vector_3D viewpoint;
 		Vector_3D lower_left_corner;
+		Vector_3D upper_left_corner;
 		Vector_3D vertical;
 		Vector_3D horizontal;
 

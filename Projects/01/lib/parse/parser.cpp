@@ -67,28 +67,6 @@ SimpleEnvironment parse( const char* filename ) {
 			screen_horizontal_vector_vector, screen_vertical_vector_vector,
 			resolution_x, resolution_y );
 
-#ifdef DEBUG
-	ScreenIterator i = s.begin();
-	ScreenIterator f = s.end();
-#ifdef LOGGING
-	LOG(INFO) << std::string("Screen start: ") << i.to_string();
-	LOG(INFO) << std::string("Screen end: ") << f.to_string();
-#endif
-	//for( Ray each : s ) {
-	// TODO the issue here is the repeated calls to end
-	while( i != s.end() ) {
-#ifdef LOGGING
-		//LOG(INFO) << "Ray " + each.to_string() + " in screen";
-		LOG(INFO) << "Ray iter " + i.to_string();
-		LOG(INFO) << "Ray value " + (*i).to_string();
-		//Ray
-		LOG(INFO) << "Ray value " + i->to_string();
-#endif
-		++i;
-	}
-#endif
-
-
 	RGB light_source_rgb(light_source[0], light_source[1], light_source[2]);
 
 	Config conf( s, light_source_rgb, light_intensity, ambient_light_intensity, number_of_primitives);

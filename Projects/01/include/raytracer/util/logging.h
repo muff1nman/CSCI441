@@ -14,6 +14,8 @@
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include <typeinfo>
+// TODO ensure that all derived classes dont have this following include
+#include <glog/logging.h>
 #endif
 
 class Logging {
