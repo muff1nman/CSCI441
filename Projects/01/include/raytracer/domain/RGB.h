@@ -21,7 +21,9 @@ struct RGB {
 #ifdef LOGGING
 	std::string to_string();
 #endif
+
 };
+
 
 #endif /* !__RGB_h__ */
 

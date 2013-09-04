@@ -12,6 +12,7 @@
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/util/logging.h"
 #include "raytracer/domain/screen_iterator.h"
+#include "raytracer/domain/image_2D.h"
 
 class Screen : public Logging {
 
@@ -29,6 +30,8 @@ class Screen : public Logging {
 			horizontal( horizontal.normal() ),
 			resolution_x( x ),
 			resolution_y( y ) { }
+
+		Image_2D blank_image() const;
 
 		ScreenIterator begin() const;
 		ScreenIterator end() const;

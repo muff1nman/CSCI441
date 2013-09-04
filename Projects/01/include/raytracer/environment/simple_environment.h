@@ -35,7 +35,12 @@ class SimpleEnvironment : public Environment {
 		 * There may be no intersected shape in which case the return value is false
 		 *
 		 */
-		boost::optional<int> closest_intersection( const Ray& ray );
+		boost::optional<int> closest_intersection( const Ray& ray ) const;
+
+		/**
+		 * Creates a populated image
+		 */
+		Image_2D create_image() const;
 
 
 #ifdef LOGGING

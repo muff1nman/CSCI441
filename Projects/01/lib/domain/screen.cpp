@@ -15,6 +15,10 @@ ScreenIterator Screen::end() const {
 	return ScreenIterator(this, 0, resolution_y );
 }
 
+Image_2D Screen::blank_image() const {
+	return Image_2D( this->resolution_x, this->resolution_y );
+}
+
 #ifdef LOGGING
 std::string Screen::to_string() {
 	std::string info(nested_start);

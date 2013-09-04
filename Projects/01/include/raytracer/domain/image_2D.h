@@ -15,7 +15,9 @@ class Image_2D {
 	public:
 		Image_2D( int m, int n );
 
-		RGB& pixel( int i, int j );
+		RGB& pixel( int i, int j ) const;
+
+		void set(int i, int j, const RGB& rgb);
 
 		const RGB& pixel( int index ) const;
 

@@ -20,7 +20,7 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 }
 
 
-boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) {
+boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
 	boost::optional<int> index;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
@@ -43,6 +43,23 @@ boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) {
 		++current_index;
 	}
 	return index;
+}
+
+
+Image_2D SimpleEnvironment::create_image() const {
+	Image_2D img(this->config.screen.blank_image());
+	// TODO cache screen?
+	ScreenIterator i = this->config.screen.begin();
+	ScreenIterator end =  this->config.screen.end();
+	boost::optional<int> intersected_shape;
+	while( i != end ) {
+		intersected_shape = this->closest_intersection( *i );
+		if( intersected_shape ) {
+			img.set(i.get_x(), i.get_y(), RGB(252,23,234) );
+		}
+		++i;
+	}
+	return img;
 }
 
 #ifdef LOGGING

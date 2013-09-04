@@ -37,6 +37,9 @@ class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int 
 		const Ray& operator*() const;
 
 		const Ray* operator->() const;
+
+		int get_x() const { return current_x; }
+		int get_y() const { return current_y; }
 		
 		//friend class Screen;
 

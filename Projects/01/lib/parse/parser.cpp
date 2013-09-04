@@ -63,11 +63,6 @@ SimpleEnvironment parse( const char* filename ) {
 
 	Vector_3D viewpoint_vector(viewpoint[0], viewpoint[1], viewpoint[2]);
 
-#ifdef DEBUG
-	resolution_x = 20;
-	resolution_y = 20;
-#endif
-
 	Screen s( viewpoint_vector, screen_lower_left_corner_vector,
 			screen_horizontal_vector_vector, screen_vertical_vector_vector,
 			resolution_x, resolution_y );
@@ -80,6 +75,7 @@ SimpleEnvironment parse( const char* filename ) {
 	LOG(INFO) << std::string("Screen end: ") << f.to_string();
 #endif
 	//for( Ray each : s ) {
+	// TODO the issue here is the repeated calls to end
 	while( i != s.end() ) {
 #ifdef LOGGING
 		//LOG(INFO) << "Ray " + each.to_string() + " in screen";
