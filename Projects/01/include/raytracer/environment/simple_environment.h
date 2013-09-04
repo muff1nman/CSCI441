@@ -30,12 +30,12 @@ class SimpleEnvironment : public Environment {
 		void add_shape(Shape* shape);
 
 		/**
-		 * Returns the ID of the closest shape that is intersected by the given ray
+		 * Returns a pointer to the closest shape that is intersected by the given ray
 		 *
 		 * There may be no intersected shape in which case the return value is false
 		 *
 		 */
-		boost::optional<int> closest_intersection( const Ray& ray ) const;
+		boost::optional<const Shape*> closest_intersection( const Ray& ray ) const;
 
 		/**
 		 * Creates a populated image

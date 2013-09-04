@@ -20,11 +20,10 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 }
 
 
-boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
-	boost::optional<int> index;
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
+	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
-	int current_index;
 	for( const Shape* const s : this->shapes ) {
 		tested_time = s->intersected_at( ray );
 		if( tested_time ) {
@@ -32,17 +31,16 @@ boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) c
 				if ( *tested_time < *closest_intersected_time ) {
 					// found one closer
 					closest_intersected_time = tested_time;
-					index = current_index;
+					shape = s;
 				}
 			} else {
 				// First intersection we come acrost
 				closest_intersected_time = tested_time;
-				index = current_index;
+				shape = s;
 			}
 		}
-		++current_index;
 	}
-	return index;
+	return shape;
 }
 
 
@@ -51,11 +49,11 @@ Image_2D SimpleEnvironment::create_image() const {
 	// TODO cache screen?
 	ScreenIterator i = this->config.screen.begin();
 	ScreenIterator end =  this->config.screen.end();
-	boost::optional<int> intersected_shape;
+	boost::optional<const Shape*> intersected_shape;
 	while( i != end ) {
 		intersected_shape = this->closest_intersection( *i );
 		if( intersected_shape ) {
-			img.set(i.get_x(), i.get_y(), RGB(0.52,0.23,0.234) );
+			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->config.light_source_location, this->config.light_source_intensity, i->direction() ));
 		}
 		++i;
 	}

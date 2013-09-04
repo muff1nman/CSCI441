@@ -22,19 +22,19 @@ struct Config {
 
 	Config(
 			const Screen& screen,
-			const Vector_3D& light_source_color,
+			const Vector_3D& light_source_location,
 			double light_source_intensity,
 			double ambient_light_intensity,
 			int number_of_primitives) : 
 		screen( screen ),
-		light_source_color( light_source_color ),
+		light_source_location( light_source_location ),
 		light_source_intensity( light_source_intensity ),
 		ambient_light_intensity( ambient_light_intensity ),
 		number_of_primitives( number_of_primitives ) { }
 
 	Screen screen;
 
-	Vector_3D light_source_color;
+	Vector_3D light_source_location;
 
 	double light_source_intensity;
 	double ambient_light_intensity;
@@ -49,7 +49,7 @@ struct Config {
 			info += "primitives: " + boost::lexical_cast<std::string>(this->number_of_primitives) + list_sep;
 			info += "ambient_light_intensity: " + boost::lexical_cast<std::string>(this->ambient_light_intensity) + list_sep;
 			info += "light_source_intensity: " + boost::lexical_cast<std::string>(this->light_source_intensity) + list_sep;
-			info += std::string("light_source_color: ") + this->light_source_color.to_string() + list_sep;
+			info += std::string("light_source_location: ") + this->light_source_location.to_string() + list_sep;
 			info += "screen: " + this->screen.to_string() + sep;
 		}
 		info += nested_finish;

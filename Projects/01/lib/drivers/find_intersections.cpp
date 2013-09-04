@@ -62,10 +62,10 @@ int main(int argc, char** argv) {
 	Ray user_ray( start, finish );
 
 	cout << "Does ray intersect any shapes?" << endl;
-	boost::optional<int> shape_id = test.closest_intersection( user_ray );
+	boost::optional<const Shape*> shape_id = test.closest_intersection( user_ray );
 
 	if(shape_id) {
-		cout << "Intersected shape is: " << *shape_id << endl;
+		cout << "Intersected shape is: " << (*shape_id)->to_string() << endl;
 	} else {
 		cout << "There was no shape intersected" << endl;
 	}
