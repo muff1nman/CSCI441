@@ -34,9 +34,9 @@ int main() {
 				 */
 
 			// this is just to produce a fun image...
-			pix.r = 0.5+0.5*sin(sin(x/30.0)+y*y/700.0);
-			pix.g = 0.5+0.5*sin(y/71.0);
-			pix.b = 0.5+0.5*sin(x*x*x/120000.0+y*y/1700.0);
+			pix.set_r( 0.5+0.5*sin(sin(x/30.0)+y*y/700.0));
+			pix.set_g( 0.5+0.5*sin(y/71.0));
+			pix.set_b( 0.5+0.5*sin(x*x*x/120000.0+y*y/1700.0));
 		} // End inner For
 	} // End For
 
