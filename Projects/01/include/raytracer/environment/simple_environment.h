@@ -11,8 +11,8 @@
 #include "raytracer/environment/environment.h"
 #include "raytracer/config/config.h"
 #include "raytracer/domain/shapes/shape.h"
-#include "raytracer/domain/screen.h"
-#include "raytracer/domain/light_source.h"
+#include "raytracer/environment/screen.h"
+#include "raytracer/environment/light_source.h"
 
 #ifdef LOGGING
 #include <glog/logging.h>

@@ -9,7 +9,7 @@
 #define __material_h__
 
 #include "raytracer/domain/RGB.h"
-#include "raytracer/domain/light_source.h"
+#include "raytracer/environment/light_source.h"
 
 class Material {
   public:
