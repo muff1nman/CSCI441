@@ -7,7 +7,11 @@ set(SRCS
 	screen.cpp
 )
 
+
 add_library(Domain ${SRCS})
+if(${LOGGING})
+	target_link_libraries(Domain glog)
+endif(${LOGGING})
 
 add_subdirectory(shapes)
 
