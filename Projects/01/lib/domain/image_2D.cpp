@@ -25,7 +25,7 @@ Image_2D::~Image_2D() {
 }
 
 const RGB& Image_2D::pixel( int index ) const {
-	return pixel(index);
+	return rgb[index];
 }
 
 RGB& Image_2D::pixel( int index ) {
