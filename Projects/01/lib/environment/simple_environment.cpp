@@ -51,14 +51,11 @@ Image_2D SimpleEnvironment::create_image() const {
 	// TODO cache screen?
 	ScreenIterator i = this->config.screen.begin();
 	ScreenIterator end =  this->config.screen.end();
-#ifdef LOGGING
-	LOG(INFO) << "Creating a blank image, start: " + i.to_string() + " and end: " + (--end).to_string();
-#endif
 	boost::optional<int> intersected_shape;
 	while( i != end ) {
 		intersected_shape = this->closest_intersection( *i );
 		if( intersected_shape ) {
-			img.set(i.get_x(), i.get_y(), RGB(252,23,234) );
+			img.set(i.get_x(), i.get_y(), RGB(0.52,0.23,0.234) );
 		}
 		++i;
 	}
