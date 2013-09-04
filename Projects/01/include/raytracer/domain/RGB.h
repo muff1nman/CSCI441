@@ -13,7 +13,7 @@
 class RGB : public Vector_3D {
 
 	public:
-		RGB(double r, double g, double b) : Vector_3D(r,g,b) { }
+		RGB(double r, double g, double b);
 		RGB() : Vector_3D(0,0,0) { }
 
 		static const int MAX_COLOR = 256;

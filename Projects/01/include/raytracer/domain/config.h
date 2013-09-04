@@ -22,7 +22,7 @@ struct Config {
 
 	Config(
 			const Screen& screen,
-			const RGB& light_source_color,
+			const Vector_3D& light_source_color,
 			double light_source_intensity,
 			double ambient_light_intensity,
 			int number_of_primitives) : 
@@ -34,7 +34,7 @@ struct Config {
 
 	Screen screen;
 
-	RGB light_source_color;
+	Vector_3D light_source_color;
 
 	double light_source_intensity;
 	double ambient_light_intensity;
