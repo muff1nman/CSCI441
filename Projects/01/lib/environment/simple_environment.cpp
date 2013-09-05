@@ -7,6 +7,10 @@
 
 #include "raytracer/environment/simple_environment.h"
 
+#ifdef PROGRESS
+#include <boost/progress.hpp>
+#endif
+
 SimpleEnvironment::~SimpleEnvironment() {
 
 	// deallocate each shape
@@ -45,17 +49,29 @@ boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray
 
 
 Image_2D SimpleEnvironment::create_image() const {
+	// General setup
 	Image_2D img(this->screen.blank_image());
 	// TODO cache screen?
 	ScreenIterator i = this->screen.begin();
 	ScreenIterator end =  this->screen.end();
 	boost::optional<const Shape*> intersected_shape;
+
+#ifdef PROGRESS
+	// boost progress
+	boost::progress_display prog( img.x_size() * img.y_size() );
+#endif
+
 	while( i != end ) {
 		intersected_shape = this->closest_intersection( *i );
+
 		if( intersected_shape ) {
 			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, i->direction() ));
 		}
+
 		++i;
+#ifdef PROGRESS
+		++prog;
+#endif
 	}
 	return img;
 }
