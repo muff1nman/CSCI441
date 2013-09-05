@@ -8,3 +8,5 @@
 #define nested_finish  "]"
 
 #define LOG_LEVEL 1
+
+#define PROGRESS
