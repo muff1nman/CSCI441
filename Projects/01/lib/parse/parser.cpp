@@ -100,11 +100,14 @@ SimpleEnvironment parse( const char* filename ) {
 					ifs >> k_ambient[0] >> k_ambient[1] >> k_ambient[2];
 					ifs >> k_specular >> n_specular;
 
+					RGB k_diff( k_diffuse[0], k_diffuse[1], k_diffuse[2] );
+					RGB k_am( k_ambient[0], k_ambient[1], k_ambient[2] );
+
 					Vector_3D center_v(
 							center[0],
 							center[1],
 							center[2]);
-					s = new Sphere(center_v, radius);
+					s = new Sphere(k_diff, k_am, k_specular, n_specular, center_v, radius);
 
 #ifdef LOGGING
 					LOG(INFO) << "Sphere: " << s->to_string();

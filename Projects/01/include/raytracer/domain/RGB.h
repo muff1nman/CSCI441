@@ -15,6 +15,7 @@ class RGB : public Vector_3D {
 	public:
 		RGB(double r, double g, double b);
 		RGB() : Vector_3D(0,0,0) { }
+		RGB(const Vector_3D& other) : Vector_3D(other) { }
 
 		static const int MAX_COLOR = 256;
 

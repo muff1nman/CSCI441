@@ -17,15 +17,13 @@
 class Sphere : public Shape {
 
 	public:
-		Sphere( const Vector_3D& center, double radius ) : center(center), radius(radius) { }
+		Sphere( const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular, const Vector_3D& center, double radius ) : Shape( k_diff, k_ambient, k_specular, n_specular ), center(center), radius(radius) { }
 
 		bool is_intersected( Ray r ) const;
 
 		boost::optional<double> intersected_at( Ray r ) const;
 
-		RGB illuminate(const LightSource& light, const Vector_3D view_direction) const {
-			return RGB( 0.75,0.75,0.75 );
-		}
+		RGB illuminate(const LightSource& light, const Vector_3D view_direction) const;
 
 #ifdef LOGGING
 		std::string to_string() const;
