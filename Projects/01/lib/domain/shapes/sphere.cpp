@@ -21,11 +21,6 @@ bool Sphere::is_intersected( Ray r ) const {
 	return intersected_at( r );
 }
 
-
-RGB Sphere::illuminate(const LightSource& light, const Vector_3D view_direction) const {
-	return this->k_diff;
-}
-
 boost::optional<double> Sphere::intersected_at( Ray r ) const {
 	boost::optional<double> t;
 	quadratic_numbers( r );

@@ -27,10 +27,10 @@ class Material {
 		}
 
 		Vector_3D light_vector_to_object( const LightSource& light, const Ray& view_ray, double t_of_intersect ) const {
-			return light.light_source_direction - view_ray.at(t_of_intersect);
+			return light.light_source_location - view_ray.at(t_of_intersect);
 		}
 
-		Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const = 0;
+		virtual Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const = 0;
 
 		bool in_shadow_at( const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
 			return light_vector_to_object( light, view_ray, t_of_intersect ) * normal_at(view_ray, t_of_intersect) < 0;
@@ -42,10 +42,9 @@ class Material {
     double k_specular;
     double n_specular;
 
-		// todo put in util?
-		Vector_3D halfway_vector( const Vector_3D& viewpoint, const Vector_3D& light_source) {
-			// TODO
-			return Vector_3D();
+		// TODO put in util?
+		Vector_3D halfway_vector( const Vector_3D& viewpoint, const Vector_3D& light_source) const {
+			return (viewpoint + light_source) * 0.5;
 		}
 
 		RGB illuminate_diffused(const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
@@ -54,7 +53,7 @@ class Material {
 		}
 
 		RGB illuminate_specular(const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
-			double same_rgb = k_specular * std::pow(halfway_vector( light_vector_to_object( light, view_ray, t_of_intersect ), view_ray.direction()), n_specular);
+			double same_rgb = k_specular * std::pow(halfway_vector( light_vector_to_object( light, view_ray, t_of_intersect ), view_ray.direction()) * normal_at(view_ray, t_of_intersect), n_specular);
 			same_rgb = same_rgb * light.light_source_intensity;
 			return RGB(same_rgb,same_rgb,same_rgb);
 		}
