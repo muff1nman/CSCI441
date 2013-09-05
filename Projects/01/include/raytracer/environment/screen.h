@@ -11,7 +11,7 @@
 #include "raytracer/config/config.h"
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/util/logging.h"
-#include "raytracer/domain/screen_iterator.h"
+#include "raytracer/environment/screen_iterator.h"
 #include "raytracer/domain/image_2D.h"
 
 class Screen : public Logging {

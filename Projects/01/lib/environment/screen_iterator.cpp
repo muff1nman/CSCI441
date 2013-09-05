@@ -5,8 +5,8 @@
  * All Rights Reserved.
  */
 
-#include "raytracer/domain/screen_iterator.h"
-#include "raytracer/domain/screen.h"
+#include "raytracer/environment/screen_iterator.h"
+#include "raytracer/environment/screen.h"
 
 ScreenIterator::ScreenIterator(const Screen* screen, int current_x, int current_y) : 
 	parent(screen), current_x( current_x ), current_y( current_y ), current(NULL) { 

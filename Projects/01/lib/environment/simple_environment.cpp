@@ -20,11 +20,10 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 }
 
 
-boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
-	boost::optional<int> index;
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
+	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
-	int current_index;
 	for( const Shape* const s : this->shapes ) {
 		tested_time = s->intersected_at( ray );
 		if( tested_time ) {
@@ -32,30 +31,29 @@ boost::optional<int> SimpleEnvironment::closest_intersection( const Ray& ray ) c
 				if ( *tested_time < *closest_intersected_time ) {
 					// found one closer
 					closest_intersected_time = tested_time;
-					index = current_index;
+					shape = s;
 				}
 			} else {
 				// First intersection we come acrost
 				closest_intersected_time = tested_time;
-				index = current_index;
+				shape = s;
 			}
 		}
-		++current_index;
 	}
-	return index;
+	return shape;
 }
 
 
 Image_2D SimpleEnvironment::create_image() const {
-	Image_2D img(this->config.screen.blank_image());
+	Image_2D img(this->screen.blank_image());
 	// TODO cache screen?
-	ScreenIterator i = this->config.screen.begin();
-	ScreenIterator end =  this->config.screen.end();
-	boost::optional<int> intersected_shape;
+	ScreenIterator i = this->screen.begin();
+	ScreenIterator end =  this->screen.end();
+	boost::optional<const Shape*> intersected_shape;
 	while( i != end ) {
 		intersected_shape = this->closest_intersection( *i );
 		if( intersected_shape ) {
-			img.set(i.get_x(), i.get_y(), RGB(0.52,0.23,0.234) );
+			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, i->direction() ));
 		}
 		++i;
 	}
@@ -67,7 +65,11 @@ std::string SimpleEnvironment::to_string() {
 	std::string info = "";
 	info += nested_start;
 	{
-		info += "config: " + this->config.to_string() + sep;
+		info += "primitives: " + boost::lexical_cast<std::string>(this->number_of_primitives) + list_sep;
+		info += "screen: " + this->screen.to_string() + list_sep;
+		info += "ambient_light_intensity: " + boost::lexical_cast<std::string>(this->light.ambient_intensity) + list_sep;
+		info += "light_source_intensity: " + boost::lexical_cast<std::string>(this->light.light_source_intensity) + list_sep;
+		info += std::string("light_source_location: ") + this->light.light_source_location.to_string() + list_sep;
 		info += std::string("shapes: ") + nested_start;
 		for( const Shape* const shape : this->shapes ) {
 			info += "shape: " + shape->to_string() + list_sep;

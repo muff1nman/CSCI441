@@ -5,7 +5,7 @@
  * All Rights Reserved.
  */
 
-#include "raytracer/domain/screen.h"
+#include "raytracer/environment/screen.h"
 
 
 Screen::Screen( 

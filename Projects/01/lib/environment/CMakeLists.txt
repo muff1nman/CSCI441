@@ -6,6 +6,8 @@ endif(${LOGGING})
 
 set(SRCS
 	simple_environment.cpp
+	screen_iterator.cpp
+	screen.cpp
 )
 
 add_library(Environment ${SRCS})
