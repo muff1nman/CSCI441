@@ -7,22 +7,12 @@
 
 #include "raytracer/domain/RGB.h"
 
+RGB::RGB(double r, double g, double b) : Vector_3D(r,g,b) { 
+	double max_expected_value = 1.0;
 #ifdef LOGGING
-#include <boost/lexical_cast.hpp>
-#endif
-
-#ifdef LOGGING
-	std::string RGB::to_string() {
-		std::string info = "";
-		info += nested_start;
-		{
-			info += "r: " + boost::lexical_cast<std::string>(this->r) + list_sep;
-			info += "g: " + boost::lexical_cast<std::string>(this->g) + list_sep;
-			info += "b: " + boost::lexical_cast<std::string>(this->b) + sep;
-		}
-		info += nested_finish;
-		return info;
+	if( r > max_expected_value || g > max_expected_value || b > max_expected_value ) {
+		LOG(WARNING) << "One or more RGB values are not in range! Values exceeding 1.0 will be capped at 1.0 (255)";
 	}
-#endif
+#endif 
 
-
+}

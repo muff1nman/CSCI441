@@ -8,22 +8,28 @@
 #ifndef __RGB_h__
 #define __RGB_h__
 
-#include "raytracer/config/config.h"
+#include "raytracer/domain/vector_3D.h"
 
-#ifdef LOGGING
-#include <string>
-#endif
+class RGB : public Vector_3D {
 
-struct RGB {
-	RGB( double r = 0.0, double g = 0.0, double b = 0.0 ) : r(r), g(g), b(b) { }
-	double r, g, b; 
+	public:
+		RGB(double r, double g, double b);
+		RGB() : Vector_3D(0,0,0) { }
+		RGB(const Vector_3D& other) : Vector_3D(other) { }
 
-#ifdef LOGGING
-	std::string to_string();
-#endif
+		static const int MAX_COLOR = 256;
+
+		double r() const { return x; }
+		double g() const { return y; }
+		double b() const { return z; }
+
+		// TODO possibly remove if the only thing that needs these functions are
+		// test drivers
+		void set_r(double r) { this->x = r; }
+		void set_g(double g) { this->y = g; }
+		void set_b(double b) { this->z = b; }
 
 };
-
 
 #endif /* !__RGB_h__ */
 

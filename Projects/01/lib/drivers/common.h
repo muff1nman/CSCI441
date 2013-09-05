@@ -26,7 +26,7 @@ bool check_params(int argc, char** argv) {
 void init_log() {
 #ifdef LOGGING
 	google::InitGoogleLogging("RayTracer");
-	FLAGS_minloglevel = 0;
+	FLAGS_minloglevel = LOG_LEVEL;
 	FLAGS_logtostderr = 1;
 	LOG(INFO) << "Logging enabled";
 #endif 

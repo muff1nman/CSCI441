@@ -21,6 +21,8 @@ class Image_2D {
 
 		const RGB& pixel( int index ) const;
 
+		RGB& pixel( int index );
+
 		int x_size() const { return m; }
 		int y_size() const { return n; }
 

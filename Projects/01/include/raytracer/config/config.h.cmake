@@ -6,3 +6,7 @@
 #define list_sep ", "
 #define nested_start "[ "
 #define nested_finish  "]"
+
+#define LOG_LEVEL 1
+
+#define PROGRESS

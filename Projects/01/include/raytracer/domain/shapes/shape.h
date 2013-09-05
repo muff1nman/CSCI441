@@ -9,9 +9,12 @@
 #define __shape_h__
 
 #include "raytracer/intersection/intersectee.h"
+#include "raytracer/domain/material.h"
 #include "raytracer/util/logging.h"
 
-class Shape : public Intersectee, public Logging {
+class Shape : public Intersectee, public Logging, public Material {
+	public:
+		Shape(const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular ) : Material(k_diff, k_ambient, k_specular, n_specular ) { }
 };
 
 #endif /* !__shape_h__ */

@@ -7,12 +7,11 @@
 
 #include "raytracer/config/config.h"
 #include "raytracer/parse/parser.h"
-#include "raytracer/domain/config.h"
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/domain/RGB.h"
 #include "raytracer/domain/shapes/shape.h"
 #include "raytracer/domain/shapes/sphere.h"
-#include "raytracer/domain/screen.h"
+#include "raytracer/environment/screen.h"
 
 #ifdef LOGGING
 #include <glog/logging.h>
@@ -67,10 +66,13 @@ SimpleEnvironment parse( const char* filename ) {
 			screen_horizontal_vector_vector, screen_vertical_vector_vector,
 			resolution_x, resolution_y );
 
-	RGB light_source_rgb(light_source[0], light_source[1], light_source[2]);
+	Vector_3D light_source_vector(light_source[0], light_source[1], light_source[2]);
+	LightSource light;
+	light.ambient_intensity = ambient_light_intensity;
+	light.light_source_intensity = light_intensity;
+	light.light_source_location = light_source_vector;
 
-	Config conf( s, light_source_rgb, light_intensity, ambient_light_intensity, number_of_primitives);
-	SimpleEnvironment env(conf);
+	SimpleEnvironment env(s, light, number_of_primitives);
 
 	for ( int i=0; i<number_of_primitives; i++ ) {
 		char primitive_type;
@@ -98,11 +100,14 @@ SimpleEnvironment parse( const char* filename ) {
 					ifs >> k_ambient[0] >> k_ambient[1] >> k_ambient[2];
 					ifs >> k_specular >> n_specular;
 
+					RGB k_diff( k_diffuse[0], k_diffuse[1], k_diffuse[2] );
+					RGB k_am( k_ambient[0], k_ambient[1], k_ambient[2] );
+
 					Vector_3D center_v(
 							center[0],
 							center[1],
 							center[2]);
-					s = new Sphere(center_v, radius);
+					s = new Sphere(k_diff, k_am, k_specular, n_specular, center_v, radius);
 
 #ifdef LOGGING
 					LOG(INFO) << "Sphere: " << s->to_string();
