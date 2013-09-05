@@ -13,7 +13,7 @@
 
 #include <cmath>
 
-class Material {
+class Material : public Logging {
   public:
 		Material(const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular ) : 
 			k_diff(k_diff), k_ambient(k_ambient), k_specular(k_specular), n_specular(n_specular) { }
@@ -36,6 +36,17 @@ class Material {
 			return light_vector_to_object( light, view_ray, t_of_intersect ) * normal_at(view_ray, t_of_intersect) < 0;
 		}
 
+#ifdef LOGGING
+		std::string stringify_object() const {
+			std::string info = "";
+			info += "k_diff: " + k_diff.to_string() + list_sep;
+			info += "k_ambient: " + k_ambient.to_string() + list_sep;
+			info += "k_specular: " + boost::lexical_cast<std::string>( k_specular ) + list_sep;
+			info += "n_specular: " + boost::lexical_cast<std::string>( n_specular ) + sep;
+			return info;
+		}
+#endif
+
 	protected:
     RGB k_diff;
     RGB k_ambient;
@@ -48,7 +59,7 @@ class Material {
 		}
 
 		RGB illuminate_diffused(const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
-			RGB dif = k_diff * ( normal_at(view_ray, t_of_intersect) * light_vector_to_object( light, view_ray, t_of_intersect ));
+			RGB dif = k_diff * ( normal_at(view_ray, t_of_intersect).normal() * light_vector_to_object( light, view_ray, t_of_intersect ).normal());
 			return dif * light.light_source_intensity;
 		}
 
