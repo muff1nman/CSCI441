@@ -11,6 +11,7 @@
 #include "raytracer/domain/RGB.h"
 #include "raytracer/domain/shapes/shape.h"
 #include "raytracer/domain/shapes/sphere.h"
+#include "raytracer/domain/shapes/triangle.h"
 #include "raytracer/environment/screen.h"
 
 #ifdef LOGGING
