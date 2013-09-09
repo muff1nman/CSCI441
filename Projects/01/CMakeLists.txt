@@ -22,7 +22,7 @@ endif(DEBUG)
 # profiling stuff
 if(CMAKE_COMPILER_IS_GNUCXX)
 	message(STATUS "enabling c++ 11")
-	add_definitions(-std=gnu++0x)
+	#add_definitions(-std=gnu++0x)
 	if(DEBUG)
 		message(STATUS "enabling gprof")
 		add_definitions(-Wall)
