@@ -12,7 +12,7 @@ make
 To build images for all input test data:
 
 ```
-make test
+make images
 ```
 
 To use the executable directly:
