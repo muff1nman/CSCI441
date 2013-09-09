@@ -6,7 +6,7 @@
  */
 
 #include "raytracer/domain/shapes/triangle.h"
-
+#include "Eigen/Dense"
 
 Triangle::Triangle( const RGB& k_diff, const RGB& k_ambient, double k_specular,
 		double n_specular, const Vector_3D& a, const Vector_3D& b, const Vector_3D&
