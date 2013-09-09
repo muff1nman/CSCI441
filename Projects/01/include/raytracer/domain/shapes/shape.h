@@ -15,6 +15,8 @@
 class Shape : public Intersectee, public Logging, public Material {
 	public:
 		Shape(const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular ) : Material(k_diff, k_ambient, k_specular, n_specular ) { }
+
+		virtual ~Shape() { }
 };
 
 #endif /* !__shape_h__ */
