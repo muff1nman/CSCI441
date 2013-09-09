@@ -46,7 +46,8 @@ add_subdirectory( lib )
 
 # Add custom target for transforming all the files
 set( INPUT_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/instructions_and_provided_resources/testdata )
-set( INPUT_FILES test1.txt )
+file(GLOB INPUT_FILES ${INPUT_FILE_DIR}/test*.txt )
+#set( INPUT_FILES test1.txt )
 set( OUTPUT_IMAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/images )
 
 add_custom_target(images)
@@ -57,13 +58,14 @@ add_custom_command(
 	PRE_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_IMAGE_DIR})
 
-foreach(_file ${INPUT_FILES} )
+foreach(_d_file ${INPUT_FILES} )
+	get_filename_component(_file ${_d_file} NAME)
 	string(REGEX REPLACE "\\.txt" ".ppm" _image ${_file})
 	message(STATUS "hi from: " ${INPUT_FILE_DIR}/${_file} " and into ${OUTPUT_IMAGE_DIR}/${_image}")
 	add_custom_command(
 		TARGET images
 		POST_BUILD
-		COMMAND $<TARGET_FILE:Simple> ${INPUT_FILE_DIR}/${_file})
+		COMMAND $<TARGET_FILE:Simple> ${INPUT_FILE_DIR}/${_file} ${OUTPUT_IMAGE_DIR}/${_image})
 
 endforeach()
 
