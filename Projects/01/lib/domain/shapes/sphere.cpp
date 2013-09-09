@@ -10,7 +10,7 @@
 #include "raytracer/util/negative.h"
 
 std::vector<double> Sphere::quadratic_numbers( Ray r ) const {
-	std::vector<double> a_b_c;
+	std::vector<double> a_b_c(3);
 	a_b_c.push_back(r.direction() * r.direction());
 	a_b_c.push_back(2.0 * (r.origin() - this->center) * r.direction());
 	a_b_c.push_back((r.origin() - this->center) * (r.origin() - this->center) - this->radius * this->radius);

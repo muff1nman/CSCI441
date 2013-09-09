@@ -15,6 +15,12 @@ option(LOGGING "Turn loggin on or off" ON)
 if(CMAKE_COMPILER_IS_GNUCXX)
 	message(STATUS "enabling c++ 11")
 	add_definitions(-std=gnu++0x)
+	# TODO turn on only on debug
+	if(DEBUG)
+		message(STATUS "enabling gprof")
+		add_definitions(-pg)
+		set( CMAKE_EXE_LINKER_FLAGS -pg )
+	endif(DEBUG)
 endif()
 
 configure_file( 
