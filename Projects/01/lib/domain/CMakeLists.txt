@@ -3,6 +3,7 @@ set(SRCS
 	RGB.cpp
 	vector_3D.cpp
 	ray.cpp
+	material.cpp
 )
 
 
