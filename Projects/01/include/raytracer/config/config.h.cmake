@@ -7,7 +7,7 @@
 #define nested_start "[ "
 #define nested_finish  "]"
 
-#define LOG_LEVEL 0
+#define LOG_LEVEL @LOG_LEVEL@
 
 #define PROGRESS
 
