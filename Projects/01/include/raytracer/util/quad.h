@@ -33,8 +33,8 @@ double discriminate( double A, double B, double C ) {
  *
  * Also, ensures that the roots are in ascending order
  */
-std::vector<double> quadratic_roots( double A, double B, double C ) {
-	std::vector<double> roots(2);
+void quadratic_roots( double A, double B, double C, std::vector<double>& roots ) {
+	roots.clear();
 	double dis = discriminate( A, B, C );
 	if ( dis < 0.0 ) {
 		// noop
@@ -51,8 +51,6 @@ std::vector<double> quadratic_roots( double A, double B, double C ) {
 	} else {
 		roots.push_back( -B / (2.0 * A) );
 	}
-
-	return roots;
 }
 
 #endif /* !__quad_h__ */

@@ -47,7 +47,11 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	SimpleEnvironment test = parse(input_file_name(argc, argv).c_str());
+	string input_file = input_file_name(argc, argv);
+
+	cout << "Processing " << input_file << endl;
+
+	SimpleEnvironment test = parse(input_file.c_str());
 
 	Image_2D img = test.create_image();
 

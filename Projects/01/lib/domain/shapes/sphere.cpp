@@ -9,13 +9,12 @@
 #include "raytracer/util/quad.h"
 #include "raytracer/util/negative.h"
 
-std::vector<double> Sphere::quadratic_numbers( Ray r ) const {
-	std::vector<double> a_b_c(3);
-	a_b_c.push_back(r.direction() * r.direction());
-	a_b_c.push_back(2.0 * (r.origin() - this->center) * r.direction());
+void Sphere::quadratic_numbers( Ray r ) const {
+	this->quadratic_roots_save->clear();
+	quadratic_roots_save->push_back(r.direction() * r.direction());
+	quadratic_roots_save->push_back(2.0 * (r.origin() - this->center) * r.direction());
 	Vector_3D to_b_squared = r.origin() - this->center;
-	a_b_c.push_back((to_b_squared * to_b_squared) - this->radius * this->radius);
-	return a_b_c;
+	quadratic_roots_save->push_back((to_b_squared * to_b_squared) - this->radius * this->radius);
 }
 
 bool Sphere::is_intersected( Ray r ) const {
@@ -29,13 +28,13 @@ RGB Sphere::illuminate(const LightSource& light, const Vector_3D view_direction)
 
 boost::optional<double> Sphere::intersected_at( Ray r ) const {
 	boost::optional<double> t;
-	std::vector<double> q_inputs = quadratic_numbers( r );
-	double dis = discriminate( q_inputs[0], q_inputs[1], q_inputs[2] );
+	quadratic_numbers( r );
+	double dis = discriminate( quadratic_roots_save->at(0), quadratic_roots_save->at(1), quadratic_roots_save->at(2) );
 	if (dis < 0 ) {
 		return t;
 	} else {
-		std::vector<double> roots = quadratic_roots( q_inputs[0], q_inputs[1], q_inputs[2] );
-		t = first_nonnegative<double>(roots);
+		quadratic_roots( quadratic_roots_save->at(0), quadratic_roots_save->at(1), quadratic_roots_save->at(2), *quadratic_roots_save );
+		t = first_nonnegative<double>(*quadratic_roots_save);
 		return t;
 	}
 }
