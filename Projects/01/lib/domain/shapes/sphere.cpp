@@ -21,11 +21,6 @@ bool Sphere::is_intersected( Ray r ) const {
 	return intersected_at( r );
 }
 
-
-RGB Sphere::illuminate(const LightSource& light, const Vector_3D view_direction) const {
-	return this->k_diff;
-}
-
 boost::optional<double> Sphere::intersected_at( Ray r ) const {
 	boost::optional<double> t;
 	quadratic_numbers( r );
@@ -40,14 +35,10 @@ boost::optional<double> Sphere::intersected_at( Ray r ) const {
 }
 
 #ifdef LOGGING
-std::string Sphere::to_string() const {
-	std::string info = "";
-	info += nested_start;
-	{
-		info += "radius: " + boost::lexical_cast<std::string>(radius) + list_sep;
-		info += "center: " + this->center.to_string() + sep;
-	}
-	info += nested_finish;
+std::string Sphere::stringify_object() const {
+	std::string info = Material::stringify_object() + list_sep;
+	info += "radius: " + boost::lexical_cast<std::string>(radius) + list_sep;
+	info += "center: " + this->center.to_string() + sep;
 	return info;
 }
 #endif

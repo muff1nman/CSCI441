@@ -74,6 +74,10 @@ SimpleEnvironment parse( const char* filename ) {
 
 	SimpleEnvironment env(s, light, number_of_primitives);
 
+#ifdef LOGGING
+	env.log_state();
+#endif
+
 	for ( int i=0; i<number_of_primitives; i++ ) {
 		char primitive_type;
 		ifs >> primitive_type;

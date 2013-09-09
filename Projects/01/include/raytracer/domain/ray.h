@@ -25,6 +25,8 @@ class Ray : public Logging {
 
 		Vector_3D origin() const { return start; }
 
+		Vector_3D at(double some_time) const;
+
 #ifdef LOGGING
 		std::string to_string() const {
 			std::string info(nested_start);

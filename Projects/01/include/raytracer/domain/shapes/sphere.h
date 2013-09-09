@@ -33,10 +33,12 @@ class Sphere : public Shape {
 
 		boost::optional<double> intersected_at( Ray r ) const;
 
-		RGB illuminate(const LightSource& light, const Vector_3D view_direction) const;
+		Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const {
+			return (view_ray.at(t_of_intersect) - this->center).normal();
+		}
 
 #ifdef LOGGING
-		std::string to_string() const;
+		std::string stringify_object() const;
 #endif
 
 	protected:
