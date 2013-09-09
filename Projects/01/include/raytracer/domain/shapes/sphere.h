@@ -14,6 +14,8 @@
 #include "raytracer/domain/shapes/shape.h"
 #include "raytracer/domain/ray.h"
 
+#include <vector>
+
 class Sphere : public Shape {
 
 	public:
