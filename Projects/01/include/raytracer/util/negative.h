@@ -15,11 +15,12 @@
 /**
  * Returns the first non-negative result
  *
- * TODO not ensure ordered?
+ * Assumes the list has already been ordered
+ *
  */
+
 template <class T>
 boost::optional<T> first_nonnegative( std::vector<T> list ) {
-	std::sort(list.begin(), list.end());
 	boost::optional<T> the_item;
 	for( const T& item : list ) {
 		if( item > 0 ) {

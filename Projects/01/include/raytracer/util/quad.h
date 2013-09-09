@@ -30,6 +30,8 @@ double discriminate( double A, double B, double C ) {
  * The vector will hold one solution when the discrimiate is zero
  *
  * The vector will hold two solutions when the discrimate is greater than zero
+ *
+ * Also, ensures that the roots are in ascending order
  */
 std::vector<double> quadratic_roots( double A, double B, double C ) {
 	std::vector<double> roots(2);
@@ -37,8 +39,15 @@ std::vector<double> quadratic_roots( double A, double B, double C ) {
 	if ( dis < 0.0 ) {
 		// noop
 	} else if ( dis > 0.0 ) {
-		roots.push_back( ( -B - sqrt( dis ) ) / ( 2.0 * A ));
-		roots.push_back( ( -B + sqrt( dis ) ) / ( 2.0 * A ));
+		double first_value = ( -B - sqrt( dis ) ) / ( 2.0 * A );
+		double second_value = ( -B + sqrt( dis ) ) / ( 2.0 * A );
+		if (first_value > second_value) {
+			roots.push_back( second_value );
+			roots.push_back( first_value );
+		} else {
+			roots.push_back( first_value );
+			roots.push_back( second_value );
+		}
 	} else {
 		roots.push_back( -B / (2.0 * A) );
 	}
