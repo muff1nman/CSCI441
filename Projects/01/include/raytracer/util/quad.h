@@ -17,7 +17,7 @@
  * 0 = Ax^2 + Bx + C
  */
 double discriminate( double A, double B, double C ) {
-	return B * B - 4.0 * A * C;
+	return std::pow(B,2) - 4.0 * A * C;
 }
 
 /**
@@ -32,7 +32,7 @@ double discriminate( double A, double B, double C ) {
  * The vector will hold two solutions when the discrimate is greater than zero
  */
 std::vector<double> quadratic_roots( double A, double B, double C ) {
-	std::vector<double> roots;
+	std::vector<double> roots(2);
 	double dis = discriminate( A, B, C );
 	if ( dis < 0.0 ) {
 		// noop

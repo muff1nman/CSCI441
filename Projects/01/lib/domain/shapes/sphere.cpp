@@ -13,7 +13,8 @@ std::vector<double> Sphere::quadratic_numbers( Ray r ) const {
 	std::vector<double> a_b_c(3);
 	a_b_c.push_back(r.direction() * r.direction());
 	a_b_c.push_back(2.0 * (r.origin() - this->center) * r.direction());
-	a_b_c.push_back((r.origin() - this->center) * (r.origin() - this->center) - this->radius * this->radius);
+	Vector_3D to_b_squared = r.origin() - this->center;
+	a_b_c.push_back((to_b_squared * to_b_squared) - this->radius * this->radius);
 	return a_b_c;
 }
 
