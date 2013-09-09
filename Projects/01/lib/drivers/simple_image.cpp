@@ -41,7 +41,9 @@ int main(int argc, char** argv) {
 	init();
 
 	if( !check_params(argc, argv) ) {
+#ifdef LOGGING
 		LOG(FATAL) << "Invalid arguments";
+#endif
 		exit(1);
 	}
 

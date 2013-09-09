@@ -39,7 +39,9 @@ std::string output_file_name(int argc, char** argv) {
 #endif
 	} else {
 		file_name = std::string(argv[2]);
+#ifdef LOGGING
 		LOG(INFO) << "OUTPUT file name is: " << file_name;
+#endif
 	}
 	return file_name;
 }
