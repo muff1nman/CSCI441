@@ -13,6 +13,7 @@
 #include "raytracer/domain/vector_3D.h"
 #include "raytracer/domain/shapes/shape.h"
 #include "raytracer/domain/ray.h"
+#include "Eigen/Dense"
 
 #include <vector>
 
@@ -22,11 +23,12 @@ class Triangle : public Shape {
 		Triangle( const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular, const Vector_3D& a, const Vector_3D& b, const Vector_3D& c );
 		~Triangle() { }
 
-		bool is_intersected( Ray r ) const;
+		bool is_intersected( Ray r );
 
-		boost::optional<double> intersected_at( Ray r ) const;
+		// TODO these rays should be passed by reference
+		boost::optional<double> intersected_at( Ray r ) ;
 
-		Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const;
+		Vector_3D normal_at(const Ray& view_ray, double t_of_intersect);
 
 #ifdef LOGGING
 		std::string stringify_object() const;
@@ -35,6 +37,12 @@ class Triangle : public Shape {
 	protected:
 		std::vector<Vector_3D> vertices;
 
+	private:
+		Eigen::Matrix<double, 4, 4> A_cache, A_cache_I;
+		Eigen::Matrix<double, 4, 1> B_cache, solution;
+		Vector_3D normal_vector;
+		void push_vectors_into_matrix();
+		void push_constants_into_matrix();
 
 };
 
