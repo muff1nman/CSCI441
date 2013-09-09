@@ -8,7 +8,7 @@
 #ifndef __common_h__
 #define __common_h__
 
-#ifndef LOGGING
+#ifdef LOGGING
 #include <iostream>
 #include <glog/logging.h>
 #endif 
