@@ -25,6 +25,7 @@ class Logging {
 		//std::string to_string() { return "instance of " + std::string(typeid(this).name()); }
 		virtual std::string to_string() const { return "Unknown"; }
 #endif
+	protected:
 		virtual ~Logging() { }
 
 };
