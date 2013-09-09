@@ -41,13 +41,14 @@ int main(int argc, char** argv) {
 	init();
 
 	if( !check_params(argc, argv) ) {
+		LOG(FATAL) << "Invalid arguments";
 		exit(1);
 	}
 
-	SimpleEnvironment test = parse(argv[1]);
+	SimpleEnvironment test = parse(input_file_name(argc, argv).c_str());
 
 	Image_2D img = test.create_image();
 
-	save_to_ppm_file(img, "simple.ppm");
+	save_to_ppm_file(img, output_file_name(argc, argv).c_str());
 
 }

@@ -10,17 +10,38 @@
 
 #ifndef LOGGING
 #include <iostream>
-#endif
-
-#ifdef LOGGING
 #include <glog/logging.h>
 #endif 
 
+#include <string>
+
 bool check_params(int argc, char** argv) {
-	if( argc != 2 ) {
+	if( argc < 2 || argc > 3) {
 		return false;
 	}
 	return true;
+}
+
+std::string input_file_name(int argc, char** argv) {
+	if( argc < 2 ) {
+#ifdef LOGGING
+		LOG(FATAL) << "Please provide an input file as the first parameter";
+#endif
+	}
+	return std::string(argv[1]);
+}
+
+std::string output_file_name(int argc, char** argv) {
+	std::string file_name(DEFAULT_OUTPUT_FILE);
+	if( argc < 3 ) {
+#ifdef LOGGING
+		LOG(INFO) << "Using default output file name [" << file_name <<  "]";
+#endif
+	} else {
+		file_name = std::string(argv[2]);
+		LOG(INFO) << "OUTPUT file name is: " << file_name;
+	}
+	return file_name;
 }
 
 void init_log() {

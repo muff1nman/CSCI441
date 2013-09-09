@@ -7,6 +7,8 @@
 #define nested_start "[ "
 #define nested_finish  "]"
 
-#define LOG_LEVEL 1
+#define LOG_LEVEL 0
 
 #define PROGRESS
+
+#define DEFAULT_OUTPUT_FILE "output.ppm"
