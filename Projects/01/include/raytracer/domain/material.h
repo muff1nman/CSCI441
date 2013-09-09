@@ -64,7 +64,8 @@ class Material : public Logging {
 		}
 
 		RGB illuminate_specular(const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
-			double same_rgb = k_specular * std::pow(halfway_vector( light_vector_to_object( light, view_ray, t_of_intersect ), view_ray.direction()) * normal_at(view_ray, t_of_intersect), n_specular);
+			double base = halfway_vector( light_vector_to_object( light, view_ray, t_of_intersect ), view_ray.direction()).normal() * normal_at(view_ray, t_of_intersect);
+			double same_rgb = k_specular * std::pow(base, n_specular);
 			same_rgb = same_rgb * light.light_source_intensity;
 			return RGB(same_rgb,same_rgb,same_rgb);
 		}

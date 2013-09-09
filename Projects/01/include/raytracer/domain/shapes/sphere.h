@@ -34,7 +34,7 @@ class Sphere : public Shape {
 		boost::optional<double> intersected_at( Ray r ) const;
 
 		Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const {
-			return view_ray.at(t_of_intersect) - this->center;
+			return (view_ray.at(t_of_intersect) - this->center).normal();
 		}
 
 #ifdef LOGGING
