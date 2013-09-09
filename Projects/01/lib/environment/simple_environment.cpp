@@ -16,8 +16,8 @@
 SimpleEnvironment::~SimpleEnvironment() {
 
 	// deallocate each shape
-	for( Shape* ptr : this->shapes ) {
-		delete ptr;
+	for( int i = 0; i < this->shapes.size(); ++i ) {
+		delete this->shapes.at(i);
 	}
 }
 
@@ -33,7 +33,8 @@ boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray
 	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
-	for( const Shape* const s : this->shapes ) {
+	for( int i = 0; i < this->shapes.size(); ++i ) {
+		const Shape* const s = this->shapes.at(i);
 		// TODO repeat call
 		// TODO possible issue if the A term for the ray (Ax + c) is not normalized
 		// we may not be able to compare times coming from this value?

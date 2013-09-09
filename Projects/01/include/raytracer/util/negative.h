@@ -22,7 +22,8 @@
 template <class T>
 boost::optional<T> first_nonnegative( const std::vector<T>& list ) {
 	boost::optional<T> the_item;
-	for( const T& item : list ) {
+	for( int i = 0; i < list.size(); ++i ) {
+		const T& item = list.at(i);
 		if( item > 0 ) {
 			the_item = item;
 			break;
