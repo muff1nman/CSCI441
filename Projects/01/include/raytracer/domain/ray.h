@@ -19,6 +19,7 @@ class Ray : public Logging {
 			this->_direction = (end - this->start).normal();
 		}
 
+		// TODO wtf 
 		const Vector_3D& get_start() const { return start; }
 
 		Vector_3D direction() const { return _direction; }
