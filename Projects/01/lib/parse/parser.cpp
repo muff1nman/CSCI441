@@ -11,6 +11,7 @@
 #include "raytracer/domain/RGB.h"
 #include "raytracer/domain/shapes/shape.h"
 #include "raytracer/domain/shapes/sphere.h"
+#include "raytracer/domain/shapes/triangle.h"
 #include "raytracer/environment/screen.h"
 
 #ifdef LOGGING
@@ -141,10 +142,18 @@ SimpleEnvironment parse( const char* filename ) {
 					ifs >> k_ambient[0] >> k_ambient[1] >> k_ambient[2];
 					ifs >> k_specular >> n_specular; 	    
 
+					RGB k_diff( k_diffuse[0], k_diffuse[1], k_diffuse[2] );
+					RGB k_am( k_ambient[0], k_ambient[1], k_ambient[2] );
+					Vector_3D a(a1[0], a1[1], a1[2]);
+					Vector_3D b(a2[0], a2[1], a2[2]);
+					Vector_3D c(a3[0], a3[1], a3[2]);
+
+					s = new Triangle(k_diff, k_am, k_specular, n_specular, a, b, c);
+
 #ifdef LOGGING
-					LOG(ERROR) << "Triangle not supported yet";
+					LOG(INFO) << "Triangle: " << s->to_string();
 #endif
-					assert(0);
+
 				}
 				break;
 			default:
