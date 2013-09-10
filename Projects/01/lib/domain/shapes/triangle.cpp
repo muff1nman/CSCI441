@@ -57,6 +57,7 @@ boost::optional<double> valid_solution( const Eigen::Matrix<double, 4, 1>& sol )
 #ifdef DEBUG
 #ifdef LOGGING
 	LOG(INFO) << "is valid solution?";
+	LOG(INFO) << sol;
 #endif
 #endif
 	// TODO better impl?
@@ -66,6 +67,12 @@ boost::optional<double> valid_solution( const Eigen::Matrix<double, 4, 1>& sol )
 			sol(2,0) > 0 && 
 			sol(3,0) > 0
 			) {
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "solution is valid";
+#endif
+#endif
+
 		some_time = sol(3,0);
 	}
 	return some_time;
@@ -81,9 +88,9 @@ boost::optional<double> Triangle::intersected_at( Ray r ) {
 
 	// copy in direction vector
 	Vector_3D d = r.direction();
-	this->A_cache(0,3) = d.get_x();
-	this->A_cache(1,3) = d.get_y();
-	this->A_cache(2,3) = d.get_z();
+	this->A_cache(0,3) = -d.get_x();
+	this->A_cache(1,3) = -d.get_y();
+	this->A_cache(2,3) = -d.get_z();
 #ifdef DEBUG
 #ifdef LOGGING
 	LOG(INFO) << "set a as: " << A_cache;
@@ -92,6 +99,12 @@ boost::optional<double> Triangle::intersected_at( Ray r ) {
 
 
 	Vector_3D o = r.origin();
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "origin is: " << r.origin().to_string();
+#endif
+#endif
+
 	this->B_cache(0,0) = o.get_x();
 	this->B_cache(1,0) = o.get_y();
 	this->B_cache(2,0) = o.get_z();
