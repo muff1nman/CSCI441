@@ -15,12 +15,15 @@ class Image_2D {
 	public:
 		Image_2D( int m, int n );
 
+		// TODO deprecate
 		RGB& pixel( int i, int j ) const;
 
+		// TODO sync
 		void set(int i, int j, const RGB& rgb);
 
 		const RGB& pixel( int index ) const;
 
+		// TODO deprecate
 		RGB& pixel( int index );
 
 		int x_size() const { return m; }

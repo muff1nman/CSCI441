@@ -29,6 +29,8 @@
 #include "raytracer/output/image_output.h"
 #include "common.h"
 
+#include <boost/thread.hpp>
+
 #include <vector>
 #include <iostream>
 

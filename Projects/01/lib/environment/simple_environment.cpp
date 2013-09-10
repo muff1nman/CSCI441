@@ -23,12 +23,11 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 	this->shapes.push_back( shape );
 }
 
-
-boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
+boost::optional<const Shape*> closest_intersection_internal( const Ray& ray, const std::vector<Shape*>& shapes ) {
 	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
-	for( const Shape* const s : this->shapes ) {
+	for( const Shape* const s : shapes ) {
 		tested_time = s->intersected_at( ray );
 		if( tested_time ) {
 			if ( closest_intersected_time ) {
@@ -45,6 +44,35 @@ boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray
 		}
 	}
 	return shape;
+
+}
+
+
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
+	return closest_intersection_internal( ray, this->shapes );
+}
+
+void create_image_interal(Image_2D* img, const std::vector<Shape*>& shapes, ScreenIterator start, ScreenIterator end, const LightSource& light, boost::progress_display* prog = NULL) {
+	boost::optional<const Shape*> intersected_shape;
+
+	while( start != end ) {
+
+		intersected_shape = closest_intersection_internal(*start, shapes);
+
+		if( intersected_shape ) {
+			// TODO repeat call to intersected at
+			img->set(start.get_x(), start.get_y(), (*intersected_shape)->illuminate(light, *start, *((*intersected_shape)->intersected_at(*start)) ));
+		}
+
+		++start;
+#ifdef PROGRESS
+		if(prog != NULL) {
+			++(*prog);
+		}
+#endif
+	}
+
+
 }
 
 
@@ -53,27 +81,16 @@ Image_2D SimpleEnvironment::create_image() const {
 	Image_2D img(this->screen.blank_image());
 	// TODO cache screen?
 	ScreenIterator i = this->screen.begin();
-	ScreenIterator end =  this->screen.end();
-	boost::optional<const Shape*> intersected_shape;
+	ScreenIterator end = this->screen.end();
 
 #ifdef PROGRESS
 	// boost progress
 	boost::progress_display prog( img.x_size() * img.y_size() );
 #endif
 
-	while( i != end ) {
-		intersected_shape = this->closest_intersection( *i );
+	// TODO split threads here
+	create_image_interal(&img, this->shapes, i, end, this->light, &prog);
 
-		if( intersected_shape ) {
-			// TODO repeat call to intersected at
-			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, *i, *((*intersected_shape)->intersected_at(*i)) ));
-		}
-
-		++i;
-#ifdef PROGRESS
-		++prog;
-#endif
-	}
 	return img;
 }
 

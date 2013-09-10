@@ -53,6 +53,10 @@ Triangle::Triangle( const RGB& k_diff, const RGB& k_ambient, double k_specular,
 
 }
 
+Shape* Triangle::clone() const {
+	return new Triangle( k_diff, k_ambient, k_specular, n_specular, vertices.at(0), vertices.at(1), vertices.at(2) );
+}
+
 Triangle::~Triangle() {
 	delete A_cache;
 	delete A_cache_I;

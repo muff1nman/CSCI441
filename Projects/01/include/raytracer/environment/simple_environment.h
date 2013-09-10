@@ -14,6 +14,10 @@
 #include "raytracer/environment/screen.h"
 #include "raytracer/environment/light_source.h"
 
+#ifdef THREADS
+#include "raytracer/util/worker.h"
+#endif
+
 #ifdef LOGGING
 #include <glog/logging.h>
 #include <string>
@@ -36,6 +40,7 @@ class SimpleEnvironment : public Environment {
 		~SimpleEnvironment();
 
 		void add_shape(Shape* shape);
+
 
 		/**
 		 * Returns a pointer to the closest shape that is intersected by the given ray
@@ -60,6 +65,10 @@ class SimpleEnvironment : public Environment {
 		LightSource light;
 		int number_of_primitives;
 		std::vector<Shape*> shapes;
+
+#ifdef THREADS
+		Worker create_worker() const;
+#endif
 
 #ifdef LOGGING
 		std::string to_string();

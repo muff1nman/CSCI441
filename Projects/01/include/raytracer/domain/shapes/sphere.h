@@ -29,6 +29,8 @@ class Sphere : public Shape {
 			delete this->quadractic_numbers_save;
 		}
 
+		Shape* clone() const;
+
 		bool is_intersected( Ray r ) const;
 
 		boost::optional<double> intersected_at( Ray r ) const;

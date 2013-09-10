@@ -20,6 +20,9 @@ void Sphere::quadratic_numbers( Ray r ) const {
 bool Sphere::is_intersected( Ray r ) const {
 	return intersected_at( r );
 }
+Shape* Sphere::clone() const {
+	return new Sphere( k_diff, k_ambient, k_specular, n_specular, center, radius );
+}
 
 boost::optional<double> Sphere::intersected_at( Ray r ) const {
 	boost::optional<double> t;
