@@ -9,15 +9,15 @@
 
 void Triangle::push_vectors_into_matrix() {
 	for( unsigned int i = 0; i < this->vertices.size(); ++i ) {
-		this->A_cache(i,0) = this->vertices.at(i).get_x();
-		this->A_cache(i,1) = this->vertices.at(i).get_y();
-		this->A_cache(i,2) = this->vertices.at(i).get_z();
+		this->A_cache(0,i) = this->vertices.at(i).get_x();
+		this->A_cache(1,i) = this->vertices.at(i).get_y();
+		this->A_cache(2,i) = this->vertices.at(i).get_z();
 	}
 }
 
 void Triangle::push_constants_into_matrix() {
 	for( unsigned int i = 0; i < 3; ++i ) {
-		this->A_cache(i,3) = 1.0;
+		this->A_cache(3,i) = 1.0;
 	}
 	this->A_cache(3,3) = 0.0;
 }
@@ -54,37 +54,63 @@ bool Triangle::is_intersected( Ray r ) {
 
 boost::optional<double> valid_solution( const Eigen::Matrix<double, 4, 1>& sol ) {
 	boost::optional<double> some_time;
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "is valid solution?";
+#endif
+#endif
 	// TODO better impl?
 	if ( 
-			sol(0,1) > 0 && 
-			sol(0,2) > 0 && 
-			sol(0,3) > 0 && 
-			sol(0,4) > 0
+			sol(0,0) > 0 && 
+			sol(1,0) > 0 && 
+			sol(2,0) > 0 && 
+			sol(3,0) > 0
 			) {
-		some_time = sol(0,3);
+		some_time = sol(3,0);
 	}
 	return some_time;
 }
 
 boost::optional<double> Triangle::intersected_at( Ray r ) {
 	boost::optional<double> some_time;
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "finding intersection";
+#endif
+#endif
 
 	// copy in direction vector
 	Vector_3D d = r.direction();
-	this->A_cache(3,0) = d.get_x();
-	this->A_cache(3,1) = d.get_y();
-	this->A_cache(3,2) = d.get_z();
+	this->A_cache(0,3) = d.get_x();
+	this->A_cache(1,3) = d.get_y();
+	this->A_cache(2,3) = d.get_z();
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "set a as: " << A_cache;
+#endif
+#endif
+
 
 	Vector_3D o = r.origin();
 	this->B_cache(0,0) = o.get_x();
-	this->B_cache(0,1) = o.get_y();
-	this->B_cache(0,2) = o.get_z();
-	this->B_cache(0,3) = 1.0; // TODO eliminate repeated
+	this->B_cache(1,0) = o.get_y();
+	this->B_cache(2,0) = o.get_z();
+	this->B_cache(3,0) = 1.0; // TODO eliminate repeated
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "set b as: " << B_cache;
+#endif
+#endif
 
 	bool invertible;
 
 	A_cache.computeInverseWithCheck(A_cache_I, invertible);
 
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "computed inverse";
+#endif
+#endif
 	if( invertible ) {
 		solution = A_cache_I * B_cache;
 		some_time = valid_solution(solution);
@@ -94,6 +120,11 @@ boost::optional<double> Triangle::intersected_at( Ray r ) {
 }
 
 Vector_3D Triangle::normal_at(const Ray& view_ray, double t_of_intersect) {
+#ifdef DEBUG
+#ifdef LOGGING
+	LOG(INFO) << "computing normal";
+#endif
+#endif
 	if( this->normal_vector * view_ray.direction() > 0 ) {
 		return this->normal_vector;
 	} else {
