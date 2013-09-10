@@ -60,6 +60,15 @@ ScreenIterator& ScreenIterator::operator++() {
 	return *this;
 }
 
+ScreenIterator ScreenIterator::operator+(int num) {
+	ScreenIterator other(*this);
+	while( num > 0 ) {
+		++other;
+		--num;
+	}
+	return other;
+}
+
 ScreenIterator ScreenIterator::operator++(int) {
 	ScreenIterator other(*this);
 	operator++();

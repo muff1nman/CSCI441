@@ -7,9 +7,6 @@
 
 #include "raytracer/environment/simple_environment.h"
 
-#ifdef PROGRESS
-#include <boost/progress.hpp>
-#endif
 
 SimpleEnvironment::~SimpleEnvironment() {
 
@@ -23,11 +20,14 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 	this->shapes.push_back( shape );
 }
 
-boost::optional<const Shape*> closest_intersection_internal( const Ray& ray, const std::vector<Shape*>& shapes ) {
+static boost::optional<const Shape*> closest_intersection_internal( const Ray& ray, const std::vector<Shape*>& shapes ) {
 	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
-	for( const Shape* const s : shapes ) {
+	for( Shape* s : shapes ) {
+#ifdef LOGGING
+		LOG(INFO) << "Iterating through shapes";
+#endif
 		tested_time = s->intersected_at( ray );
 		if( tested_time ) {
 			if ( closest_intersected_time ) {
@@ -52,7 +52,7 @@ boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray
 	return closest_intersection_internal( ray, this->shapes );
 }
 
-void create_image_interal(Image_2D* img, const std::vector<Shape*>& shapes, ScreenIterator start, ScreenIterator end, const LightSource& light, boost::progress_display* prog = NULL) {
+void SimpleEnvironment::create_image_interal(Image_2D* img, const std::vector<Shape*>& shapes, ScreenIterator start, ScreenIterator end, const LightSource& light, boost::progress_display* prog ) {
 	boost::optional<const Shape*> intersected_shape;
 
 	while( start != end ) {
@@ -80,16 +80,32 @@ Image_2D SimpleEnvironment::create_image() const {
 	// General setup
 	Image_2D img(this->screen.blank_image());
 	// TODO cache screen?
-	ScreenIterator i = this->screen.begin();
+	ScreenIterator start = this->screen.begin();
 	ScreenIterator end = this->screen.end();
+
+	int total_work = img.x_size() * img.y_size();
 
 #ifdef PROGRESS
 	// boost progress
-	boost::progress_display prog( img.x_size() * img.y_size() );
+	boost::progress_display prog( total_work );
 #endif
 
-	// TODO split threads here
-	create_image_interal(&img, this->shapes, i, end, this->light, &prog);
+#ifdef THREADS
+	boost::thread_group workers;
+
+	// start a bunch of threads
+	for( unsigned int i = 0; i < NUM_THREADS; ++i ) {
+		unsigned int part = (total_work*i+total_work)/NUM_THREADS - (total_work*i)/NUM_THREADS;
+		end = start + part;
+		workers.create_thread(SimpleWorker(&img, this->light, start, end, this->shapes));
+		start = end;
+	}
+
+	// join with all threads
+	workers.join_all();
+#else
+	create_image_interal(&img, this->shapes, start, end, this->light, &prog);
+#endif
 
 	return img;
 }

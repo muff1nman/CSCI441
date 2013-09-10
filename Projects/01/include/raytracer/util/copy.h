@@ -8,15 +8,16 @@
 #ifndef __copy_h__
 #define __copy_h__
 
-#include "raytracer/domain/shapes/shape.h"
+//#include "raytracer/domain/shapes/shape.h"
 
-#include <vector>
+//#include <vector>
 
-std::vector<Shape* > deep_copy( const std::vector< const Shape* >& other ) {
-	std::vector<Shape* > to_return(other.size());
-	// TODO	
-	return to_return;
-}
+//// TODO why cant Shape be const?
+//std::vector<Shape* > shape_deep_copy( const std::vector< Shape* >& other ) {
+	//std::vector<Shape* > to_return(other.size());
+	//// TODO	
+	//return to_return;
+//}
 
 #endif /* !__copy_h__ */
 

@@ -26,6 +26,8 @@ class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int 
 
 		ScreenIterator& operator=(const ScreenIterator& other );
 
+		ScreenIterator operator+(int num);
+
 		ScreenIterator& operator++();
 
 		ScreenIterator operator++(int);

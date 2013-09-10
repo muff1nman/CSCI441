@@ -12,5 +12,6 @@
 #define PROGRESS
 
 #define THREADS
+#define NUM_THREADS 4
 
 #define DEFAULT_OUTPUT_FILE "output.ppm"

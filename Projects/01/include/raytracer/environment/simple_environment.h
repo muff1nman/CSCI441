@@ -16,12 +16,18 @@
 
 #ifdef THREADS
 #include "raytracer/util/worker.h"
+#include <boost/thread.hpp>
+#include "raytracer/environment/simple_worker.h"
 #endif
 
 #ifdef LOGGING
 #include <glog/logging.h>
 #include <string>
 #include <boost/lexical_cast.hpp>
+#endif
+
+#ifdef PROGRESS
+#include <boost/progress.hpp>
 #endif
 
 #include <vector>
@@ -55,6 +61,8 @@ class SimpleEnvironment : public Environment {
 		 */
 		Image_2D create_image() const;
 
+		friend class SimpleWorker;
+
 
 #ifdef LOGGING
 		void log_state();
@@ -65,6 +73,7 @@ class SimpleEnvironment : public Environment {
 		LightSource light;
 		int number_of_primitives;
 		std::vector<Shape*> shapes;
+		static void create_image_interal(Image_2D* img, const std::vector<Shape*>& shapes, ScreenIterator start, ScreenIterator end, const LightSource& light, boost::progress_display* prog = NULL );
 
 #ifdef THREADS
 		Worker create_worker() const;
