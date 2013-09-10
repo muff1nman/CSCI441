@@ -9,10 +9,10 @@
 #define __common_h__
 
 #ifdef LOGGING
-#include <iostream>
 #include <glog/logging.h>
 #endif 
 
+#include <iostream>
 #include <string>
 
 bool check_params(int argc, char** argv) {
