@@ -8,11 +8,11 @@
 #ifndef __common_h__
 #define __common_h__
 
-#ifndef LOGGING
-#include <iostream>
+#ifdef LOGGING
 #include <glog/logging.h>
 #endif 
 
+#include <iostream>
 #include <string>
 
 bool check_params(int argc, char** argv) {
@@ -20,6 +20,17 @@ bool check_params(int argc, char** argv) {
 		return false;
 	}
 	return true;
+}
+
+Vector_3D prompt_for_vector() {
+	double x,y,z;
+	std::cout << "x: ";
+	std::cin >> x;
+	std::cout << "y: ";
+	std::cin >> y;
+	std::cout << "z: ";
+	std::cin >> z;
+	return Vector_3D(x,y,z);
 }
 
 std::string input_file_name(int argc, char** argv) {
@@ -39,7 +50,9 @@ std::string output_file_name(int argc, char** argv) {
 #endif
 	} else {
 		file_name = std::string(argv[2]);
+#ifdef LOGGING
 		LOG(INFO) << "OUTPUT file name is: " << file_name;
+#endif
 	}
 	return file_name;
 }

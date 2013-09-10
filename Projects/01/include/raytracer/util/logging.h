@@ -22,9 +22,11 @@ class Logging {
 
 #ifdef LOGGING
 	public:
-		//std::string to_string() { return "instance of " + std::string(typeid(this).name()); }
-		virtual std::string to_string() const { return "Unknown"; }
+		virtual std::string to_string() const { return std::string(nested_start) + stringify_object() + std::string(nested_finish); }
+		virtual std::string stringify_object() const { return std::string("UNKNOWN"); }
 #endif
+	protected:
+		virtual ~Logging() { }
 
 };
 

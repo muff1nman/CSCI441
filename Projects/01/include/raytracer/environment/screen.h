@@ -41,8 +41,8 @@ class Screen : public Logging {
 		Vector_3D viewpoint;
 		Vector_3D lower_left_corner;
 		Vector_3D upper_left_corner;
-		Vector_3D vertical;
 		Vector_3D horizontal;
+		Vector_3D vertical;
 
 		int resolution_x;
 		int resolution_y;

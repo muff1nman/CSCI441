@@ -14,21 +14,26 @@
 
 class Ray : public Logging {
 	public:
-		Ray(const Vector_3D& start, const Vector_3D& end) :  start(start), end(end) { }
+		// TODO check that we are not passing in a direction to end ever
+		Ray(const Vector_3D& start, const Vector_3D& end) :  start(start) {
+			this->_direction = (end - this->start).normal();
+		}
 
+		// TODO wtf 
 		const Vector_3D& get_start() const { return start; }
-		const Vector_3D& get_end() const { return end; }
 
-		Vector_3D direction() const;
+		Vector_3D direction() const { return _direction; }
 
 		Vector_3D origin() const { return start; }
+
+		Vector_3D at(double some_time) const;
 
 #ifdef LOGGING
 		std::string to_string() const {
 			std::string info(nested_start);
 			{
-				info += this->start.to_string() + list_sep;
-				info += this->end.to_string() + sep;
+				info += "start: " + this->start.to_string() + list_sep;
+				info += "direction: " + this->_direction.to_string() + sep;
 			}
 			info += nested_finish;
 			return info;
@@ -37,7 +42,7 @@ class Ray : public Logging {
 
 	private:
 		Vector_3D start;
-		Vector_3D end;
+		Vector_3D _direction;
 
 };
 

@@ -1,5 +1,6 @@
 set(SRCS
 	sphere.cpp
+	triangle.cpp
 )
 
 set(LINK_LIBRARIES Domain)

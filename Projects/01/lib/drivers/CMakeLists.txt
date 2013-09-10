@@ -14,3 +14,6 @@ target_link_libraries(ParseTest ${LINK_LIBRARIES})
 
 add_executable(Simple simple_image.cpp)
 target_link_libraries(Simple ${LINK_LIBRARIES})
+
+add_executable(Test single_test.cpp)
+target_link_libraries(Test ${LINK_LIBRARIES})

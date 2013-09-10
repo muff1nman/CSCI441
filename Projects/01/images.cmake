@@ -1,6 +1,13 @@
 
 file(GLOB INPUT_FILES ${INPUT_FILE_DIR}/test*.txt )
 
+if( NOT INPUT_FILES )
+	message(STATUS "test data not extracted... attempting extraction")
+	execute_process(COMMAND tar -C ../instructions_and_provided_resources/ -xvf ../instructions_and_provided_resources/testdata.tar )
+	file(GLOB INPUT_FILES ${INPUT_FILE_DIR}/test*.txt )
+endif()
+
+
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_IMAGE_DIR})
 
 foreach(_d_file ${INPUT_FILES} )

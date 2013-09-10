@@ -14,7 +14,7 @@ ScreenIterator::ScreenIterator(const Screen* screen, int current_x, int current_
 	}
 
 ScreenIterator::ScreenIterator(const ScreenIterator& other) :
-	current_x(other.current_x), current_y(other.current_y), parent(other.parent), current(NULL) {
+	parent(other.parent), current_x(other.current_x), current_y(other.current_y), current(NULL) {
 		this->current = new Ray(*(other.current));
 	}
 

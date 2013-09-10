@@ -8,8 +8,8 @@
 #include "raytracer/domain/ray.h"
 
 
-Vector_3D Ray::direction() const {
-	return (this->end - this->start).normal();
+Vector_3D Ray::at(double some_time) const {
+	return this->direction() * some_time + this->start;
 }
 
 

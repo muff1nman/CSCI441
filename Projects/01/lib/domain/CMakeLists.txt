@@ -1,8 +1,9 @@
 set(SRCS
 	image_2D.cpp
 	RGB.cpp
-	ray.cpp
 	vector_3D.cpp
+	ray.cpp
+	material.cpp
 )
 
 

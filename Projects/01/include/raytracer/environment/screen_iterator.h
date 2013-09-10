@@ -50,13 +50,14 @@ class ScreenIterator: public std::iterator< std::forward_iterator_tag, Ray, int 
 #endif
 
 	private:
+		const Screen* parent;
+
 		int current_x;
 		int current_y;
 
-		Vector_3D current_point;
-		
-		const Screen* parent;
 		const Ray* current;
+
+		Vector_3D current_point;
 
 		void populate_ray();
 		void destroy_ray();

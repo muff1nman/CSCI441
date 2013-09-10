@@ -32,17 +32,6 @@
 
 using namespace std;
 
-Vector_3D prompt_for_vector() {
-	double x,y,z;
-	cout << "x: ";
-	cin >> x;
-	cout << "y: ";
-	cin >> y;
-	cout << "z: ";
-	cin >> z;
-	return Vector_3D(x,y,z);
-}
-
 int main(int argc, char** argv) {
 	cout << "Ray Tracer" << endl;
 	cout << "  -- Andrew DeMaria" << endl;
@@ -65,7 +54,9 @@ int main(int argc, char** argv) {
 	boost::optional<const Shape*> shape_id = test.closest_intersection( user_ray );
 
 	if(shape_id) {
+#ifdef LOGGING
 		cout << "Intersected shape is: " << (*shape_id)->to_string() << endl;
+#endif
 	} else {
 		cout << "There was no shape intersected" << endl;
 	}

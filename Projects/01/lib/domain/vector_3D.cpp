@@ -33,9 +33,9 @@ Vector_3D Vector_3D::operator-( const Vector_3D& other ) const {
 
 double Vector_3D::operator*( const Vector_3D& other ) const {
 	return
-			this->x * other.get_x() +
-			this->y * other.get_y() +
-			this->z * other.get_z();
+			this->x * other.x +
+			this->y * other.y +
+			this->z * other.z;
 }
 
 Vector_3D Vector_3D::operator*( double scalar ) const {

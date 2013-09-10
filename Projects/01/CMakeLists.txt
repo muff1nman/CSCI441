@@ -1,20 +1,39 @@
 cmake_minimum_required( VERSION 2.8 )
 project( RayTracer )
 
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
+endif()
+
 # General variables
 set( RAYTRACER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 # Configuration Stuff
 option(DEBUG "Turn debuggin on or off" ON)
 option(LOGGING "Turn loggin on or off" ON)
+set( LOG_LEVEL 1 )
+if(DEBUG)
+	set( LOG_LEVEL 0 )
+endif(DEBUG)
 
 # Not needed if using the options above
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLOG=1 -DDEBUG=1")
 
-# c++ 11 stuff
+# profiling stuff
 if(CMAKE_COMPILER_IS_GNUCXX)
 	message(STATUS "enabling c++ 11")
 	add_definitions(-std=gnu++0x)
+	if(DEBUG)
+		message(STATUS "enabling gprof")
+		add_definitions(-Wall)
+		add_definitions(-pg)
+		set( CMAKE_EXE_LINKER_FLAGS -pg )
+	endif(DEBUG)
+endif()
+
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+	message(STATUS "enabling c++ 11")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 configure_file( 
