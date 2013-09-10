@@ -21,14 +21,14 @@ class Triangle : public Shape {
 
 	public:
 		Triangle( const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular, const Vector_3D& a, const Vector_3D& b, const Vector_3D& c );
-		~Triangle() { }
+		~Triangle();
 
-		bool is_intersected( Ray r );
+		bool is_intersected( Ray r ) const;
 
 		// TODO these rays should be passed by reference
-		boost::optional<double> intersected_at( Ray r ) ;
+		boost::optional<double> intersected_at( Ray r ) const;
 
-		Vector_3D normal_at(const Ray& view_ray, double t_of_intersect);
+		Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const;
 
 #ifdef LOGGING
 		std::string stringify_object() const;
@@ -38,8 +38,10 @@ class Triangle : public Shape {
 		std::vector<Vector_3D> vertices;
 
 	private:
-		Eigen::Matrix<double, 4, 4> A_cache, A_cache_I;
-		Eigen::Matrix<double, 4, 1> B_cache, solution;
+		Eigen::Matrix<double, 4, 4>* A_cache;
+		Eigen::Matrix<double, 4, 4>* A_cache_I;
+		Eigen::Matrix<double, 4, 1>* B_cache;
+		Eigen::Matrix<double, 4, 1>* solution;
 		Vector_3D normal_vector;
 		void push_vectors_into_matrix();
 		void push_constants_into_matrix();

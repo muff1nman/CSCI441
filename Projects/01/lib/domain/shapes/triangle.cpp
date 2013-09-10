@@ -9,22 +9,25 @@
 
 void Triangle::push_vectors_into_matrix() {
 	for( unsigned int i = 0; i < this->vertices.size(); ++i ) {
-		this->A_cache(0,i) = this->vertices.at(i).get_x();
-		this->A_cache(1,i) = this->vertices.at(i).get_y();
-		this->A_cache(2,i) = this->vertices.at(i).get_z();
+		(*A_cache)(0,i) = this->vertices.at(i).get_x();
+		(*A_cache)(1,i) = this->vertices.at(i).get_y();
+		(*A_cache)(2,i) = this->vertices.at(i).get_z();
 	}
 }
 
 void Triangle::push_constants_into_matrix() {
 	for( unsigned int i = 0; i < 3; ++i ) {
-		this->A_cache(3,i) = 1.0;
+		(*A_cache)(3,i) = 1.0;
 	}
-	this->A_cache(3,3) = 0.0;
+	(*A_cache)(3,3) = 0.0;
 }
 
 Triangle::Triangle( const RGB& k_diff, const RGB& k_ambient, double k_specular,
 		double n_specular, const Vector_3D& a, const Vector_3D& b, const Vector_3D&
 		c ) : Shape( k_diff, k_ambient, k_specular, n_specular ) {
+#ifdef LOGGING
+	LOG(INFO) << "creating new triangle";
+#endif
 	// TODO clean up all this shit
 	// TODO use the eigen vector globally?
 	this->vertices.push_back(a);
@@ -43,12 +46,31 @@ Triangle::Triangle( const RGB& k_diff, const RGB& k_ambient, double k_specular,
 	Eigen::Vector3d normal = a_to_b.cross( a_to_c ).normalized();
 	this->normal_vector = Vector_3D(normal(0), normal(1), normal(2));
 
+#ifdef LOGGING
+	LOG(INFO) << "allocating space for Matrices";
+#endif
+	this->A_cache = new Eigen::Matrix<double, 4, 4>();
+	this->A_cache_I = new Eigen::Matrix<double, 4, 4>(); 
+	this->B_cache = new Eigen::Matrix<double, 4, 1>();
+	this->solution = new Eigen::Matrix<double, 4, 1>();
+
 	push_vectors_into_matrix();
 	push_constants_into_matrix();
+
+#ifdef LOGGING
+	LOG(INFO) << "created new triangle";
+#endif
+}
+
+Triangle::~Triangle() {
+	delete A_cache;
+	delete A_cache_I;
+	delete B_cache;
+	delete solution;
 }
 
 
-bool Triangle::is_intersected( Ray r ) { 
+bool Triangle::is_intersected( Ray r ) const { 
 	return intersected_at(r);
 }
 
@@ -78,7 +100,7 @@ boost::optional<double> valid_solution( const Eigen::Matrix<double, 4, 1>& sol )
 	return some_time;
 }
 
-boost::optional<double> Triangle::intersected_at( Ray r ) {
+boost::optional<double> Triangle::intersected_at( Ray r ) const {
 	boost::optional<double> some_time;
 #ifdef DEBUG
 #ifdef LOGGING
@@ -88,12 +110,12 @@ boost::optional<double> Triangle::intersected_at( Ray r ) {
 
 	// copy in direction vector
 	Vector_3D d = r.direction();
-	this->A_cache(0,3) = -d.get_x();
-	this->A_cache(1,3) = -d.get_y();
-	this->A_cache(2,3) = -d.get_z();
+	(*A_cache)(0,3) = -d.get_x();
+	(*A_cache)(1,3) = -d.get_y();
+	(*A_cache)(2,3) = -d.get_z();
 #ifdef DEBUG
 #ifdef LOGGING
-	LOG(INFO) << "set a as: " << A_cache;
+	LOG(INFO) << "set a as: " << *A_cache;
 #endif
 #endif
 
@@ -105,19 +127,19 @@ boost::optional<double> Triangle::intersected_at( Ray r ) {
 #endif
 #endif
 
-	this->B_cache(0,0) = o.get_x();
-	this->B_cache(1,0) = o.get_y();
-	this->B_cache(2,0) = o.get_z();
-	this->B_cache(3,0) = 1.0; // TODO eliminate repeated
+	(*B_cache)(0,0) = o.get_x();
+	(*B_cache)(1,0) = o.get_y();
+	(*B_cache)(2,0) = o.get_z();
+	(*B_cache)(3,0) = 1.0; // TODO eliminate repeated
 #ifdef DEBUG
 #ifdef LOGGING
-	LOG(INFO) << "set b as: " << B_cache;
+	LOG(INFO) << "set b as: " << *B_cache;
 #endif
 #endif
 
 	bool invertible;
 
-	A_cache.computeInverseWithCheck(A_cache_I, invertible);
+	A_cache->computeInverseWithCheck(*A_cache_I, invertible);
 
 #ifdef DEBUG
 #ifdef LOGGING
@@ -125,14 +147,14 @@ boost::optional<double> Triangle::intersected_at( Ray r ) {
 #endif
 #endif
 	if( invertible ) {
-		solution = A_cache_I * B_cache;
-		some_time = valid_solution(solution);
+		*solution = *A_cache_I * *B_cache;
+		some_time = valid_solution(*solution);
 	}
 
 	return some_time;
 }
 
-Vector_3D Triangle::normal_at(const Ray& view_ray, double t_of_intersect) {
+Vector_3D Triangle::normal_at(const Ray& view_ray, double t_of_intersect) const {
 #ifdef DEBUG
 #ifdef LOGGING
 	LOG(INFO) << "computing normal";

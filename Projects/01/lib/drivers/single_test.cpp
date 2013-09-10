@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 	Vector_3D start = prompt_for_vector();
 	Vector_3D finish = prompt_for_vector();
 	Ray r(start, finish);
-	boost::optional<Shape*> intersect = test.closest_intersection( r );
+	boost::optional<const Shape*> intersect = test.closest_intersection( r );
 
 	if( intersect ) {
 		cout << "Intersected!" << endl;
