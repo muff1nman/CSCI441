@@ -22,6 +22,17 @@ bool check_params(int argc, char** argv) {
 	return true;
 }
 
+Vector_3D prompt_for_vector() {
+	double x,y,z;
+	std::cout << "x: ";
+	std::cin >> x;
+	std::cout << "y: ";
+	std::cin >> y;
+	std::cout << "z: ";
+	std::cin >> z;
+	return Vector_3D(x,y,z);
+}
+
 std::string input_file_name(int argc, char** argv) {
 	if( argc < 2 ) {
 #ifdef LOGGING

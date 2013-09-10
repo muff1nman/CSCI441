@@ -1,5 +1,5 @@
 /*
- * find_intersections.cpp
+ * simple image.cpp
  * Copyright (C) 2013 Andrew DeMaria (muff1nman) <ademaria@mines.edu>
  *
  * All Rights Reserved.
@@ -25,6 +25,8 @@
 #include "raytracer/domain/ray.h"
 #include "raytracer/parse/parser.h"
 #include "raytracer/environment/simple_environment.h"
+#include "raytracer/domain/image_2D.h"
+#include "raytracer/output/image_output.h"
 #include "common.h"
 
 #include <vector>
@@ -39,26 +41,33 @@ int main(int argc, char** argv) {
 	init();
 
 	if( !check_params(argc, argv) ) {
+#ifdef LOGGING
+		LOG(FATAL) << "Invalid arguments";
+#endif
 		exit(1);
 	}
 
-	SimpleEnvironment test = parse(argv[1]);
+	string input_file = input_file_name(argc, argv);
 
-	Vector_3D start, finish;
-	start = prompt_for_vector();
-	finish = prompt_for_vector();
+	cout << "Processing " << input_file << endl;
 
-	Ray user_ray( start, finish );
+	SimpleEnvironment test = parse(input_file.c_str());
 
-	cout << "Does ray intersect any shapes?" << endl;
-	boost::optional<const Shape*> shape_id = test.closest_intersection( user_ray );
+	Vector_3D start = prompt_for_vector();
+	Vector_3D finish = prompt_for_vector();
+	Ray r(start, finish);
+	boost::optional<Shape*> intersect = test.closest_intersection( r );
 
-	if(shape_id) {
-#ifdef LOGGING
-		cout << "Intersected shape is: " << (*shape_id)->to_string() << endl;
-#endif
+	if( intersect ) {
+		cout << "Intersected!" << endl;
 	} else {
-		cout << "There was no shape intersected" << endl;
+		cout <<  "No intersection" << endl;
 	}
+
+/*
+ *  Image_2D img = test.create_image();
+ *
+ *  save_to_ppm_file(img, output_file_name(argc, argv).c_str());
+ */
 
 }
