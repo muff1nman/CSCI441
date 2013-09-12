@@ -61,7 +61,8 @@ void init_log() {
 #ifdef LOGGING
 	google::InitGoogleLogging("RayTracer");
 	FLAGS_minloglevel = LOG_LEVEL;
-	FLAGS_logtostderr = 1;
+	FLAGS_alsologtostderr = 1;
+	FLAGS_colorlogtostderr = 1;
 	LOG(INFO) << "Logging enabled";
 #endif 
 }
