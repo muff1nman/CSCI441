@@ -11,8 +11,8 @@ make images
 
 Output directories to be aware of:
 - `build` anything built is in here
-- `build/testdata` output from inputs in testdata
-- `build/inputs` output from inputs in inputs
+- `build/testdata` output from inputs in `testdata`
+- `build/inputs` output from inputs in `inputs`
 - `build/lib/drivers` executables reside in here (Refer to later parts of readme
 on usage)
 
