@@ -1,3 +1,12 @@
+GRADER:
+Copy and paste into unzipped source directory
+```
+mkdir build
+cd build
+cmake .. -DLOGGING=OFF -DDEBUG=OFF -DCMAKE_BUILD_TYPE=RELEASE
+make images
+```
+
 To build for a release:
 
 ```
@@ -9,10 +18,20 @@ cmake .. -DLOGGING=OFF -DDEBUG=OFF -DCMAKE_BUILD_TYPE=RELEASE
 make
 ```
 
-To build images for all input test data: 
+To build images for all test input data
 *Note (assuming you followed the above steps so far, this will be dumped into
-`build/images/` directory)*
+`build/testdata` directory)*
 
+```
+make testdata
+```
+
+Likewise for the input data (output dir: `build/inputs`)
+```
+make inputs
+```
+
+To do it all in one shot (both testdata and images):
 ```
 make images
 ```

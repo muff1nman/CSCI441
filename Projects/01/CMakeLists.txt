@@ -63,19 +63,30 @@ include_directories(${Boost_INCLUDE_DIR})
 # Go do work CMake!
 add_subdirectory( lib )
 
-# Add custom target for transforming all the files
+# Add custom target for transforming all the files in the inputs folder
 
 add_custom_target(images)
-add_dependencies(images Simple)
+add_dependencies(images inputs testdata)
 
-#configure_file(
-	#${CMAKE_CURRENT_SOURCE_DIR}/images.cmake.in
+add_custom_target(inputs)
+add_dependencies(inputs Simple)
 
+add_custom_command(TARGET inputs
+	COMMAND ${CMAKE_COMMAND} 
+	-DINPUT_FILE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/instructions_and_provided_resources/inputs
+	-DOUTPUT_IMAGE_DIR=${CMAKE_CURRENT_BINARY_DIR}/inputs
+	-DSCRIPT_NAME=$<TARGET_FILE:Simple>
+	-DBASE_NAME=input
+	-P ${CMAKE_CURRENT_SOURCE_DIR}/images.cmake)
 
-add_custom_command(TARGET images
+add_custom_target(testdata)
+add_dependencies(testdata Simple)
+
+add_custom_command(TARGET testdata
 	COMMAND ${CMAKE_COMMAND} 
 	-DINPUT_FILE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/instructions_and_provided_resources/testdata
-	-DOUTPUT_IMAGE_DIR=${CMAKE_CURRENT_BINARY_DIR}/images
+	-DOUTPUT_IMAGE_DIR=${CMAKE_CURRENT_BINARY_DIR}/testdata
 	-DSCRIPT_NAME=$<TARGET_FILE:Simple>
+	-DBASE_NAME=test
 	-P ${CMAKE_CURRENT_SOURCE_DIR}/images.cmake)
 
