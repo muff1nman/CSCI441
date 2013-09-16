@@ -25,10 +25,12 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	SimpleEnvironment test = parse(argv[1]);
+	SimpleEnvironment* test = parse(argv[1]);
 
 #ifdef LOGGING
-	test.log_state();
+	test->log_state();
 #endif
+
+	delete test;
 
 }

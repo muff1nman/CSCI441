@@ -51,10 +51,12 @@ int main(int argc, char** argv) {
 
 	cout << "Processing " << input_file << endl;
 
-	SimpleEnvironment test = parse(input_file.c_str());
+	SimpleEnvironment* test = parse(input_file.c_str());
 
-	Image_2D img = test.create_image();
+	Image_2D img = test->create_image();
 
 	save_to_ppm_file(img, output_file_name(argc, argv).c_str());
+
+	delete test;
 
 }

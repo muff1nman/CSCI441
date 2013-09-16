@@ -65,7 +65,8 @@ class SimpleEnvironment : public Environment {
 
 		struct time_compare_with_limit {
 			bool operator()(boost::optional<double> time_1, boost::optional<double> time_2, double limit) const {
-				return default_time_compare()(time_1, time_2) && ( time_1 && *time_1 < limit );
+				// TODO check if the last thing is needed
+				return default_time_compare()(time_1, time_2) && ( time_1 && *time_1 < limit && *time_1 > 0.00001 );
 			}
 		};
 
@@ -95,6 +96,10 @@ class SimpleEnvironment : public Environment {
 		LightSource light;
 		int number_of_primitives;
 		std::vector<Shape*> shapes;
+
+		// if we implement a copy constructor we will now have to update all the
+		// references that shapes have to the parent SimpleEnvironment
+		SimpleEnvironment( const SimpleEnvironment& other );
 
 #ifdef LOGGING
 		std::string to_string();

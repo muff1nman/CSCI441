@@ -20,7 +20,7 @@
 class Triangle : public Shape { 
 
 	public:
-		Triangle( const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular, const Vector_3D& a, const Vector_3D& b, const Vector_3D& c );
+		Triangle( const SimpleEnvironment* parent, const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular, const Vector_3D& a, const Vector_3D& b, const Vector_3D& c );
 		~Triangle();
 
 		bool is_intersected( Ray r ) const;

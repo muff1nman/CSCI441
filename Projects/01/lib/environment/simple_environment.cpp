@@ -64,8 +64,11 @@ Image_2D SimpleEnvironment::create_image() const {
 		intersected_shape = this->closest_intersection( *i );
 
 		if( intersected_shape ) {
+
 			// TODO repeat call to intersected at
-			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, *i, *((*intersected_shape)->intersected_at(*i)) ));
+			double time_intersected_at = *((*intersected_shape)->intersected_at(*i));
+
+			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, *i, time_intersected_at ));
 		}
 
 		++i;

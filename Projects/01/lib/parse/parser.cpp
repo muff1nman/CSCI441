@@ -20,7 +20,7 @@
 
 
 // TODO return pointer instead?
-SimpleEnvironment parse( const char* filename ) {
+SimpleEnvironment* parse( const char* filename ) {
 	std::ifstream ifs(filename);
 	assert(ifs);
 
@@ -73,10 +73,10 @@ SimpleEnvironment parse( const char* filename ) {
 	light.light_source_intensity = light_intensity;
 	light.light_source_location = light_source_vector;
 
-	SimpleEnvironment env(s, light, number_of_primitives);
+	SimpleEnvironment* env = new SimpleEnvironment(s, light, number_of_primitives);
 
 #ifdef LOGGING
-	env.log_state();
+	env->log_state();
 #endif
 
 	for ( int i=0; i<number_of_primitives; i++ ) {
@@ -112,7 +112,7 @@ SimpleEnvironment parse( const char* filename ) {
 							center[0],
 							center[1],
 							center[2]);
-					s = new Sphere(k_diff, k_am, k_specular, n_specular, center_v, radius);
+					s = new Sphere(env, k_diff, k_am, k_specular, n_specular, center_v, radius);
 
 #ifdef LOGGING
 					LOG(INFO) << "Sphere: " << s->to_string();
@@ -148,7 +148,7 @@ SimpleEnvironment parse( const char* filename ) {
 					Vector_3D b(a2[0], a2[1], a2[2]);
 					Vector_3D c(a3[0], a3[1], a3[2]);
 
-					s = new Triangle(k_diff, k_am, k_specular, n_specular, a, b, c);
+					s = new Triangle(env, k_diff, k_am, k_specular, n_specular, a, b, c);
 
 #ifdef LOGGING
 					LOG(INFO) << "Triangle: " << s->to_string();
@@ -162,7 +162,7 @@ SimpleEnvironment parse( const char* filename ) {
 #endif
 				assert(0);
 		} // End switch
-		env.add_shape(s);
+		env->add_shape(s);
 	} // End for
 
 	return env;

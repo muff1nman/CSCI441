@@ -11,13 +11,14 @@
 #include "raytracer/domain/RGB.h"
 #include "raytracer/environment/light_source.h"
 #include "raytracer/domain/ray.h"
+#include "raytracer/environment/family.h"
 
 #include <cmath>
 
-class Material : public Logging {
+class Material : public Family, public Logging {
   public:
-		Material(const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular ) : 
-			k_diff(k_diff), k_ambient(k_ambient), k_specular(k_specular), n_specular(n_specular) { }
+		Material(const SimpleEnvironment* parent, const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular ) : 
+			Family(parent), k_diff(k_diff), k_ambient(k_ambient), k_specular(k_specular), n_specular(n_specular) { }
 
 		RGB illuminate(const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
 

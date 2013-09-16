@@ -51,12 +51,12 @@ int main(int argc, char** argv) {
 
 	cout << "Processing " << input_file << endl;
 
-	SimpleEnvironment test = parse(input_file.c_str());
+	SimpleEnvironment* test = parse(input_file.c_str());
 
 	Vector_3D start = prompt_for_vector();
 	Vector_3D finish = prompt_for_vector();
 	Ray r(start, finish);
-	boost::optional<const Shape*> intersect = test.closest_intersection( r );
+	boost::optional<const Shape*> intersect = test->closest_intersection( r );
 
 	if( intersect ) {
 		cout << "Intersected!" << endl;
@@ -69,5 +69,7 @@ int main(int argc, char** argv) {
  *
  *  save_to_ppm_file(img, output_file_name(argc, argv).c_str());
  */
+
+	delete test;
 
 }
