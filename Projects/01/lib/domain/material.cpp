@@ -15,7 +15,7 @@ RGB Material::illuminate(const LightSource& light, const Ray& view_ray, double t
 	}
 }
 
-Vector_3D Material::light_vector_to_object( const LightSource& light, const Ray& view_ray, double t_of_intersect ) const {
+Vector_3D Material::object_to_light_vector( const LightSource& light, const Ray& view_ray, double t_of_intersect ) const {
 	return light.light_source_location - view_ray.at(t_of_intersect);
 }
 
@@ -24,7 +24,7 @@ bool Material::in_shadow_at( const LightSource& light, const Ray& view_ray, doub
 }
 
 bool Material::in_shadow_of_self( const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
-	return light_vector_to_object( light, view_ray, t_of_intersect ) * normal_at(view_ray, t_of_intersect) < 0;
+	return object_to_light_vector( light, view_ray, t_of_intersect ) * normal_at(view_ray, t_of_intersect) < 0;
 }
 
 bool Material::in_shadow_of_other_primitives( const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
@@ -47,12 +47,12 @@ Vector_3D Material::halfway_vector( const Vector_3D& viewpoint, const Vector_3D&
 }
 
 RGB Material::illuminate_diffused(const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
-	RGB dif = k_diff * ( normal_at(view_ray, t_of_intersect).normal() * light_vector_to_object( light, view_ray, t_of_intersect ).normal());
+	RGB dif = k_diff * ( normal_at(view_ray, t_of_intersect).normal() * object_to_light_vector( light, view_ray, t_of_intersect ).normal());
 	return dif * light.light_source_intensity;
 }
 
 RGB Material::illuminate_specular(const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
-	double base = halfway_vector( light_vector_to_object( light, view_ray, t_of_intersect ).normal(), -1 * view_ray.direction().normal()).normal() * normal_at(view_ray, t_of_intersect).normal();
+	double base = halfway_vector( object_to_light_vector( light, view_ray, t_of_intersect ).normal(), -1 * view_ray.direction().normal()).normal() * normal_at(view_ray, t_of_intersect).normal();
 	double same_rgb = k_specular * std::pow(base, n_specular);
 	same_rgb = same_rgb * light.light_source_intensity;
 	return RGB(same_rgb,same_rgb,same_rgb);

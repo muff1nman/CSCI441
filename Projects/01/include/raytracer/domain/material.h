@@ -22,7 +22,7 @@ class Material : public Family, public Logging {
 
 		RGB illuminate(const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
 
-		Vector_3D light_vector_to_object( const LightSource& light, const Ray& view_ray, double t_of_intersect ) const;
+		Vector_3D object_to_light_vector( const LightSource& light, const Ray& view_ray, double t_of_intersect ) const;
 
 		virtual Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const = 0;
 
