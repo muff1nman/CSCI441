@@ -38,11 +38,37 @@ class SimpleEnvironment : public Environment {
 
 		void add_shape(Shape* shape);
 
+		// TODO move all these nasty structs somewhere else
+
 		struct default_time_compare {
-			float operator()(double time_1, double time_2) const {
-				return time_1 < time_2;
+			bool operator()(boost::optional<double> possible_new_value, boost::optional<double> current_min) const {
+				if( possible_new_value ) {
+					if( current_min ) {
+						return *possible_new_value < *current_min;
+					} else {
+						return true;
+					}
+				}
+				return false;
+				// TODO look into why this logic is wrong
+				//if( ! current_min ) {
+					//return true;
+				//} else {
+					//if( possible_new_value ) {
+						//return *possible_new_value < *current_min;
+					//}
+				//}
+
+				//return false;
 			}
 		};
+
+		struct time_compare_with_limit {
+			bool operator()(boost::optional<double> time_1, boost::optional<double> time_2, double limit) const {
+				return default_time_compare()(time_1, time_2) && ( time_1 && *time_1 < limit );
+			}
+		};
+
 
 		/**
 		 * Returns a pointer to the closest shape that is intersected by the given ray
@@ -50,9 +76,9 @@ class SimpleEnvironment : public Environment {
 		 * There may be no intersected shape in which case the return value is false
 		 *
 		 */
-		boost::optional<const Shape*> closest_intersection( const Ray& ray, boost::function<float (double t1, double t2)> time_compare = default_time_compare() ) const;
+		boost::optional<const Shape*> closest_intersection( const Ray& ray, boost::function<bool (boost::optional<double> possible_new_value, boost::optional<double> current_min)> time_compare = default_time_compare() ) const;
 
-		//boost::optional<const Shape*> closest_intersection_within_time( const Ray& ray ) const;
+		boost::optional<const Shape*> closest_intersection_within_time( const Ray& ray, double limit ) const;
 
 		/**
 		 * Creates a populated image

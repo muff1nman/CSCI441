@@ -11,6 +11,8 @@
 #include <boost/progress.hpp>
 #endif
 
+#include <boost/bind.hpp>
+
 SimpleEnvironment::~SimpleEnvironment() {
 
 	// deallocate each shape
@@ -23,7 +25,11 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 	this->shapes.push_back( shape );
 }
 
-boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray, boost::function<float (double t1, double t2)> time_compare ) const {
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection_within_time( const Ray& ray, double limit ) const {
+	return closest_intersection( ray, boost::bind<bool>(time_compare_with_limit(), _1, _2, limit));
+}
+
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray, boost::function<bool (boost::optional<double> possible_new_value, boost::optional<double> current_min)> time_compare ) const {
 	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
@@ -32,28 +38,14 @@ boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray
 		// TODO possible issue if the A term for the ray (Ax + c) is not normalized
 		// we may not be able to compare times coming from this value?
 		tested_time = s->intersected_at( ray );
-		if( tested_time ) {
-			if ( closest_intersected_time ) {
-				if ( time_compare(*tested_time, *closest_intersected_time) ) {
-					// found one closer
-					closest_intersected_time = tested_time;
-					shape = s;
-				}
-			} else {
-				// First intersection we come acrost
-				closest_intersected_time = tested_time;
-				shape = s;
-			}
+		if( time_compare( tested_time, closest_intersected_time )) { 
+			closest_intersected_time = tested_time;
+			shape = s;
 		}
 	}
 	return shape;
 
 }
-
-//boost::optional<const Shape*> closest_intersection_within_time( const Ray& ray ) const {
-
-//}
-
 
 Image_2D SimpleEnvironment::create_image() const {
 	// General setup
