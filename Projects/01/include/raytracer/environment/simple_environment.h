@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <boost/optional.hpp>
+#include <boost/function.hpp>
 
 class SimpleEnvironment : public Environment {
 	public:
@@ -37,13 +38,21 @@ class SimpleEnvironment : public Environment {
 
 		void add_shape(Shape* shape);
 
+		struct default_time_compare {
+			float operator()(double time_1, double time_2) const {
+				return time_1 < time_2;
+			}
+		};
+
 		/**
 		 * Returns a pointer to the closest shape that is intersected by the given ray
 		 *
 		 * There may be no intersected shape in which case the return value is false
 		 *
 		 */
-		boost::optional<const Shape*> closest_intersection( const Ray& ray ) const;
+		boost::optional<const Shape*> closest_intersection( const Ray& ray, boost::function<float (double t1, double t2)> time_compare = default_time_compare() ) const;
+
+		//boost::optional<const Shape*> closest_intersection_within_time( const Ray& ray ) const;
 
 		/**
 		 * Creates a populated image

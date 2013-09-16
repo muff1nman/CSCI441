@@ -23,16 +23,18 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 	this->shapes.push_back( shape );
 }
 
-
-boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray, boost::function<float (double t1, double t2)> time_compare ) const {
 	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
 	for( const Shape* const s : this->shapes ) {
+		// TODO repeat call
+		// TODO possible issue if the A term for the ray (Ax + c) is not normalized
+		// we may not be able to compare times coming from this value?
 		tested_time = s->intersected_at( ray );
 		if( tested_time ) {
 			if ( closest_intersected_time ) {
-				if ( *tested_time < *closest_intersected_time ) {
+				if ( time_compare(*tested_time, *closest_intersected_time) ) {
 					// found one closer
 					closest_intersected_time = tested_time;
 					shape = s;
@@ -45,7 +47,12 @@ boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray
 		}
 	}
 	return shape;
+
 }
+
+//boost::optional<const Shape*> closest_intersection_within_time( const Ray& ray ) const {
+
+//}
 
 
 Image_2D SimpleEnvironment::create_image() const {
