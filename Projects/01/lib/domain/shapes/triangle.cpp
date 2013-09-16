@@ -110,7 +110,8 @@ boost::optional<double> Triangle::intersected_at( Ray r ) const {
 }
 
 Vector_3D Triangle::normal_at(const Ray& view_ray, double t_of_intersect) const {
-	if( this->normal_vector * view_ray.direction() > 0 ) {
+	// The negative one is so that we can get the ray switched
+	if( this->normal_vector * ( -1 * view_ray.direction() ) >= 0 ) {
 		return this->normal_vector;
 	} else {
 		return this->normal_vector * -1;
