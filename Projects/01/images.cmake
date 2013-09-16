@@ -1,10 +1,10 @@
 
-file(GLOB INPUT_FILES ${INPUT_FILE_DIR}/test*.txt )
+file(GLOB INPUT_FILES ${INPUT_FILE_DIR}/${BASE_NAME}*.txt )
 
 if( NOT INPUT_FILES )
-	message(STATUS "test data not extracted... attempting extraction")
-	execute_process(COMMAND tar -C ../instructions_and_provided_resources/ -xvf ../instructions_and_provided_resources/testdata.tar )
-	file(GLOB INPUT_FILES ${INPUT_FILE_DIR}/test*.txt )
+	message(STATUS "${BASE_NAME} data not extracted... attempting extraction")
+	execute_process(COMMAND tar -C ../instructions_and_provided_resources/ -xvf ${INPUT_FILE_DIR}.tar )
+	file(GLOB INPUT_FILES ${INPUT_FILE_DIR}/${BASE_NAME}*.txt )
 endif()
 
 
