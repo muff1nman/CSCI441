@@ -3,7 +3,7 @@ GRADER
 Copy and paste into unzipped source directory, this encompasses most of what
 follows in the remainder of the readme.
 ```
-mkdir build
+mkdir -p build
 cd build
 cmake .. -DLOGGING=OFF -DDEBUG=OFF -DCMAKE_BUILD_TYPE=RELEASE
 make images
@@ -21,7 +21,7 @@ To build for a release:
 -------------
 
 ```
-mkdir build
+mkdir -p build
 cd build
 # ideally logging should be left on, but if google logging is not installed it
 # wont work
