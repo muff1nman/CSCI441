@@ -20,7 +20,15 @@ Vector_3D Material::light_vector_to_object( const LightSource& light, const Ray&
 }
 
 bool Material::in_shadow_at( const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
+	return in_shadow_of_self( light, view_ray, t_of_intersect ) || in_shadow_of_other_primitives( light, view_ray, t_of_intersect );
+}
+
+bool Material::in_shadow_of_self( const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
 	return light_vector_to_object( light, view_ray, t_of_intersect ) * normal_at(view_ray, t_of_intersect) < 0;
+}
+
+bool Material::in_shadow_of_other_primitives( const LightSource& light, const Ray& view_ray, double t_of_intersect) const {
+	return false;
 }
 
 #ifdef LOGGING

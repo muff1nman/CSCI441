@@ -47,6 +47,10 @@ class Material : public Family, public Logging {
 
 		RGB illuminate_ambient(const LightSource& light) const;
 
+		bool in_shadow_of_self( const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
+		
+		bool in_shadow_of_other_primitives( const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
+
 };
 
 #endif /* !__material_h__ */
