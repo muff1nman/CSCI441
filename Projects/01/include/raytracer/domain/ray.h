@@ -15,8 +15,12 @@
 class Ray : public Logging {
 	public:
 		// TODO check that we are not passing in a direction to end ever
-		Ray(const Vector_3D& start, const Vector_3D& end) :  start(start) {
+		Ray(const Vector_3D& start, const Vector_3D& end) : start(start) {
 			this->_direction = (end - this->start).normal();
+		}
+
+		Ray(const Vector_3D& start, const Vector_3D& direction, bool unused_placeholder) : start(start) {
+			this->_direction = direction.normal();
 		}
 
 		// TODO wtf 
@@ -28,7 +32,7 @@ class Ray : public Logging {
 
 		Vector_3D at(double some_time) const;
 
-#ifdef LOGGING
+#ifdef DEBUG
 		std::string to_string() const {
 			std::string info(nested_start);
 			{

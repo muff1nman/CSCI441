@@ -15,6 +15,10 @@ class Family {
 
 		Family( const SimpleEnvironment* house ) : house(house) { }
 
+		bool other_shape_is_me( const Family* other ) const {
+			return this == other;
+		}
+
 	protected:
 		const SimpleEnvironment* house;
 };

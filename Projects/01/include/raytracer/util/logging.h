@@ -10,12 +10,17 @@
 
 #include "raytracer/config/config.h"
 
-#ifdef LOGGING
+#ifdef DEBUG
 #include <string>
 #include <boost/lexical_cast.hpp>
 #include <typeinfo>
 // TODO ensure that all derived classes dont have this following include
+#endif
+
+#ifdef LOGGING
 #include <glog/logging.h>
+#include <string>
+#include <boost/lexical_cast.hpp>
 #endif
 
 class Logging {

@@ -26,13 +26,20 @@
 
 class SimpleEnvironment : public Environment {
 	public:
+#ifdef DEBUG
+		bool pixel_debug;
+#endif
 		SimpleEnvironment(
 			const Screen& screen,
 			const LightSource& light,
 			int number_of_primitives) : 
 		screen( screen ),
 		light( light ),
-		number_of_primitives( number_of_primitives ) { }
+		number_of_primitives( number_of_primitives ) {
+#ifdef DEBUG
+			pixel_debug = false;
+#endif
+		}
 
 		~SimpleEnvironment();
 
@@ -84,7 +91,11 @@ class SimpleEnvironment : public Environment {
 		/**
 		 * Creates a populated image
 		 */
-		Image_2D create_image() const;
+		Image_2D create_image() 
+#ifndef DEBUG
+			const
+#endif
+			;
 
 
 #ifdef LOGGING

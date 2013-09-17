@@ -47,7 +47,11 @@ boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray
 
 }
 
-Image_2D SimpleEnvironment::create_image() const {
+Image_2D SimpleEnvironment::create_image() 
+#ifndef DEBUG
+	const 
+#endif
+{
 	// General setup
 	Image_2D img(this->screen.blank_image());
 	// TODO cache screen?
@@ -61,6 +65,15 @@ Image_2D SimpleEnvironment::create_image() const {
 #endif
 
 	while( i != end ) {
+#ifdef DEBUG
+		if( i.get_x() == 88 && i.get_y() == 145 ) {
+			std::cout << "Setting pixel debug to: " << i.get_x() << ", " << i.get_y() << std::endl;
+			pixel_debug = true;
+		} else {
+			pixel_debug = false;
+		}
+#endif
+
 		intersected_shape = this->closest_intersection( *i );
 
 		if( intersected_shape ) {
@@ -69,6 +82,11 @@ Image_2D SimpleEnvironment::create_image() const {
 			double time_intersected_at = *((*intersected_shape)->intersected_at(*i));
 
 			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, *i, time_intersected_at ));
+#ifdef DEBUG
+		if( i.get_x() == 88 && i.get_y() == 145 ) {
+			img.set(i.get_x(), i.get_y(), RGB(1.0, 1.0, 0));
+		}
+#endif
 		}
 
 		++i;

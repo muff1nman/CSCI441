@@ -28,7 +28,7 @@ class Vector_3D : public Logging {
 
 		friend Vector_3D operator*( double scalar, const Vector_3D& other );
 
-#ifdef LOGGING
+#ifdef DEBUG
 		std::string to_string() const;
 #endif
 

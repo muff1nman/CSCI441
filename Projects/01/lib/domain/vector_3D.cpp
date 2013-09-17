@@ -49,7 +49,7 @@ Vector_3D operator*( double scalar, const Vector_3D& other ) {
 	return other * scalar;
 }
 
-#ifdef LOGGING
+#ifdef DEBUG
 std::string Vector_3D::to_string() const {
 	std::string info = "";
 	info += nested_start;
