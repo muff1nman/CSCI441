@@ -1,3 +1,6 @@
+#ifndef __config_h__
+#define __config_h__
+
 #cmakedefine DEBUG
 #cmakedefine LOGGING
 
@@ -12,3 +15,9 @@
 #define PROGRESS
 
 #define DEFAULT_OUTPUT_FILE "output.ppm"
+
+#ifdef DEBUG
+#include <iostream>
+#endif
+
+#endif

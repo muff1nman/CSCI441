@@ -11,17 +11,18 @@
 #include "raytracer/domain/RGB.h"
 #include "raytracer/environment/light_source.h"
 #include "raytracer/domain/ray.h"
+#include "raytracer/environment/family.h"
 
 #include <cmath>
 
-class Material : public Logging {
+class Material : public Family, public Logging {
   public:
-		Material(const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular ) : 
-			k_diff(k_diff), k_ambient(k_ambient), k_specular(k_specular), n_specular(n_specular) { }
+		Material(const SimpleEnvironment* parent, const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular ) : 
+			Family(parent), k_diff(k_diff), k_ambient(k_ambient), k_specular(k_specular), n_specular(n_specular) { }
 
 		RGB illuminate(const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
 
-		Vector_3D light_vector_to_object( const LightSource& light, const Ray& view_ray, double t_of_intersect ) const;
+		Vector_3D object_to_light_vector( const LightSource& light, const Ray& view_ray, double t_of_intersect ) const;
 
 		virtual Vector_3D normal_at(const Ray& view_ray, double t_of_intersect) const = 0;
 
@@ -45,6 +46,10 @@ class Material : public Logging {
 		RGB illuminate_specular(const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
 
 		RGB illuminate_ambient(const LightSource& light) const;
+
+		bool in_shadow_of_self( const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
+		
+		bool in_shadow_of_other_primitives( const LightSource& light, const Ray& view_ray, double t_of_intersect) const;
 
 };
 

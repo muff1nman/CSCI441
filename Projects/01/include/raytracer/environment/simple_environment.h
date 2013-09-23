@@ -22,20 +22,61 @@
 
 #include <vector>
 #include <boost/optional.hpp>
+#include <boost/function.hpp>
 
 class SimpleEnvironment : public Environment {
 	public:
+#ifdef DEBUG
+		bool pixel_debug;
+#endif
 		SimpleEnvironment(
 			const Screen& screen,
 			const LightSource& light,
 			int number_of_primitives) : 
 		screen( screen ),
 		light( light ),
-		number_of_primitives( number_of_primitives ) { }
+		number_of_primitives( number_of_primitives ) {
+#ifdef DEBUG
+			pixel_debug = false;
+#endif
+		}
 
 		~SimpleEnvironment();
 
 		void add_shape(Shape* shape);
+
+		// TODO move all these nasty structs somewhere else
+
+		struct default_time_compare {
+			bool operator()(boost::optional<double> possible_new_value, boost::optional<double> current_min) const {
+				if( possible_new_value ) {
+					if( current_min ) {
+						return *possible_new_value < *current_min;
+					} else {
+						return true;
+					}
+				}
+				return false;
+				// TODO look into why this logic is wrong
+				//if( ! current_min ) {
+					//return true;
+				//} else {
+					//if( possible_new_value ) {
+						//return *possible_new_value < *current_min;
+					//}
+				//}
+
+				//return false;
+			}
+		};
+
+		struct time_compare_with_limit {
+			bool operator()(boost::optional<double> time_1, boost::optional<double> time_2, double limit) const {
+				// TODO check if the last thing is needed
+				return default_time_compare()(time_1, time_2) && ( time_1 && *time_1 < limit && *time_1 > 0.00001 );
+			}
+		};
+
 
 		/**
 		 * Returns a pointer to the closest shape that is intersected by the given ray
@@ -43,12 +84,18 @@ class SimpleEnvironment : public Environment {
 		 * There may be no intersected shape in which case the return value is false
 		 *
 		 */
-		boost::optional<const Shape*> closest_intersection( const Ray& ray ) const;
+		boost::optional<const Shape*> closest_intersection( const Ray& ray, boost::function<bool (boost::optional<double> possible_new_value, boost::optional<double> current_min)> time_compare = default_time_compare() ) const;
+
+		boost::optional<const Shape*> closest_intersection_within_time( const Ray& ray, double limit ) const;
 
 		/**
 		 * Creates a populated image
 		 */
-		Image_2D create_image() const;
+		Image_2D create_image() 
+#ifndef DEBUG
+			const
+#endif
+			;
 
 
 #ifdef LOGGING
@@ -60,6 +107,10 @@ class SimpleEnvironment : public Environment {
 		LightSource light;
 		int number_of_primitives;
 		std::vector<Shape*> shapes;
+
+		// if we implement a copy constructor we will now have to update all the
+		// references that shapes have to the parent SimpleEnvironment
+		SimpleEnvironment( const SimpleEnvironment& other );
 
 #ifdef LOGGING
 		std::string to_string();

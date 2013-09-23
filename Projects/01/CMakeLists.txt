@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 2.8 )
+cmake_minimum_required( VERSION 2.6 )
 project( RayTracer )
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -22,7 +22,7 @@ endif(DEBUG)
 # profiling stuff
 if(CMAKE_COMPILER_IS_GNUCXX)
 	message(STATUS "enabling c++ 11")
-	add_definitions(-std=gnu++0x)
+	#add_definitions(-std=gnu++0x)
 	if(DEBUG)
 		message(STATUS "enabling gprof")
 		add_definitions(-Wall)
@@ -75,7 +75,7 @@ add_custom_command(TARGET inputs
 	COMMAND ${CMAKE_COMMAND} 
 	-DINPUT_FILE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/instructions_and_provided_resources/inputs
 	-DOUTPUT_IMAGE_DIR=${CMAKE_CURRENT_BINARY_DIR}/inputs
-	-DSCRIPT_NAME=$<TARGET_FILE:Simple>
+	-DSCRIPT_NAME=${CMAKE_CURRENT_BINARY_DIR}/lib/drivers/Simple
 	-DBASE_NAME=input
 	-P ${CMAKE_CURRENT_SOURCE_DIR}/images.cmake)
 
@@ -86,7 +86,7 @@ add_custom_command(TARGET testdata
 	COMMAND ${CMAKE_COMMAND} 
 	-DINPUT_FILE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/instructions_and_provided_resources/testdata
 	-DOUTPUT_IMAGE_DIR=${CMAKE_CURRENT_BINARY_DIR}/testdata
-	-DSCRIPT_NAME=$<TARGET_FILE:Simple>
 	-DBASE_NAME=test
+	-DSCRIPT_NAME=${CMAKE_CURRENT_BINARY_DIR}/lib/drivers/Simple
 	-P ${CMAKE_CURRENT_SOURCE_DIR}/images.cmake)
 

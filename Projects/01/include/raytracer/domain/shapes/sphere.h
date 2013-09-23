@@ -19,7 +19,7 @@
 class Sphere : public Shape {
 
 	public:
-		Sphere( const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular, const Vector_3D& center, double radius ) : Shape( k_diff, k_ambient, k_specular, n_specular ), center(center), radius(radius) { 
+		Sphere( const SimpleEnvironment* parent, const RGB& k_diff, const RGB& k_ambient, double k_specular, double n_specular, const Vector_3D& center, double radius ) : Shape( parent, k_diff, k_ambient, k_specular, n_specular ), center(center), radius(radius) { 
 			this->quadratic_roots_save = new std::vector<double>(3);
 			this->quadractic_numbers_save = new std::vector<double>(3);
 		}

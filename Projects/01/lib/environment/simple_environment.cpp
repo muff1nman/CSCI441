@@ -11,11 +11,13 @@
 #include <boost/progress.hpp>
 #endif
 
+#include <boost/bind.hpp>
+
 SimpleEnvironment::~SimpleEnvironment() {
 
 	// deallocate each shape
-	for( Shape* ptr : this->shapes ) {
-		delete ptr;
+	for( int i = 0; i < this->shapes.size(); ++i ) {
+		delete this->shapes.at(i);
 	}
 }
 
@@ -23,32 +25,34 @@ void SimpleEnvironment::add_shape(Shape* shape) {
 	this->shapes.push_back( shape );
 }
 
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection_within_time( const Ray& ray, double limit ) const {
+	return closest_intersection( ray, boost::bind<bool>(time_compare_with_limit(), _1, _2, limit));
+}
 
-boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray ) const {
+boost::optional<const Shape*> SimpleEnvironment::closest_intersection( const Ray& ray, boost::function<bool (boost::optional<double> possible_new_value, boost::optional<double> current_min)> time_compare ) const {
 	boost::optional<const Shape*> shape;
 	boost::optional<double> closest_intersected_time;
 	boost::optional<double> tested_time;
-	for( const Shape* const s : this->shapes ) {
+	for( int i = 0; i < this->shapes.size(); ++i ) {
+		const Shape* const s = this->shapes.at(i);
+		// TODO repeat call
+		// TODO possible issue if the A term for the ray (Ax + c) is not normalized
+		// we may not be able to compare times coming from this value?
 		tested_time = s->intersected_at( ray );
-		if( tested_time ) {
-			if ( closest_intersected_time ) {
-				if ( *tested_time < *closest_intersected_time ) {
-					// found one closer
-					closest_intersected_time = tested_time;
-					shape = s;
-				}
-			} else {
-				// First intersection we come acrost
-				closest_intersected_time = tested_time;
-				shape = s;
-			}
+		if( time_compare( tested_time, closest_intersected_time )) { 
+			closest_intersected_time = tested_time;
+			shape = s;
 		}
 	}
 	return shape;
+
 }
 
-
-Image_2D SimpleEnvironment::create_image() const {
+Image_2D SimpleEnvironment::create_image() 
+#ifndef DEBUG
+	const 
+#endif
+{
 	// General setup
 	Image_2D img(this->screen.blank_image());
 	// TODO cache screen?
@@ -62,11 +66,28 @@ Image_2D SimpleEnvironment::create_image() const {
 #endif
 
 	while( i != end ) {
+#ifdef DEBUG
+		if( i.get_x() == 88 && i.get_y() == 145 ) {
+			std::cout << "Setting pixel debug to: " << i.get_x() << ", " << i.get_y() << std::endl;
+			pixel_debug = true;
+		} else {
+			pixel_debug = false;
+		}
+#endif
+
 		intersected_shape = this->closest_intersection( *i );
 
 		if( intersected_shape ) {
+
 			// TODO repeat call to intersected at
-			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, *i, *((*intersected_shape)->intersected_at(*i)) ));
+			double time_intersected_at = *((*intersected_shape)->intersected_at(*i));
+
+			img.set(i.get_x(), i.get_y(), (*intersected_shape)->illuminate(this->light, *i, time_intersected_at ));
+#ifdef DEBUG
+		if( i.get_x() == 88 && i.get_y() == 145 ) {
+			img.set(i.get_x(), i.get_y(), RGB(1.0, 1.0, 0));
+		}
+#endif
 		}
 
 		++i;

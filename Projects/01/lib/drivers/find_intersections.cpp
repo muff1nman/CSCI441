@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	SimpleEnvironment test = parse(argv[1]);
+	SimpleEnvironment* test = parse(argv[1]);
 
 	Vector_3D start, finish;
 	start = prompt_for_vector();
@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 	Ray user_ray( start, finish );
 
 	cout << "Does ray intersect any shapes?" << endl;
-	boost::optional<const Shape*> shape_id = test.closest_intersection( user_ray );
+	boost::optional<const Shape*> shape_id = test->closest_intersection( user_ray );
 
 	if(shape_id) {
 #ifdef LOGGING
@@ -60,5 +60,7 @@ int main(int argc, char** argv) {
 	} else {
 		cout << "There was no shape intersected" << endl;
 	}
+
+	delete test;
 
 }
