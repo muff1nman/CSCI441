@@ -16,6 +16,7 @@
 #include <cmath>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/vector_angle.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <GL/glew.h>
@@ -45,6 +46,12 @@ size_t num_vertices;
 
 vec3 min_bound;
 vec3 max_bound;
+
+vec3 initial_mouse_point_on_sphere;
+
+mat4 global_rotation;
+mat4 current_rotation;
+
 /* ----------------------------------------------------- */
 
 // all buffer and program objects used 
@@ -62,6 +69,10 @@ Program *cube_program = NULL;
 
 /* ----------------------------------------------------- */
 
+void setup_globals() {
+	// no intial rotation
+	global_rotation = mat4();
+}
 
 void setup_buffers(const char* input_file) {
 	//Environment e = parse(input_file);
@@ -199,7 +210,7 @@ void draw()
 
   // this is technically a part of the modelview matrix - it rotates around the axis [0,0,20]
   //  and then moves "forward", i.e. along -Z, by 20 units
-  mat4 MV = to_view_t * S * T;
+  mat4 MV = to_view_t * current_rotation * global_rotation * S * T;
 
   // send matrices P and MV into uniform variables of the program used to render square
   // &P[0][0] is the pointer to the entries of matrix P, same for MV
@@ -236,6 +247,31 @@ void draw()
     glutPostRedisplay();
 }
 
+vec3 calculate_point_on_sphere( GLint mx, GLint my ) {
+
+	// scale to -1 to 1 range
+	GLfloat x = 2.0f * mx / (vpw - 1.0f) - 1.0f;
+	GLfloat y = -(2.0f * my  / (vph - 1.0f) - 1.0f);
+
+	GLfloat x_sq_y_sq = pow(x,2) + pow(y,2);
+
+	if( 1.0f - x_sq_y_sq  >= 0.0f ) {
+		return vec3( x, y, pow(1.0f - x_sq_y_sq, 0.5f));
+	} 
+	// outside of circle --- project onto it
+	else {
+		return vec3( x / pow( x_sq_y_sq, 0.5f ), y / pow( x_sq_y_sq, 0.5f ), 0);
+	}
+}
+
+mat4 create_rotation(vec3 initial, vec3 final) {
+	// make sure to return identiy if these are parallel
+	GLfloat rangle = angle(initial, final );
+	if( rangle != 0.0f ) {
+		return rotate( mat4(), rangle, cross(initial, final));
+	}
+	return mat4();
+}
 
 /* ----------------------------------------------------- */
 
@@ -257,40 +293,51 @@ bool mouse_button_down = false;
 void mouse_button(GLint btn, GLint state, GLint mx, GLint my)
 {
   switch( btn ) {
-  case GLUT_LEFT_BUTTON:
-    switch( state ) {
-    case GLUT_DOWN: 
-      cout << "Left mouse button pressed @ " << mx << " " << my << endl;
-      mouse_button_down = true;
-      break;
-    case GLUT_UP: 
-      if (!mouse_button_down) 
-	return;
-      cout << "Left mouse button went up @ " << mx << " " << my << endl;
-      mouse_button_down = false;
-      break;
-    }
-    break;
-  case GLUT_MIDDLE_BUTTON:
-    switch( state ) {
-    case GLUT_DOWN: 
-      cout << "Middle mouse button pressed @ " << mx << " " << my << endl;
-      mouse_button_down = true;
-      break;
-    case GLUT_UP:   
-      if (!mouse_button_down) 
-	return;
-      cout << "Middle mouse button went up@ " << mx << " " << my << endl;
-      mouse_button_down = false;
-      break;
-    }
-    break;
-  default:
-    return;  // ignore anything else, e.g. right button pressed
-  }
+		case GLUT_LEFT_BUTTON:
+			switch( state ) {
+				case GLUT_DOWN: 
+					cout << "Left mouse button pressed @ " << mx << " " << my << endl;
+					mouse_button_down = true;
 
-  // refresh the image - in your code, rendering parameters may be changed in mouse_button
-  glutPostRedisplay();
+					// save for rotation
+					cout << "(" << mx << "," << my << ") saved for intial rotation point" << endl;
+					initial_mouse_point_on_sphere = calculate_point_on_sphere( mx, my );
+
+					break;
+				case GLUT_UP: 
+					if (!mouse_button_down) 
+						return;
+					cout << "Left mouse button went up @ " << mx << " " << my << endl;
+
+					// rotation added to global rotation
+					global_rotation = current_rotation * global_rotation;
+					// clear current_rotation
+					current_rotation = mat4();
+
+					mouse_button_down = false;
+					break;
+			}
+			break;
+		case GLUT_MIDDLE_BUTTON:
+			switch( state ) {
+				case GLUT_DOWN: 
+					cout << "Middle mouse button pressed @ " << mx << " " << my << endl;
+					mouse_button_down = true;
+					break;
+				case GLUT_UP:   
+					if (!mouse_button_down) 
+						return;
+					cout << "Middle mouse button went up@ " << mx << " " << my << endl;
+					mouse_button_down = false;
+					break;
+			}
+			break;
+		default:
+			return;  // ignore anything else, e.g. right button pressed
+	}
+
+	// refresh the image - in your code, rendering parameters may be changed in mouse_button
+	glutPostRedisplay();
 }
 
 GLvoid button_motion(GLint mx, GLint my)
@@ -300,8 +347,10 @@ GLvoid button_motion(GLint mx, GLint my)
 
   cout << "Mouse movement with some button down @ " << mx << " " << my << endl;
 
-  // refresh the image - in your code, rendering parameters may be changed in button_motion
+	// rotate image
+	current_rotation = create_rotation( initial_mouse_point_on_sphere, calculate_point_on_sphere(mx, my));
 
+  // refresh the image - in your code, rendering parameters may be changed in button_motion
   glutPostRedisplay();
 }
 
@@ -459,6 +508,7 @@ GLint main(GLint argc, char **argv)
   // initialize programs and buffers
   setup_programs();
   setup_buffers("../input.t");
+	setup_globals();
 
   // Main loop: keep processing events.
   // This is actually an indefinite loop - you can only exit it using 
