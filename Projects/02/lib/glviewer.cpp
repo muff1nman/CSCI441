@@ -57,9 +57,9 @@ Program *cube_program = NULL;
 
 /* ----------------------------------------------------- */
 
-void setup_buffers()
+void setup_buffers(const char* input_file)
 {
-	Environment e = parse("");
+	Environment e = parse(input_file);
   // Fhe first argument to the Buffer constructor is the number of 
   // components per vertex (basically, numbers per vertex)
   // For square, vertices are 2D - they have 2 coordinates; hence 
@@ -397,7 +397,7 @@ GLint main(GLint argc, char **argv)
 
   // initialize programs and buffers
   setup_programs();
-  setup_buffers();
+  setup_buffers("../input.t");
 
   // Main loop: keep processing events.
   // This is actually an indefinite loop - you can only exit it using 
