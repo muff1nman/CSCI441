@@ -1,3 +1,9 @@
+/*
+ * glviewer.cpp
+ * Copyright (C) 2013 Andrew DeMaria (muff1nman) <ademaria@mines.edu>
+ *
+ * All Rights Reserved.
+ */
 
 #include <cmath>
 #include <iostream>
@@ -15,11 +21,10 @@
 #include <GL/glext.h>
 #include <GL/glut.h>
 
+#include "glviewer/parse/parse.h"
 #include "glviewer/gl/program.h"
 #include "glviewer/gl/vertexarray.h"
 #include "glviewer/gl/shader.h"
-
-#include "glviewer/parse/parse.h"
 
 using namespace gl_CSCI441;
 using namespace std;
@@ -34,78 +39,7 @@ static GLint wid;               /* GLUT window id; value asigned in main() and s
 static GLint vpw = VPD_DEFAULT; /* viewport dimensions; changed when window is resized (resize callback) */
 static GLint vph = VPD_DEFAULT;
 
-/* ----------------------------------------------------- */
-
-// Here are desired buffer contents for a square extending from -1 to 1 in x and y.
-// The square will be rendered using index buffer.
-// Note that we are specifying only x and y coordinates,
-// but the z-coordinate will be added on the vertex processing stage.
-
-GLfloat square_vertices[] = {
-  -1, -1,
-  -1,  1,
-   1,  1,
-   1, -1,
-};
-
-// Vertex indices.
-// In this case, it would be easy to form a triangle strip 
-// using only 4 vertex indices, but in the project you'll be using 
-// triangle soup, so this is what we'll do here.
-
-// IMPORTANT: you MUST use an unsigned type for index buffer data.
-
-GLuint square_indices[] = {
-  0, 1, 2,   // indices into the vertices of the first triangle
-  0, 2, 3    // ... and second triangle (with consistent orientation)
-};
-
-/* ----------------------------------------------------- */
-
-// Data for a cube extending from 0 to 1 in x y z.
-// The cube will be rendered using plain vertex array.
-
-GLfloat cube_vertices[] = {
-
-  0,1,0,  0,0,0,  0,0,1,
-  0,1,0,  0,0,1,  0,1,1,  // face 000 - 010 - 001 - 011
-
-  0,0,1,  0,0,0,  1,0,0,
-  0,0,1,  1,0,0,  1,0,1,  // face 000 - 100 - 001 - 101
-
-  0,0,0,  0,1,0,  1,1,0,
-  0,0,0,  1,1,0,  1,0,0,  // another face ....
-
-  1,0,1,  1,0,0,  1,1,0,
-  1,1,0,  1,1,1,  1,0,1,
-
-  1,1,0,  0,1,0,  0,1,1,
-  0,1,1,  1,1,1,  1,1,0,
-
-  1,1,1,  0,1,1,  0,0,1,
-  0,0,1,  1,0,1,  1,1,1
-};
-  
-// This is an attribute that represents which face a vertex belongs to.
-// In our triangulation of the cube, we render any of its
-// faces as two triangles; thus first six vertices in the 
-// cube_vertices array above represent the 0th face;
-// the following six vertices represent 1st face etc.
-
-// Alternatively, this could be done using the GLSL built-in
-// variable gl_PrimitiveId, http://www.opengl.org/sdk/docs/manglsl/xhtml/gl_PrimitiveID.xml
-// but this is a more flexible approach that you can use to pass
-// other information from C code to the GPU code.
-
-GLubyte cube_faceId[] = {
-  0,0,0,0,0,0,
-  1,1,1,1,1,1,
-  2,2,2,2,2,2,
-  3,3,3,3,3,3,
-  4,4,4,4,4,4,
-  5,5,5,5,5,5
-};
-
+size_t num_indices;
 /* ----------------------------------------------------- */
 
 // all buffer and program objects used 
@@ -125,33 +59,24 @@ Program *cube_program = NULL;
 
 void setup_buffers()
 {
+	Environment e = parse("");
   // Fhe first argument to the Buffer constructor is the number of 
   // components per vertex (basically, numbers per vertex)
   // For square, vertices are 2D - they have 2 coordinates; hence 
   //  the number of components is 2, and there are 4 vertices.
   // The last argument is a pointer to the actual vertex data.
-  buf_square_vertices = new Buffer(2,4,square_vertices);
+  buf_square_vertices = new Buffer(e.num_coords_per_vertice,e.num_vertices,e.vertices);
 
   // this is the way to construct index buffers...
   // 6 is the size of the buffer.
-  ix_square = new IndexBuffer(6,square_indices);
-
-  // build the cube buffers now...
-  buf_cube_vertices = new Buffer(3,36,cube_vertices);
-  buf_cube_faceId = new Buffer(1,36,cube_faceId);
-  
+  ix_square = new IndexBuffer(e.num_indices,e.indices);
   // construct the square VA
   va_square = new VertexArray;
 
   // vertices are attribute #0
   va_square->attachAttribute(0,buf_square_vertices);
 
-  // same for cube...
-  va_cube = new VertexArray;
-  // vertices are attribute #0
-  va_cube->attachAttribute(0,buf_cube_vertices);
-  // vertices are attribute #1
-  va_cube->attachAttribute(1,buf_cube_faceId);
+	num_indices = e.num_indices;
 }
 
 /* ----------------------------------------------------- */
@@ -169,7 +94,7 @@ void setup_programs()
   cout << "Creating the cube program..." << endl;
   cube_program = createProgram("lib/shaders/vsh_cube.glsl","lib/shaders/fsh_cube.glsl");
   cout << "Creating the square program..." << endl;
-  square_program = createProgram("lib/shaders/vsh_square.glsl","lib/shaders/fsh_square.glsl");
+  square_program = createProgram("lib/shaders/vertex.glsl","lib/shaders/fragment.glsl");
 }
 
 /* ----------------------------------------------------- */
@@ -230,46 +155,11 @@ void draw()
   // vertices with data at indices 0 1 2 0 2 3 in the buffers attached to the 
   // vertex array are going to be generated.
   // The first argument instructs the pipeline how to set up triangles; GL_TRIANGLES=triangle soup
-  va_square->sendToPipelineIndexed(GL_TRIANGLES,ix_square,0,6);
+  va_square->sendToPipelineIndexed(GL_TRIANGLES,ix_square,0,num_indices);
 
   // turn the program off
   square_program->off();
 
-  // OK to enable culling now: we'll be drawing cubes
-  glEnable(GL_CULL_FACE);
-
-  // We must to send the matrices again: this time to the cube program.
-  // Different programs generally maintain independent sets of uniforms.
-  // A more elegant and less wasteful way to do this could be based on GLSL subroutines.
-  cube_program->setUniform("MV",&MV[0][0]);
-  cube_program->setUniform("P",&P[0][0]);
-
-  // Turn on cube program
-  cube_program->on();
-
-  // send translation values - this will move the cube so that it is centered at the center of the square
-  // Note that you can also send a 3D vector to a uniform vec3 type variable using the setUniform method.
-  //  Just use 3 values instead of 2 to do that.
-  cube_program->setUniform("T",0.8f,0.8f);
-
-  // Send vertices 0...36 to the pipeline. In this case, we use `plain' rendering with no index
-  // This means that 36 vertices are going to be formed from contents of the buffers attached 
-  // to the vertex array va_cube 
-  va_cube->sendToPipeline(GL_TRIANGLES,0,36);
-  
-  // ... now render three cubes centered at the other vertices of the square
-  cube_program->setUniform("T",-0.8f,0.8f);
-  va_cube->sendToPipeline(GL_TRIANGLES,0,36);
-
-  cube_program->setUniform("T",0.8f,-0.8f);
-  va_cube->sendToPipeline(GL_TRIANGLES,0,36);
-
-  cube_program->setUniform("T",-0.8f,-0.8f);
-  va_cube->sendToPipeline(GL_TRIANGLES,0,36);
-
-  // turn off program
-  cube_program->off();
- 
   // make sure all the stuff is drawn
   glFlush();
 
@@ -404,15 +294,6 @@ void keyboard(GLubyte key, GLint x, GLint y)
     // clean up and exit
     // you may remove these deletes and let the OS do the work
 
-    delete va_square;
-    delete ix_square;
-    delete va_cube;
-    delete square_program;
-    delete cube_program;
-    delete buf_square_vertices;
-    delete buf_cube_vertices;
-    delete buf_cube_faceId;
-
     exit(0);
 
   default:  break;
@@ -528,4 +409,3 @@ GLint main(GLint argc, char **argv)
 }
 
 
-/* --------------------------------------------- */
