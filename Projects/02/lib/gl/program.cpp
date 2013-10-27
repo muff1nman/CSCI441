@@ -103,54 +103,54 @@ namespace  gl_CSCI441 {
     GLsizei length;
 
     GLint loc = glGetUniformLocation(handle,name);
-    if (loc==-1)
-      {
-	if (one_warning_printed==false)
-	   cout << "No uniform variable " << name << " found" << endl;
-        one_warning_printed = true;
-	return;
-      }
+		if (loc==-1)
+		{
+			if (one_warning_printed==false)
+				cout << "No uniform variable " << name << " found" << endl;
+			one_warning_printed = true;
+			return;
+		}
 
-    glGetActiveUniform(handle,loc,255,&length,&size,&type,uname);
+		glGetActiveUniform(handle,loc,255,&length,&size,&type,uname);
 
-    glUseProgram(handle);
-    switch(type)
-      {
-      case GL_INT:
-	glUniform1i(loc,x);
-	break;
-      case GL_INT_VEC2:
-	glUniform2i(loc,x,y);
-	break;
-      case GL_INT_VEC3:
-	glUniform3i(loc,x,y,z);
-	break;
-      case GL_INT_VEC4:
-	glUniform4i(loc,x,y,z,h);
-	break;
-      default:
-	cout << "Type mismatch: trying to put values of type GLint into uniform variable " << name << endl;
-	exit(1);
-      }
-    if (laston)
-      laston->on();
-  }
+		glUseProgram(handle);
+		switch(type)
+		{
+			case GL_INT:
+				glUniform1i(loc,x);
+				break;
+			case GL_INT_VEC2:
+				glUniform2i(loc,x,y);
+				break;
+			case GL_INT_VEC3:
+				glUniform3i(loc,x,y,z);
+				break;
+			case GL_INT_VEC4:
+				glUniform4i(loc,x,y,z,h);
+				break;
+			default:
+				cout << "Type mismatch: trying to put values of type GLint into uniform variable " << name << endl;
+				exit(1);
+		}
+		if (laston)
+			laston->on();
+	}
 
-/* ------------------------------------------- */
+	/* ------------------------------------------- */
 
-  void Program::setUniform ( const GLchar *name, GLuint x, GLuint y, GLuint z, GLuint h )
-  {
-    GLchar uname[256];
-    GLenum type;
-    GLint size;
-    GLsizei length;
+	void Program::setUniform ( const GLchar *name, GLuint x, GLuint y, GLuint z, GLuint h )
+	{
+		GLchar uname[256];
+		GLenum type;
+		GLint size;
+		GLsizei length;
 
-    GLint loc = glGetUniformLocation(handle,name);
-    if (loc==-1)
-      {
-	if (one_warning_printed==false)
-     	  cout << "No uniform variable " << name << " found" << endl;
-        one_warning_printed = true;
+		GLint loc = glGetUniformLocation(handle,name);
+		if (loc==-1)
+		{
+			if (one_warning_printed==false)
+				cout << "No uniform variable " << name << " found" << endl;
+			one_warning_printed = true;
 	return;
       }
 

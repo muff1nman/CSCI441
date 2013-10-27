@@ -28,6 +28,7 @@
 #include "glviewer/gl/program.h"
 #include "glviewer/gl/vertexarray.h"
 #include "glviewer/gl/shader.h"
+#include "glviewer/domain/triangle.h"
 
 using namespace gl_CSCI441;
 using namespace std;
@@ -52,47 +53,92 @@ vec3 initial_mouse_point_on_sphere;
 mat4 global_rotation;
 mat4 current_rotation;
 
+// pick an alpha
+GLfloat alpha = 14.0f;
+
 /* ----------------------------------------------------- */
 
 // all buffer and program objects used 
 
-VertexArray *va_square = NULL;
-Buffer *buf_square_vertices = NULL;
-IndexBuffer *ix_square = NULL;
+VertexArray* va_square = NULL;
+Buffer* buf_square_vertices = NULL;
+Buffer* normal_buffer = NULL;
+IndexBuffer* ix_square = NULL;
 
-VertexArray *va_cube = NULL;
-Buffer *buf_cube_vertices = NULL;
-Buffer *buf_cube_faceId = NULL;
-
-Program *square_program = NULL;
-Program *cube_program = NULL;
+Program* square_program = NULL;
 
 /* ----------------------------------------------------- */
 
 void setup_globals() {
 	// no intial rotation
 	global_rotation = mat4();
+
+	// set the light source location
+	vec3 light_source(0.0f,0.0f,10.0f);
+  square_program->setUniform("LV",&light_source.x);
+	vec3 kdiff(0.4,0.2,0.6);
+	square_program->setUniform("KDIFF",&kdiff.x);
+}
+
+void print_vec( const vec3& vec ) {
+	cout << "(" << vec.x << "," << vec.y << "," << vec.z << ")" << endl;
+}
+
+VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
+	if( vecs.size() % VERTS_PER_TRIANGLE != 0 ) {
+		cerr << "Could not evenly divide vector stream into triangles" << endl;
+		exit(1);
+	} else {
+		VectorStream normals;
+		cout << "Normals:" << endl;
+		for( size_t i = 0; i < (vecs.size() / VERTS_PER_TRIANGLE); ++i ) {
+			vec3 ab = (vecs.at(3*i + 1) - vecs.at(3*i));
+			vec3 ac = (vecs.at(3*i + 2) - vecs.at(3*i));
+			vec3 norm_out = cross(ab, ac);
+			// push normals back three times
+			for( size_t i = 0; i < VERTS_PER_TRIANGLE; ++i ) {
+				if( length(norm_out) != 0 ) {
+					norm_out = normalize(norm_out);
+				}
+				print_vec(norm_out);
+				normals.push_back(norm_out);
+			}
+		}
+
+		cout << "End normals" << endl;
+		return normals;
+	}
 }
 
 void setup_buffers(const char* input_file) {
 	//Environment e = parse(input_file);
-	VectorStream tris = to_vec_stream( input_file );
+	VectorStream verts = to_vec_stream( input_file );
+	VectorStream norms = create_flat_normal_stream( verts );
 
-	num_vertices = tris.size();
+	num_vertices = verts.size();
+
+	// assuming norms.size() == verts.size()
+	CoordBuffer norm_buffer = new Coord[3*num_vertices];
+	for( size_t i = 0; i < verts.size(); ++i ) {
+		vec3 cur = verts.at(i);
+		norm_buffer[ 3*i+0 ] = cur.x;
+		norm_buffer[ 3*i+1 ] = cur.y;
+		norm_buffer[ 3*i+2 ] = cur.z;
+	}
 
 	CoordBuffer tri_buffer = new Coord[3*num_vertices];
-	for( size_t i = 0; i < tris.size(); ++i ) {
-
+	for( size_t i = 0; i < verts.size(); ++i ) {
+		print_vec( verts.at(i) );
 		// set the min and max first time around
 		if( i == 0 ) {
-			min_bound = tris.at(i);
-			max_bound = tris.at(i);
+			min_bound = verts.at(i);
+			max_bound = verts.at(i);
 		}
 
 		// check to set max or min
-		GLfloat cur_x = tris.at(i).x;
-		GLfloat cur_y = tris.at(i).y;
-		GLfloat cur_z = tris.at(i).z;
+		GLfloat cur_x = verts.at(i).x;
+		GLfloat cur_y = verts.at(i).y;
+		GLfloat cur_z = verts.at(i).z;
 
 		if( cur_x > max_bound.x ) {
 			max_bound.x = cur_x;
@@ -113,7 +159,7 @@ void setup_buffers(const char* input_file) {
 			min_bound.z = cur_z;
 		}
 		
-		//cout << "(" << tris.at(i).x << "," <<tris.at(i).y  << "," << tris.at(i).z << ")" << endl;
+		//cout << "(" << verts.at(i).x << "," <<verts.at(i).y  << "," << verts.at(i).z << ")" << endl;
 		tri_buffer[ 3*i+0 ] = cur_x;
 		tri_buffer[ 3*i+1 ] = cur_y;
 		tri_buffer[ 3*i+2 ] = cur_z;
@@ -124,13 +170,16 @@ void setup_buffers(const char* input_file) {
   // For square, vertices are 2D - they have 2 coordinates; hence 
   //  the number of components is 2, and there are 4 vertices.
   // The last argument is a pointer to the actual vertex data.
-  buf_square_vertices = new Buffer(3,tris.size(),tri_buffer);
+  buf_square_vertices = new Buffer(3,verts.size(),tri_buffer);
+
+	normal_buffer = new Buffer(3,verts.size(),norm_buffer);
 
   // construct the square VA
   va_square = new VertexArray;
 
   // vertices are attribute #0
   va_square->attachAttribute(0,buf_square_vertices);
+	va_square->attachAttribute(1,normal_buffer);
 
 }
 
@@ -146,8 +195,6 @@ void setup_programs()
   // prints out the GLSL compiler and linker messages - this is a way to know
   // which of your shaders/programs has a problem.
 
-  cout << "Creating the cube program..." << endl;
-  cube_program = createProgram("lib/shaders/vsh_cube.glsl","lib/shaders/fsh_cube.glsl");
   cout << "Creating the square program..." << endl;
   square_program = createProgram("lib/shaders/vertex.glsl","lib/shaders/fragment.glsl");
 }
@@ -174,20 +221,16 @@ void draw()
 
   // want to disable culling for square - it's not a watertight surface
   //  what would happen if you enable it?
-  glDisable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
 
   // want to use depth test to get visibility right
   glEnable(GL_DEPTH_TEST);
-
-	// pick an alpha
-	GLfloat alpha = 14.0f;
 
 	GLfloat d = 1 / tan(alpha / 180.0 * M_PI / 2.0f);
 
   // Compute projection matrix; perspective() is a glm function
   // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
   // Camera is located at the origin and points along -Z direction
-  //mat4 P = perspective(float(1.0+0.5*sin(counter/100.0))*1.0f,1.0f,18.0f,22.0f);
   mat4 P = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
 
 	// calculate what to transform by to get to zero zero
@@ -208,9 +251,10 @@ void draw()
 
 	mat4 to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
 
-  // this is technically a part of the modelview matrix - it rotates around the axis [0,0,20]
-  //  and then moves "forward", i.e. along -Z, by 20 units
   mat4 MV = to_view_t * current_rotation * global_rotation * S * T;
+
+	//mat4 NMV = transpose(inverse(MV));
+	mat4 NMV = current_rotation * global_rotation;
 
   // send matrices P and MV into uniform variables of the program used to render square
   // &P[0][0] is the pointer to the entries of matrix P, same for MV
@@ -218,6 +262,7 @@ void draw()
   //    - they don't have to be the same
   square_program->setUniform("P",&P[0][0]);
   square_program->setUniform("MV",&MV[0][0]);
+	square_program->setUniform("NMV",&NMV[0][0]);
 
   // turn on the square program...
   square_program->on();
@@ -360,31 +405,43 @@ GLvoid button_motion(GLint mx, GLint my)
 
 // you'll need to change this one as well...
 
-static const int MENU_SLOWER = 1;
-static const int MENU_FASTER = 2;
-static const int MENU_STOP_RUN = 3;
+static const int MENU_FLAT = 1;
+static const int MENU_GOURAUD = 2;
+static const int MENU_PHONG = 3;
+static const int MENU_SPECULAR = 4;
+static const int MENU_DIFFUSE = 5;
+static const int MENU_ZOOM_IN = 6;
+static const int MENU_ZOOM_OUT = 7;
+
+static const GLfloat ZOOM_FACTOR = 10.0f;
+
+void increase_alpha() {
+	alpha -= ZOOM_FACTOR;
+}
+
+void decrease_alpha() {
+	alpha += ZOOM_FACTOR;
+}
 
 void menu ( int value )
 {
-  static GLfloat stored_multiplier = 0;
-  static int stored_dcounter;
-
   switch(value)
     {
-    case MENU_SLOWER:
-      multiplier *= 0.6;
+    case MENU_FLAT:
       break;
-    case MENU_FASTER:
-      multiplier *= 1.4;
+    case MENU_GOURAUD:
       break;
-    case MENU_STOP_RUN:
-      animate = !animate;
-      
-      // this is to make sure that when animation is off, things don't move even if
-      //  glutPostRedisplay comes up somewhere (e.g. in a mouse event)
-      swap(dcounter,stored_dcounter);
-      swap(multiplier,stored_multiplier);
-
+    case MENU_PHONG:
+      break;
+    case MENU_SPECULAR:
+      break;
+    case MENU_DIFFUSE:
+      break;
+    case MENU_ZOOM_IN:
+			increase_alpha();
+      break;
+    case MENU_ZOOM_OUT:
+			decrease_alpha();
       break;
     }
 
@@ -403,6 +460,7 @@ void keyboard(GLubyte key, GLint x, GLint y)
     
     // clean up and exit
     // you may remove these deletes and let the OS do the work
+		// TODO
 
     exit(0);
 
@@ -477,9 +535,13 @@ GLint init_glut(GLint *argc, char **argv)
   /* create menu */
   // you'll need to change this to build your menu
   GLint menuID = glutCreateMenu(menu);
-  glutAddMenuEntry("slower",MENU_SLOWER);
-  glutAddMenuEntry("faster",MENU_FASTER);
-  glutAddMenuEntry("stop/run",MENU_STOP_RUN);
+  glutAddMenuEntry("Flat shading",MENU_FLAT);
+  glutAddMenuEntry("Gouraud shading",MENU_GOURAUD);
+  glutAddMenuEntry("Phong shading",MENU_PHONG);
+  glutAddMenuEntry("Enable/Disable specular",MENU_SPECULAR);
+  glutAddMenuEntry("Enable/Disable diffuse",MENU_DIFFUSE);
+  glutAddMenuEntry("Zoom In",MENU_ZOOM_IN);
+  glutAddMenuEntry("Zoom Out",MENU_ZOOM_OUT);
   glutSetMenu(menuID);
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 

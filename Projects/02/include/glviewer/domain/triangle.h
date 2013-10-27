@@ -8,13 +8,7 @@
 #ifndef __Triangle_h__
 #define __Triangle_h__
 
-#include "types.h"
-
-class Triangle {
-	public:
-		Triangle(CoordIndex a, CoordIndex b, CoordIndex c ) : a(a), b(b), c(c) { }
-		CoordIndex a, b, c;
-}
+const size_t VERTS_PER_TRIANGLE = 3;
 
 #endif /* !__Triangle_h__ */
 
