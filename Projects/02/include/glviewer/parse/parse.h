@@ -11,5 +11,7 @@
 #include "environment.h"
 
 Environment parse( const char* filename );
+VectorStream to_vec_stream( const char* filename );
+
 #endif /* !__parse_h__ */
 

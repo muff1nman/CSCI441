@@ -42,10 +42,11 @@ configure_file(
 
 # For a vim plugin (not necessary for the project)
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
+set( GLM_INCLUDE_DIRS "/usr/include/glm")
 
 # Project includes 
 include_directories( ${GLVIEW_INCLUDE_DIR} 
-	${CMAKE_CURRENT_BINARY_DIR}/include )
+	${CMAKE_CURRENT_BINARY_DIR}/include ${GLM_INCLUDE_DIRS})
 
 # For the optional types
 #find_package(Boost 1.54)

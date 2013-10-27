@@ -12,6 +12,8 @@
 #include <cassert>
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <cmath>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -39,7 +41,10 @@ static GLint wid;               /* GLUT window id; value asigned in main() and s
 static GLint vpw = VPD_DEFAULT; /* viewport dimensions; changed when window is resized (resize callback) */
 static GLint vph = VPD_DEFAULT;
 
-size_t num_indices;
+size_t num_vertices;
+
+vec3 min_bound;
+vec3 max_bound;
 /* ----------------------------------------------------- */
 
 // all buffer and program objects used 
@@ -57,26 +62,65 @@ Program *cube_program = NULL;
 
 /* ----------------------------------------------------- */
 
-void setup_buffers(const char* input_file)
-{
-	Environment e = parse(input_file);
+
+void setup_buffers(const char* input_file) {
+	//Environment e = parse(input_file);
+	VectorStream tris = to_vec_stream( input_file );
+
+	num_vertices = tris.size();
+
+	CoordBuffer tri_buffer = new Coord[3*num_vertices];
+	for( size_t i = 0; i < tris.size(); ++i ) {
+
+		// set the min and max first time around
+		if( i == 0 ) {
+			min_bound = tris.at(i);
+			max_bound = tris.at(i);
+		}
+
+		// check to set max or min
+		GLfloat cur_x = tris.at(i).x;
+		GLfloat cur_y = tris.at(i).y;
+		GLfloat cur_z = tris.at(i).z;
+
+		if( cur_x > max_bound.x ) {
+			max_bound.x = cur_x;
+		}
+		if( cur_x < min_bound.x ) {
+			min_bound.x = cur_x;
+		}
+		if( cur_y > max_bound.y ) {
+			max_bound.y = cur_y;
+		}
+		if( cur_y < min_bound.y ) {
+			min_bound.y = cur_y;
+		}
+		if( cur_z > max_bound.z ) {
+			max_bound.z = cur_z;
+		}
+		if( cur_z < min_bound.z ) {
+			min_bound.z = cur_z;
+		}
+		
+		//cout << "(" << tris.at(i).x << "," <<tris.at(i).y  << "," << tris.at(i).z << ")" << endl;
+		tri_buffer[ 3*i+0 ] = cur_x;
+		tri_buffer[ 3*i+1 ] = cur_y;
+		tri_buffer[ 3*i+2 ] = cur_z;
+	}
+
   // Fhe first argument to the Buffer constructor is the number of 
   // components per vertex (basically, numbers per vertex)
   // For square, vertices are 2D - they have 2 coordinates; hence 
   //  the number of components is 2, and there are 4 vertices.
   // The last argument is a pointer to the actual vertex data.
-  buf_square_vertices = new Buffer(e.num_coords_per_vertice,e.num_vertices,e.vertices);
+  buf_square_vertices = new Buffer(3,tris.size(),tri_buffer);
 
-  // this is the way to construct index buffers...
-  // 6 is the size of the buffer.
-  ix_square = new IndexBuffer(e.num_indices,e.indices);
   // construct the square VA
   va_square = new VertexArray;
 
   // vertices are attribute #0
   va_square->attachAttribute(0,buf_square_vertices);
 
-	num_indices = e.num_indices;
 }
 
 /* ----------------------------------------------------- */
@@ -114,10 +158,6 @@ void draw()
   static int counter = 0;
   counter += dcounter;
 
-  // rotation angle
-  static GLfloat angle = 0.0;
-  angle += multiplier;
-
   // clear buffers
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -128,17 +168,38 @@ void draw()
   // want to use depth test to get visibility right
   glEnable(GL_DEPTH_TEST);
 
+	// pick an alpha
+	GLfloat alpha = 14.0f;
+
+	GLfloat d = 1 / tan(alpha / 180.0 * M_PI / 2.0f);
+
   // Compute projection matrix; perspective() is a glm function
   // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
   // Camera is located at the origin and points along -Z direction
-  mat4 P = perspective(float(1.0+0.5*sin(counter/100.0))*10.0f,1.0f,18.0f,22.0f);
+  //mat4 P = perspective(float(1.0+0.5*sin(counter/100.0))*1.0f,1.0f,18.0f,22.0f);
+  mat4 P = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
 
-  // we'll use this as rotation component of the modelview matrix
-  mat4 R = rotate(mat4(),angle,vec3(1.0f,2.0f,0.0f));
+	// calculate what to transform by to get to zero zero
+	vec3 trans( 
+			- (max_bound.x + min_bound.x) / 2.0f,
+			- (max_bound.y + min_bound.y) / 2.0f,
+			- (max_bound.z + min_bound.z) / 2.0f);
+
+	// and form into a matrix
+	mat4 T = translate(mat4(), trans);
+
+	// calculatre the scalar to scale by
+	GLfloat sc = 2.0f / std::max( max_bound.x - min_bound.x, 
+			std::max( max_bound.y - min_bound.y, max_bound.z - min_bound.z ));
+
+	// put it into matrix form
+	mat4 S = scale( mat4(), vec3(sc,sc,sc) );
+
+	mat4 to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
 
   // this is technically a part of the modelview matrix - it rotates around the axis [0,0,20]
   //  and then moves "forward", i.e. along -Z, by 20 units
-  mat4 MV = translate(mat4(),vec3(0.0f,0.0f,-20.0f)) * R;
+  mat4 MV = to_view_t * S * T;
 
   // send matrices P and MV into uniform variables of the program used to render square
   // &P[0][0] is the pointer to the entries of matrix P, same for MV
@@ -155,7 +216,7 @@ void draw()
   // vertices with data at indices 0 1 2 0 2 3 in the buffers attached to the 
   // vertex array are going to be generated.
   // The first argument instructs the pipeline how to set up triangles; GL_TRIANGLES=triangle soup
-  va_square->sendToPipelineIndexed(GL_TRIANGLES,ix_square,0,num_indices);
+	va_square->sendToPipeline(GL_TRIANGLES,0, num_vertices );
 
   // turn the program off
   square_program->off();
