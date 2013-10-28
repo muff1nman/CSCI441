@@ -85,16 +85,21 @@ void setup_globals() {
 	global_rotation = mat4();
 
 	// set the light source location
-	vec3 light_source(0.0f,0.0f,10.0f);
+	vec3 light_source(0.0f,0.0f,100.0f);
   square_program->setUniform("LV",&light_source.x);
+
+	// set material properties
 	vec3 kdiff(0.4,0.2,0.6);
 	square_program->setUniform("KDIFF",&kdiff.x);
 }
 
+// just a handy print helper
 void print_vec( const vec3& vec ) {
 	cout << "(" << vec.x << "," << vec.y << "," << vec.z << ")" << endl;
 }
 
+// Creates a list of vec3 for normals.  It will output 3 vec3 for each triangle
+// in the given vector stream
 VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
 	if( vecs.size() % VERTS_PER_TRIANGLE != 0 ) {
 		cerr << "Could not evenly divide vector stream into triangles" << endl;
@@ -102,16 +107,20 @@ VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
 	} else {
 		VectorStream normals;
 		cout << "Normals:" << endl;
+		//  Iterate over every third vec3 so that we can treat them as groups of
+		//  triangles
 		for( size_t i = 0; i < (vecs.size() / VERTS_PER_TRIANGLE); ++i ) {
+			// compute the normal for the given triangle
 			vec3 ab = (vecs.at(3*i + 1) - vecs.at(3*i));
 			vec3 ac = (vecs.at(3*i + 2) - vecs.at(3*i));
 			vec3 norm_out = cross(ab, ac);
 			// push normals back three times
 			for( size_t i = 0; i < VERTS_PER_TRIANGLE; ++i ) {
+				// make sure that we can compute the normal
 				if( length(norm_out) != 0 ) {
 					norm_out = normalize(norm_out);
 				}
-				//print_vec(norm_out);
+				print_vec(norm_out);
 				normals.push_back(norm_out);
 			}
 		}
@@ -122,13 +131,16 @@ VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
 }
 
 void setup_buffers(const char* input_file) {
-	//Environment e = parse(input_file);
+	// get a stream of vertices 
 	VectorStream verts = to_vec_stream( input_file );
+	// create a stream of normals from the vertice stream
 	VectorStream norms = create_flat_normal_stream( verts );
 
+	// assuming norms.size() == verts.size()
 	num_vertices = verts.size();
 
-	// assuming norms.size() == verts.size()
+	// Loop over all normal vec3's and output three times to the coordinate
+	// buffer, once for each coordinate in a vec3.
 	CoordBuffer norm_buffer = new Coord[3*num_vertices];
 	for( size_t i = 0; i < verts.size(); ++i ) {
 		vec3 cur = verts.at(i);
@@ -137,9 +149,13 @@ void setup_buffers(const char* input_file) {
 		norm_buffer[ 3*i+2 ] = cur.z;
 	}
 
+	// Loop over all the vertex vec's and output three times to the coordinate
+	// buffer, once for each coordinate in a vec3.  Also find the max and min
+	// bounds while we're at it
 	CoordBuffer tri_buffer = new Coord[3*num_vertices];
 	for( size_t i = 0; i < verts.size(); ++i ) {
 		//print_vec( verts.at(i) );
+
 		// set the min and max first time around
 		if( i == 0 ) {
 			min_bound = verts.at(i);
@@ -171,6 +187,8 @@ void setup_buffers(const char* input_file) {
 		}
 		
 		//cout << "(" << verts.at(i).x << "," <<verts.at(i).y  << "," << verts.at(i).z << ")" << endl;
+
+		// Set the actual buffer
 		tri_buffer[ 3*i+0 ] = cur_x;
 		tri_buffer[ 3*i+1 ] = cur_y;
 		tri_buffer[ 3*i+2 ] = cur_z;
@@ -260,10 +278,13 @@ void draw()
 	// put it into matrix form
 	mat4 S = scale( mat4(), vec3(sc,sc,sc) );
 
+	// calculate the translate required to get into camera fov
 	mat4 to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
 
+	// join all the matrices together for the complete MV matrix
   mat4 MV = to_view_t * current_rotation * global_rotation * S * T;
 
+	// compute the normal matrix from the MV matrix
 	//mat4 NMV = transpose(inverse(MV));
 	mat4 NMV = current_rotation * global_rotation;
 
@@ -309,12 +330,15 @@ vec3 calculate_point_on_sphere( GLint mx, GLint my ) {
 	GLfloat x = 2.0f * mx / (vpw - 1.0f) - 1.0f;
 	GLfloat y = -(2.0f * my  / (vph - 1.0f) - 1.0f);
 
+	// compute x^2 + y^2
 	GLfloat x_sq_y_sq = pow(x,2) + pow(y,2);
 
+	// make sure that the square root wont be negative
 	if( 1.0f - x_sq_y_sq  >= 0.0f ) {
+		// inside the sphere
 		return vec3( x, y, pow(1.0f - x_sq_y_sq, 0.5f));
 	} 
-	// outside of circle --- project onto it
+	// outside of sphere --- project onto it
 	else {
 		return vec3( x / pow( x_sq_y_sq, 0.5f ), y / pow( x_sq_y_sq, 0.5f ), 0);
 	}
@@ -323,7 +347,9 @@ vec3 calculate_point_on_sphere( GLint mx, GLint my ) {
 mat4 create_rotation(vec3 initial, vec3 final) {
 	// make sure to return identiy if these are parallel
 	GLfloat rangle = angle(initial, final );
-	if( rangle != 0.0f ) {
+	// we use 0.1 here because if we test strictly against 0.0 we get divide by
+	// zero errors very occaisionaly
+	if( rangle > 0.1f ) {
 		return rotate( mat4(), rangle, cross(initial, final));
 	}
 	return mat4();

@@ -16,12 +16,12 @@ void main() {
 	gl_Position  = MV * vec4(model_coord, 1);
 
 	//calculate the transformed normal
-	vec4 normal = NMV * vec4(normal_for_coord,0.0f);
+	vec4 normal = normalize(NMV * vec4(normal_for_coord,0.0f));
 
 	// calculate triangle color
-	vec3 location_to_light_vector = LV - gl_Position.xyz;
+	vec3 location_to_light_vector = normalize(LV - gl_Position.xyz);
 
-	float diffuse_dot = dot(normalize(normal.xyz), normalize(location_to_light_vector));
+	float diffuse_dot = dot(normal.xyz, location_to_light_vector);
 	if(diffuse_dot < 0.0f) {
 		color = vec3(0.2,0.0,0.0);
 	} else {
