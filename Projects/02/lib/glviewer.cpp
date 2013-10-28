@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iterator>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -56,6 +57,8 @@ static GLint wid;               /* GLUT window id; value asigned in main() and s
 static GLint vpw = VPD_DEFAULT; /* viewport dimensions; changed when window is resized (resize callback) */
 static GLint vph = VPD_DEFAULT;
 
+static const size_t THIRD_DIM = 3;
+
 size_t num_vertices;
 
 vec3 min_bound;
@@ -72,13 +75,22 @@ GLfloat alpha = 14.0f;
 /* ----------------------------------------------------- */
 
 // all buffer and program objects used 
+Buffer* vertices = NULL;
 
-VertexArray* va_square = NULL;
-Buffer* buf_square_vertices = NULL;
-Buffer* normal_buffer = NULL;
-IndexBuffer* ix_square = NULL;
+VertexArray* flat_vao = NULL;
+Buffer* flat_normals = NULL;
 
-Program* square_program = NULL;
+VertexArray* gphong_vao = NULL;
+Buffer* gphong_normals = NULL;
+
+// DONT deallocate this one
+VertexArray* current_vao = NULL;
+
+Program* flat_program = NULL;
+Program* gouraud_program = NULL;
+Program* phong_program = NULL;
+// DONT deallocate this one
+Program* current_program = NULL;
 
 /* ----------------------------------------------------- */
 static vec3 light_source(50.0f,10.0f,100.0f);
@@ -89,19 +101,19 @@ static GLfloat nspec = 100;
 static vec3 none(0.0, 0.0, 0.0);
 
 void turn_on_diffuse() {
-	square_program->setUniform("KDIFF",&kdiff.x);
+	current_program->setUniform("KDIFF",&kdiff.x);
 }
 
 void turn_off_diffuse() {
-	square_program->setUniform("KDIFF",&none.x);
+	current_program->setUniform("KDIFF",&none.x);
 }
 
 void turn_on_specular() {
-	square_program->setUniform("KSPEC", &kspec.x);
+	current_program->setUniform("KSPEC", &kspec.x);
 }
 
 void turn_off_specular() {
-	square_program->setUniform("KSPEC", &none.x);
+	current_program->setUniform("KSPEC", &none.x);
 }
 
 void toggle_specular() {
@@ -128,14 +140,44 @@ void setup_globals() {
 	// no intial rotation
 	global_rotation = mat4();
 
+}
+
+void setup_const_uniforms() {
 	// set the light source location
-  square_program->setUniform("LV",&light_source.x);
+  current_program->setUniform("LV",&light_source.x);
 
 	// set material properties
 	turn_on_diffuse();
 	turn_on_specular();
-	square_program->setUniform("KAMBIENT",&kambient.x);
-	square_program->setUniform("NSPEC", &nspec);
+	current_program->setUniform("KAMBIENT",&kambient.x);
+	current_program->setUniform("NSPEC", &nspec);
+
+}
+
+void set_program() {
+	setup_const_uniforms();
+}
+
+void set_phong_program() {
+	current_program = phong_program;
+	current_vao = gphong_vao;
+	set_program();
+}
+
+void set_gouraud_program() {
+	current_program = gouraud_program;
+	current_vao = gphong_vao;
+	set_program();
+}
+
+void set_flat_program() {
+	current_program = flat_program;
+	current_vao = flat_vao;
+	set_program();
+}
+
+void set_default_program() {
+	set_flat_program();
 }
 
 // just a handy print helper
@@ -143,65 +185,89 @@ void print_vec( const vec3& vec ) {
 	cout << "(" << vec.x << "," << vec.y << "," << vec.z << ")" << endl;
 }
 
-// Creates a list of vec3 for normals.  It will output 3 vec3 for each triangle
-// in the given vector stream
-VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
+void check_valid_vecs_size( const VectorStream& vecs ) {
 	if( vecs.size() % VERTS_PER_TRIANGLE != 0 ) {
 		cerr << "Could not evenly divide vector stream into triangles" << endl;
 		exit(1);
-	} else {
-		VectorStream normals;
-		//cout << "Normals:" << endl;
-		//  Iterate over every third vec3 so that we can treat them as groups of
-		//  triangles
-		for( size_t i = 0; i < (vecs.size() / VERTS_PER_TRIANGLE); ++i ) {
-			// compute the normal for the given triangle
-			vec3 ab = (vecs.at(3*i + 1) - vecs.at(3*i));
-			vec3 ac = (vecs.at(3*i + 2) - vecs.at(3*i));
-			vec3 norm_out = cross(ab, ac);
-			// push normals back three times
-			for( size_t i = 0; i < VERTS_PER_TRIANGLE; ++i ) {
-				// make sure that we can compute the normal
-				if( length(norm_out) != 0 ) {
-					norm_out = normalize(norm_out);
-				}
-				///print_vec(norm_out);
-				normals.push_back(norm_out);
-			}
-		}
-
-		//cout << "End normals" << endl;
-		return normals;
 	}
 }
 
-void setup_buffers(const char* input_file) {
-	// get a stream of vertices 
-	VectorStream verts = to_vec_stream( input_file );
-	// create a stream of normals from the vertice stream
-	VectorStream norms = create_flat_normal_stream( verts );
+vec3 compute_normal_at_vec_index( const VectorStream& vecs, size_t i ) {
+	// compute the normal for the given triangle
+	vec3 ab = (vecs.at(3*i + 1) - vecs.at(3*i));
+	vec3 ac = (vecs.at(3*i + 2) - vecs.at(3*i));
+	return cross(ab, ac);
+}
 
-	// assuming norms.size() == verts.size()
-	num_vertices = verts.size();
-
-	// Loop over all normal vec3's and output three times to the coordinate
-	// buffer, once for each coordinate in a vec3.
-	CoordBuffer norm_buffer = new Coord[3*num_vertices];
-	for( size_t i = 0; i < verts.size(); ++i ) {
-		vec3 cur = norms.at(i);
-		norm_buffer[ 3*i+0 ] = cur.x;
-		norm_buffer[ 3*i+1 ] = cur.y;
-		norm_buffer[ 3*i+2 ] = cur.z;
+// Creates a list of vec3 for normals.  It will output 3 vec3 for each triangle
+// in the given vector stream
+VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
+	check_valid_vecs_size(vecs);
+	VectorStream normals;
+	//cout << "Normals:" << endl;
+	//  Iterate over every third vec3 so that we can treat them as groups of
+	//  triangles
+	for( size_t i = 0; i < (vecs.size() / VERTS_PER_TRIANGLE); ++i ) {
+		vec3 norm_out = compute_normal_at_vec_index(vecs, i);
+		// push normals back three times
+		for( size_t i = 0; i < VERTS_PER_TRIANGLE; ++i ) {
+			// make sure that we can compute the normal
+			if( length(norm_out) != 0 ) {
+				norm_out = normalize(norm_out);
+			}
+			///print_vec(norm_out);
+			normals.push_back(norm_out);
+		}
 	}
 
-	// print out normal buffer:
-	//ostream_iterator<GLfloat> out_it(cout,", ");
-	//copy(norm_buffer, norm_buffer + 3 * num_vertices, out_it);
+	//cout << "End normals" << endl;
+	return normals;
+}
 
+bool compare_vecs( const glm::vec3& a, const glm::vec3& b ) {
+	if( a.x != b.x ) {
+		return a.x < b.x;
+	} else if( a.y != b.y ) {
+		return a.y < b.y;
+	} else {
+		return a.z < b.z;
+	}
+}
+
+VectorStream create_gphong_normal_stream( const VectorStream& vecs ) {
+	check_valid_vecs_size(vecs);
+	VectorStream normals;
+
+	// create a mapping of vertices to normals and populate
+	typedef bool (*Vec3Compare)(const glm::vec3&, const glm::vec3&);
+	typedef map< glm::vec3, glm::vec3, Vec3Compare > NormMap;
+	NormMap normmap(compare_vecs);
+	for( size_t i = 0; i < (vecs.size() / VERTS_PER_TRIANGLE); ++i ) {
+		vec3 norm_to_add = compute_normal_at_vec_index(vecs, i);
+		// add normal to map
+		for( size_t j = 0; j < VERTS_PER_TRIANGLE; ++j ) {
+			vec3 current_vertex = vecs.at(VERTS_PER_TRIANGLE*i + j);
+			// we dont need to worry about initializing the vecs because the map does
+			// that for us
+			normmap[current_vertex] += norm_to_add;
+		}
+	}
+
+	// now iterate again and pull out the normals from the map
+	for( size_t i = 0; i < vecs.size(); ++i ) {
+		// TODO normalize unneeded because it is done in vertex shader?
+		normals.push_back( normalize(normmap[vecs.at(i)]) );
+	}	
+
+	return normals;
+
+}
+
+Buffer* create_triangle_buffer( const VectorStream& verts ) {
 	// Loop over all the vertex vec's and output three times to the coordinate
 	// buffer, once for each coordinate in a vec3.  Also find the max and min
 	// bounds while we're at it
-	CoordBuffer tri_buffer = new Coord[3*num_vertices];
+	CoordBuffer tri_buffer = new Coord[3*verts.size()];
 	for( size_t i = 0; i < verts.size(); ++i ) {
 		//print_vec( verts.at(i) );
 
@@ -248,22 +314,48 @@ void setup_buffers(const char* input_file) {
 
 	//ostream_iterator<GLfloat> out_it(cout,", ");
 	//copy(tri_buffer, tri_buffer + 3 * num_vertices, out_it);
+  return new Buffer(3,verts.size(),tri_buffer);
 
-  // Fhe first argument to the Buffer constructor is the number of 
-  // components per vertex (basically, numbers per vertex)
-  // For square, vertices are 2D - they have 2 coordinates; hence 
-  //  the number of components is 2, and there are 4 vertices.
-  // The last argument is a pointer to the actual vertex data.
-  buf_square_vertices = new Buffer(3,verts.size(),tri_buffer);
+}
 
-	normal_buffer = new Buffer(3,verts.size(),norm_buffer);
+Buffer* create_normal_buffer( const VectorStream& norms ) {
+	// Loop over all normal vec3's and output three times to the coordinate
+	// buffer, once for each coordinate in a vec3.
+	CoordBuffer norm_buffer = new Coord[THIRD_DIM*norms.size()];
+	for( size_t i = 0; i < norms.size(); ++i ) {
+		vec3 cur = norms.at(i);
+		norm_buffer[ THIRD_DIM*i+0 ] = cur.x;
+		norm_buffer[ THIRD_DIM*i+1 ] = cur.y;
+		norm_buffer[ THIRD_DIM*i+2 ] = cur.z;
+	}
+	return new Buffer(THIRD_DIM,norms.size(),norm_buffer);
 
-  // construct the square VA
-  va_square = new VertexArray;
+}
 
-  // vertices are attribute #0
-  va_square->attachAttribute(0,buf_square_vertices);
-	va_square->attachAttribute(1,normal_buffer);
+void setup_buffers(const char* input_file) {
+	// get a stream of vertices 
+	VectorStream verts = to_vec_stream( input_file );
+	
+	// create a stream of normals for phong/gouraud shading
+	//VectorStream gphong_norms = create_gphong_normal_stream( verts );
+
+	// assuming flat_norms.size() == verts.size() == gphong_norms.size()
+	num_vertices = verts.size();
+
+	vertices = create_triangle_buffer( verts );
+
+  // construct the flat shading VA
+  flat_vao = new VertexArray;
+	// create a stream of normals for flat shading from the vertice stream
+	flat_normals = create_normal_buffer(create_flat_normal_stream( verts ) );
+  flat_vao->attachAttribute(0,vertices);
+	flat_vao->attachAttribute(1,flat_normals);
+
+	// construct the vaos for both phong and gouraud shading models
+	gphong_vao = new VertexArray;
+	gphong_normals = create_normal_buffer(create_gphong_normal_stream( verts ));
+	gphong_vao->attachAttribute(0,vertices);
+	gphong_vao->attachAttribute(1,gphong_normals);
 
 }
 
@@ -279,8 +371,12 @@ void setup_programs()
   // prints out the GLSL compiler and linker messages - this is a way to know
   // which of your shaders/programs has a problem.
 
-  cout << "Creating the square program..." << endl;
-  square_program = createProgram(FLAT_VERTEX_SHADER,FLAT_FRAGMENT_SHADER);
+  cout << "Creating the flat program..." << endl;
+  flat_program = createProgram(FLAT_VERTEX_SHADER,FLAT_FRAGMENT_SHADER);
+	cout << "Creating the gouraud program..." << endl;
+	gouraud_program = createProgram(GOURAUD_VERTEX_SHADER, GOURAUD_FRAGMENT_SHADER);
+	cout << "Creating the phong program..." << endl;
+	phong_program = createProgram(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER);
 }
 
 /* ----------------------------------------------------- */
@@ -356,22 +452,22 @@ void draw()
   // &P[0][0] is the pointer to the entries of matrix P, same for MV
   // Note that it's a coincidence that uniform names are the same as CPU code variable names 
   //    - they don't have to be the same
-  square_program->setUniform("P",&P[0][0]);
-  square_program->setUniform("MV",&MV[0][0]);
-	square_program->setUniform("NMV",&NMV[0][0]);
+  current_program->setUniform("P",&P[0][0]);
+  current_program->setUniform("MV",&MV[0][0]);
+	current_program->setUniform("NMV",&NMV[0][0]);
 
   // turn on the square program...
-  square_program->on();
+  current_program->on();
 
   // Send vertices 0...5 to pipeline; use the index buffer ix_square.
   // Recall that ix_square contains 0 1 2 0 2 3, which means that 
   // vertices with data at indices 0 1 2 0 2 3 in the buffers attached to the 
   // vertex array are going to be generated.
   // The first argument instructs the pipeline how to set up triangles; GL_TRIANGLES=triangle soup
-	va_square->sendToPipeline(GL_TRIANGLES,0, num_vertices );
+	current_vao->sendToPipeline(GL_TRIANGLES,0, num_vertices );
 
   // turn the program off
-  square_program->off();
+  current_program->off();
 
   // make sure all the stuff is drawn
   glFlush();
@@ -529,10 +625,13 @@ void menu ( int value )
   switch(value)
     {
     case MENU_FLAT:
+			set_flat_program();
       break;
     case MENU_GOURAUD:
+			set_gouraud_program();
       break;
     case MENU_PHONG:
+			set_phong_program();
       break;
     case MENU_SPECULAR:
 			toggle_specular();
@@ -690,6 +789,7 @@ GLint main(GLint argc, char **argv) {
   setup_programs();
   setup_buffers(file_name.c_str());
 	setup_globals();
+	set_default_program();
 
   // Main loop: keep processing events.
   // This is actually an indefinite loop - you can only exit it using 
