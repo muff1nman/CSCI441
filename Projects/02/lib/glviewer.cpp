@@ -24,6 +24,15 @@
 #include <GL/glext.h>
 #include <GL/glut.h>
 
+#ifdef WITH_BOOST
+#ifndef OLD_BOOST
+#include <boost/filesystem.hpp>
+#else
+#include <boost/filesystem/operations.hpp>
+#endif
+#endif
+
+#include "glviewer/config.h"
 #include "glviewer/parse/parse.h"
 #include "glviewer/gl/program.h"
 #include "glviewer/gl/vertexarray.h"
@@ -102,7 +111,7 @@ VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
 				if( length(norm_out) != 0 ) {
 					norm_out = normalize(norm_out);
 				}
-				print_vec(norm_out);
+				//print_vec(norm_out);
 				normals.push_back(norm_out);
 			}
 		}
@@ -130,7 +139,7 @@ void setup_buffers(const char* input_file) {
 
 	CoordBuffer tri_buffer = new Coord[3*num_vertices];
 	for( size_t i = 0; i < verts.size(); ++i ) {
-		print_vec( verts.at(i) );
+		//print_vec( verts.at(i) );
 		// set the min and max first time around
 		if( i == 0 ) {
 			min_bound = verts.at(i);
@@ -559,6 +568,21 @@ GLint main(GLint argc, char **argv)
   /* initialize GLUT: register callbacks, etc */
   wid = init_glut(&argc, argv);
 
+	string file_name = DEFAULT_INPUT_FILE;
+	if( argc < 2 ) {
+		cout << "Using default file name: " << file_name << endl;
+	} else {
+		file_name = string(argv[1]);
+	}
+
+#ifdef WITH_BOOST
+	if( !boost::filesystem::exists( file_name ) ) {
+		cout << "Input file not found" << endl;
+	}
+#else
+	cout << "Make sure that this file [" << file_name << "] is reachable" << endl;
+#endif
+
   // initialize glew and check for OpenGL 4.2 support
   glewInit();
   if (glewIsSupported("GL_VERSION_4_0"))
@@ -571,7 +595,7 @@ GLint main(GLint argc, char **argv)
 
   // initialize programs and buffers
   setup_programs();
-  setup_buffers("../input.t");
+  setup_buffers(file_name.c_str());
 	setup_globals();
 
   // Main loop: keep processing events.

@@ -9,20 +9,28 @@ set( GLM_INCLUDE_DIRS "/usr/include/glm")
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS}
 	${GLM_INCLUDE_DIRS}) 
 
-set(LINK_LIBRARIES glviewer_gl glviewer_parse ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} GLEW)
+
+#include shaders file
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+
+set(LINK_LIBRARIES glviewer_gl glviewer_parse ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} GLEW )
+
+IF(Boost_FOUND)
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${Boost_LIBRARIES})
+ENDIF()
 
 add_executable(glviewer glviewer.cpp)
 
 target_link_libraries(glviewer ${LINK_LIBRARIES})
 
+
 # COPY SHADERS
 set( SHADER_DIR_NAME "shaders")
 set( SHADER_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_DIR_NAME}")
 
+# shaders file
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/shader_locations.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/shader_locations.h )
-
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 set(destDir ${SHADER_OUTPUT_DIR})
 set(srcDir "${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_DIR_NAME}/")

@@ -36,13 +36,27 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-configure_file( 
-	${GLVIEW_INCLUDE_DIR}/glviewer/config.h.cmake
-	${CMAKE_CURRENT_BINARY_DIR}/include/glviewer/config.h )
-
 # For a vim plugin (not necessary for the project)
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 set( GLM_INCLUDE_DIRS "/usr/include/glm")
+
+# for boost filesystem
+find_package(Boost 1.33.1 COMPONENTS filesystem system)
+if( NOT(Boost_MAJOR_VERSION EQUAL "1") )
+	message(FATAL_ERROR "Boost major version not supported")
+endif()
+if( Boost_MINOR_VERSION LESS "54" )
+	message(STATUS "Setting to old boost")
+	set( OLDBOOST 1 )
+endif()
+
+IF (Boost_FOUND)
+	# include boost
+	include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+	add_definitions(-DWITH_BOOST)
+ELSE (Boost_FOUND)
+	MESSAGE (STATUS "Boost NOT FOUND")
+ENDIF (Boost_FOUND)
 
 # Project includes 
 include_directories( ${GLVIEW_INCLUDE_DIR} 
@@ -90,3 +104,8 @@ add_subdirectory( lib )
 	#-DSCRIPT_NAME=${CMAKE_CURRENT_BINARY_DIR}/lib/drivers/Simple
 	#-P ${CMAKE_CURRENT_SOURCE_DIR}/images.cmake)
 
+
+# Do last just to make sure we get all the definitions throughout this file
+configure_file( 
+	${GLVIEW_INCLUDE_DIR}/glviewer/config.h.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/include/glviewer/config.h )
