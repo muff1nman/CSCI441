@@ -16,15 +16,20 @@ add_executable(glviewer glviewer.cpp)
 target_link_libraries(glviewer ${LINK_LIBRARIES})
 
 # COPY SHADERS
+set( SHADER_DIR_NAME "shaders")
+set( SHADER_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_DIR_NAME}")
 
-set( SHADER_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/shader_locations.h.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/shader_locations.h )
+
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 set(destDir ${SHADER_OUTPUT_DIR})
-set(srcDir "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
+set(srcDir "${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_DIR_NAME}/")
 
 make_directory(${destDir})
 
-file(GLOB templateFiles RELATIVE ${srcDir} shaders/*)
+file(GLOB templateFiles RELATIVE ${srcDir} ${SHADER_DIR_NAME}/*)
 message(STATUS "Files to be copied: ${templateFiles}")
 foreach(templateFile ${templateFiles})
 	set(srcTemplatePath ${srcDir}/${templateFile})

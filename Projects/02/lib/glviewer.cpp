@@ -30,6 +30,8 @@
 #include "glviewer/gl/shader.h"
 #include "glviewer/domain/triangle.h"
 
+#include "shader_locations.h"
+
 using namespace gl_CSCI441;
 using namespace std;
 using namespace glm;
@@ -196,7 +198,7 @@ void setup_programs()
   // which of your shaders/programs has a problem.
 
   cout << "Creating the square program..." << endl;
-  square_program = createProgram("lib/shaders/vertex.glsl","lib/shaders/fragment.glsl");
+  square_program = createProgram(FLAT_VERTEX_SHADER,FLAT_FRAGMENT_SHADER);
 }
 
 /* ----------------------------------------------------- */
