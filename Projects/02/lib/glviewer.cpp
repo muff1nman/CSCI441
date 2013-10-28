@@ -563,10 +563,7 @@ GLint init_glut(GLint *argc, char **argv)
 /* --------------------------------------------- */
 /* --------------------------------------------- */
 
-GLint main(GLint argc, char **argv)
-{
-  /* initialize GLUT: register callbacks, etc */
-  wid = init_glut(&argc, argv);
+GLint main(GLint argc, char **argv) {
 
 	string file_name = DEFAULT_INPUT_FILE;
 	if( argc < 2 ) {
@@ -578,10 +575,14 @@ GLint main(GLint argc, char **argv)
 #ifdef WITH_BOOST
 	if( !boost::filesystem::exists( file_name ) ) {
 		cout << "Input file not found" << endl;
+		return 1;
 	}
 #else
 	cout << "Make sure that this file [" << file_name << "] is reachable" << endl;
 #endif
+
+  /* initialize GLUT: register callbacks, etc */
+  wid = init_glut(&argc, argv);
 
   // initialize glew and check for OpenGL 4.2 support
   glewInit();
