@@ -74,6 +74,13 @@ GLfloat alpha = 14.0f;
 
 /* ----------------------------------------------------- */
 
+bool animate = true;    // animate or not
+float multiplier = 1.0; // controls rotation speed
+int dcounter = 1;       // used to increment the frame counter (set to zero to freeze)
+
+/* ----------------------------------------------------- */
+/* ----------------------------------------------------- */
+
 // all buffer and program objects used 
 Buffer* vertices = NULL;
 
@@ -154,26 +161,47 @@ void setup_const_uniforms() {
 
 }
 
-void set_program() {
+void set_pre_program() {
+	current_program->off();
+
+	// make sure all the stuff is drawn
+	glFlush();
+
+	// this exchanges the invisible back buffer with the visible buffer to 
+	//  avoid refresh artifacts
+	glutSwapBuffers();
+
+	// Request another call to draw() in the "animation" mode.
+	// Note that in the viewer you'll be implementing you may not need this - 
+	//  all you have to do is to make sure the image is redrawn when rendering parameters change,
+	//  e.g. as a result of mouse events.
+	if (animate) 
+		glutPostRedisplay();
+}
+
+void set_post_program() {
 	setup_const_uniforms();
 }
 
 void set_phong_program() {
+	set_pre_program();
 	current_program = phong_program;
 	current_vao = gphong_vao;
-	set_program();
+	set_post_program();
 }
 
 void set_gouraud_program() {
+	set_pre_program();
 	current_program = gouraud_program;
 	current_vao = gphong_vao;
-	set_program();
+	set_post_program();
 }
 
 void set_flat_program() {
+	set_pre_program();
 	current_program = flat_program;
 	current_vao = flat_vao;
-	set_program();
+	set_post_program();
 }
 
 void set_default_program() {
@@ -196,7 +224,7 @@ vec3 compute_normal_at_vec_index( const VectorStream& vecs, size_t i ) {
 	// compute the normal for the given triangle
 	vec3 ab = (vecs.at(3*i + 1) - vecs.at(3*i));
 	vec3 ac = (vecs.at(3*i + 2) - vecs.at(3*i));
-	return cross(ab, ac);
+	return normalize(cross(ab, ac));
 }
 
 // Creates a list of vec3 for normals.  It will output 3 vec3 for each triangle
@@ -255,6 +283,15 @@ VectorStream create_gphong_normal_stream( const VectorStream& vecs ) {
 
 	// now iterate again and pull out the normals from the map
 	for( size_t i = 0; i < vecs.size(); ++i ) {
+
+		// TODO remove checks
+		NormMap::iterator normal_there = normmap.find( vecs.at(i) );
+		if( normal_there == normmap.end() ) {
+			cerr << "Using uninitialized normal!" << endl;
+		} else {
+			cout << "For vector: " << to_string(vecs.at(i)) << "use this normal: " << to_string(normalize(normal_there->second)) << endl;
+		}
+
 		// TODO normalize unneeded because it is done in vertex shader?
 		normals.push_back( normalize(normmap[vecs.at(i)]) );
 	}	
@@ -379,13 +416,6 @@ void setup_programs()
 	phong_program = createProgram(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER);
 }
 
-/* ----------------------------------------------------- */
-
-bool animate = true;    // animate or not
-float multiplier = 1.0; // controls rotation speed
-int dcounter = 1;       // used to increment the frame counter (set to zero to freeze)
-
-/* ----------------------------------------------------- */
 
 void draw()
 {

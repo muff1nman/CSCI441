@@ -12,7 +12,7 @@ uniform vec3 KAMBIENT;
 uniform vec3 KSPEC;
 uniform float NSPEC;
 
-flat out vec3 color;
+noperspective out vec3 color;
 
 void main() {	
 	float flip = -1.0;
