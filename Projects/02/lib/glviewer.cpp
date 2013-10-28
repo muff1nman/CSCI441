@@ -14,10 +14,12 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -91,6 +93,9 @@ void setup_globals() {
 	// set material properties
 	vec3 kdiff(0.4,0.2,0.6);
 	square_program->setUniform("KDIFF",&kdiff.x);
+
+	vec3 kambient(0.1,0.1,0.1);
+	square_program->setUniform("KAMBIENT",&kambient.x);
 }
 
 // just a handy print helper
@@ -106,7 +111,7 @@ VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
 		exit(1);
 	} else {
 		VectorStream normals;
-		cout << "Normals:" << endl;
+		//cout << "Normals:" << endl;
 		//  Iterate over every third vec3 so that we can treat them as groups of
 		//  triangles
 		for( size_t i = 0; i < (vecs.size() / VERTS_PER_TRIANGLE); ++i ) {
@@ -120,12 +125,12 @@ VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
 				if( length(norm_out) != 0 ) {
 					norm_out = normalize(norm_out);
 				}
-				print_vec(norm_out);
+				///print_vec(norm_out);
 				normals.push_back(norm_out);
 			}
 		}
 
-		cout << "End normals" << endl;
+		//cout << "End normals" << endl;
 		return normals;
 	}
 }
@@ -143,11 +148,15 @@ void setup_buffers(const char* input_file) {
 	// buffer, once for each coordinate in a vec3.
 	CoordBuffer norm_buffer = new Coord[3*num_vertices];
 	for( size_t i = 0; i < verts.size(); ++i ) {
-		vec3 cur = verts.at(i);
+		vec3 cur = norms.at(i);
 		norm_buffer[ 3*i+0 ] = cur.x;
 		norm_buffer[ 3*i+1 ] = cur.y;
 		norm_buffer[ 3*i+2 ] = cur.z;
 	}
+
+	// print out normal buffer:
+	//ostream_iterator<GLfloat> out_it(cout,", ");
+	//copy(norm_buffer, norm_buffer + 3 * num_vertices, out_it);
 
 	// Loop over all the vertex vec's and output three times to the coordinate
 	// buffer, once for each coordinate in a vec3.  Also find the max and min
@@ -193,6 +202,12 @@ void setup_buffers(const char* input_file) {
 		tri_buffer[ 3*i+1 ] = cur_y;
 		tri_buffer[ 3*i+2 ] = cur_z;
 	}
+
+	//cout << "Max : " << to_string( max_bound ) << endl;
+	//cout << "Min : " << to_string( min_bound ) << endl;
+
+	//ostream_iterator<GLfloat> out_it(cout,", ");
+	//copy(tri_buffer, tri_buffer + 3 * num_vertices, out_it);
 
   // Fhe first argument to the Buffer constructor is the number of 
   // components per vertex (basically, numbers per vertex)
@@ -250,12 +265,15 @@ void draw()
 
   // want to disable culling for square - it's not a watertight surface
   //  what would happen if you enable it?
+	//glCullFace(GL_FRONT);
   glEnable(GL_CULL_FACE);
+
+	glFrontFace(GL_CW);
 
   // want to use depth test to get visibility right
   glEnable(GL_DEPTH_TEST);
 
-	GLfloat d = 1 / tan(alpha / 180.0 * M_PI / 2.0f);
+	GLfloat d = 1.0f / tan(alpha / 180.0 * M_PI / 2.0f);
 
   // Compute projection matrix; perspective() is a glm function
   // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
@@ -267,6 +285,7 @@ void draw()
 			- (max_bound.x + min_bound.x) / 2.0f,
 			- (max_bound.y + min_bound.y) / 2.0f,
 			- (max_bound.z + min_bound.z) / 2.0f);
+	//cout << "translate is: " << to_string(trans) << endl;
 
 	// and form into a matrix
 	mat4 T = translate(mat4(), trans);
@@ -275,18 +294,23 @@ void draw()
 	GLfloat sc = 2.0f / std::max( max_bound.x - min_bound.x, 
 			std::max( max_bound.y - min_bound.y, max_bound.z - min_bound.z ));
 
+	//cout << "Scale is: " << sc << endl;
+
 	// put it into matrix form
 	mat4 S = scale( mat4(), vec3(sc,sc,sc) );
 
 	// calculate the translate required to get into camera fov
 	mat4 to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
 
+	//cout << "What is translate? " << to_string( to_view_t) << endl;
+
 	// join all the matrices together for the complete MV matrix
   mat4 MV = to_view_t * current_rotation * global_rotation * S * T;
 
 	// compute the normal matrix from the MV matrix
 	//mat4 NMV = transpose(inverse(MV));
-	mat4 NMV = current_rotation * global_rotation;
+	//mat4 NMV = current_rotation * global_rotation;
+	mat3 NMV = mat3(MV);
 
   // send matrices P and MV into uniform variables of the program used to render square
   // &P[0][0] is the pointer to the entries of matrix P, same for MV

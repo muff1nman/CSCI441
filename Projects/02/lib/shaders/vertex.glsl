@@ -5,9 +5,10 @@ layout (location=1) in vec3 normal_for_coord;
 
 uniform mat4 MV;  // modelview matrix in homogenous coordinates
 uniform mat4 P;  // projection matrix in homogenous coordinates
-uniform mat4 NMV;
+uniform mat3 NMV;
 uniform vec3 LV;
 uniform vec3 KDIFF;
+uniform vec3 KAMBIENT;
 
 flat out vec3 color;
 
@@ -16,18 +17,17 @@ void main() {
 	gl_Position  = MV * vec4(model_coord, 1);
 
 	//calculate the transformed normal
-	vec4 normal = normalize(NMV * vec4(normal_for_coord,0.0f));
+	vec3 normal = normalize(NMV * normal_for_coord);
 
 	// calculate triangle color
-	vec3 location_to_light_vector = normalize(LV - gl_Position.xyz);
+	vec3 location_to_light_vector = normalize(-LV + gl_Position.xyz);
 
-	float diffuse_dot = dot(normal.xyz, location_to_light_vector);
+	float diffuse_dot = dot(normal, location_to_light_vector);
 	if(diffuse_dot < 0.0f) {
-		color = vec3(0.2,0.0,0.0);
-	} else {
-		color = KDIFF * diffuse_dot + vec3(0.1,0.1,0.1);
-	}
-
+		diffuse_dot = 0;
+	} 
+	
+	color = KDIFF * diffuse_dot + KAMBIENT;
 	gl_Position = P * gl_Position;
 
 }
