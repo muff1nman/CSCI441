@@ -81,26 +81,60 @@ IndexBuffer* ix_square = NULL;
 Program* square_program = NULL;
 
 /* ----------------------------------------------------- */
+static vec3 light_source(50.0f,10.0f,100.0f);
+static vec3 kdiff(0.4,0.2,0.6);
+static vec3 kambient(0.1,0.1,0.1);
+static vec3 kspec(0.2,0.7,0.5);
+static GLfloat nspec = 100;
+static vec3 none(0.0, 0.0, 0.0);
+
+void turn_on_diffuse() {
+	square_program->setUniform("KDIFF",&kdiff.x);
+}
+
+void turn_off_diffuse() {
+	square_program->setUniform("KDIFF",&none.x);
+}
+
+void turn_on_specular() {
+	square_program->setUniform("KSPEC", &kspec.x);
+}
+
+void turn_off_specular() {
+	square_program->setUniform("KSPEC", &none.x);
+}
+
+void toggle_specular() {
+	static bool on = true;
+	if( on ) {
+		turn_off_specular();
+	} else {
+		turn_on_specular();
+	}
+	on = !on;
+}
+
+void toggle_diffuse() {
+	static bool on = true;
+	if( on ) {
+		turn_off_diffuse();
+	} else {
+		turn_on_diffuse();
+	}
+	on = !on;
+}
 
 void setup_globals() {
 	// no intial rotation
 	global_rotation = mat4();
 
 	// set the light source location
-	vec3 light_source(0.0f,0.0f,100.0f);
   square_program->setUniform("LV",&light_source.x);
 
 	// set material properties
-	vec3 kdiff(0.4,0.2,0.6);
-	square_program->setUniform("KDIFF",&kdiff.x);
-
-	vec3 kambient(0.1,0.1,0.1);
+	turn_on_diffuse();
+	turn_on_specular();
 	square_program->setUniform("KAMBIENT",&kambient.x);
-
-	vec3 kspec(0.2,0.7,0.5);
-	square_program->setUniform("KSPEC", &kspec.x);
-
-	GLfloat nspec = 200;
 	square_program->setUniform("NSPEC", &nspec);
 }
 
@@ -501,8 +535,10 @@ void menu ( int value )
     case MENU_PHONG:
       break;
     case MENU_SPECULAR:
+			toggle_specular();
       break;
     case MENU_DIFFUSE:
+			toggle_diffuse();
       break;
     case MENU_ZOOM_IN:
 			increase_alpha();
