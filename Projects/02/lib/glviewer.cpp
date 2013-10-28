@@ -96,6 +96,12 @@ void setup_globals() {
 
 	vec3 kambient(0.1,0.1,0.1);
 	square_program->setUniform("KAMBIENT",&kambient.x);
+
+	vec3 kspec(0.2,0.7,0.5);
+	square_program->setUniform("KSPEC", &kspec.x);
+
+	GLfloat nspec = 200;
+	square_program->setUniform("NSPEC", &nspec);
 }
 
 // just a handy print helper
