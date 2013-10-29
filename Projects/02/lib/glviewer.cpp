@@ -71,6 +71,13 @@ mat4 current_rotation;
 
 // pick an alpha
 GLfloat alpha = 14.0f;
+GLfloat d;
+
+glm::mat4 Perspective;
+glm::mat4 Translate;
+glm::mat4 Scale;
+glm::mat4 to_view_t;
+
 
 /* ----------------------------------------------------- */
 
@@ -412,6 +419,46 @@ void setup_programs()
 	phong_program = createProgram(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER);
 }
 
+void update_d() {
+	d = 1.0f / tan(alpha / 180.0 * M_PI / 2.0f);
+}
+
+void setup_intial_transforms() {
+
+	update_d();
+
+  // Compute projection matrix; perspective() is a glm function
+  // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
+  // Camera is located at the origin and points along -Z direction
+  Perspective = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
+
+	// calculate what to transform by to get to zero zero
+	vec3 trans( 
+			- (max_bound.x + min_bound.x) / 2.0f,
+			- (max_bound.y + min_bound.y) / 2.0f,
+			- (max_bound.z + min_bound.z) / 2.0f);
+	//cout << "translate is: " << to_string(trans) << endl;
+
+	// and form into a matrix
+	Translate = translate(mat4(), trans);
+
+	// calculatre the scalar to scale by
+	GLfloat sc = 2.0f / std::max( max_bound.x - min_bound.x, 
+			std::max( max_bound.y - min_bound.y, max_bound.z - min_bound.z ));
+
+	//cout << "Scale is: " << sc << endl;
+
+	// put it into matrix form
+	Scale = scale( mat4(), vec3(sc,sc,sc) );
+
+	// calculate the translate required to get into camera fov
+	to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
+
+	//cout << "What is translate? " << to_string( to_view_t) << endl;
+
+
+}
+
 
 void draw()
 {
@@ -435,39 +482,10 @@ void draw()
   // want to use depth test to get visibility right
   glEnable(GL_DEPTH_TEST);
 
-	GLfloat d = 1.0f / tan(alpha / 180.0 * M_PI / 2.0f);
-
-  // Compute projection matrix; perspective() is a glm function
-  // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
-  // Camera is located at the origin and points along -Z direction
-  mat4 P = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
-
-	// calculate what to transform by to get to zero zero
-	vec3 trans( 
-			- (max_bound.x + min_bound.x) / 2.0f,
-			- (max_bound.y + min_bound.y) / 2.0f,
-			- (max_bound.z + min_bound.z) / 2.0f);
-	//cout << "translate is: " << to_string(trans) << endl;
-
-	// and form into a matrix
-	mat4 T = translate(mat4(), trans);
-
-	// calculatre the scalar to scale by
-	GLfloat sc = 2.0f / std::max( max_bound.x - min_bound.x, 
-			std::max( max_bound.y - min_bound.y, max_bound.z - min_bound.z ));
-
-	//cout << "Scale is: " << sc << endl;
-
-	// put it into matrix form
-	mat4 S = scale( mat4(), vec3(sc,sc,sc) );
-
-	// calculate the translate required to get into camera fov
-	mat4 to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
-
-	//cout << "What is translate? " << to_string( to_view_t) << endl;
+	setup_intial_transforms();
 
 	// join all the matrices together for the complete MV matrix
-  mat4 MV = to_view_t * current_rotation * global_rotation * S * T;
+  mat4 MV = to_view_t * current_rotation * global_rotation * Scale * Translate;
 
 	// compute the normal matrix from the MV matrix
 	//mat4 NMV = transpose(inverse(MV));
@@ -478,7 +496,7 @@ void draw()
   // &P[0][0] is the pointer to the entries of matrix P, same for MV
   // Note that it's a coincidence that uniform names are the same as CPU code variable names 
   //    - they don't have to be the same
-  current_program->setUniform("P",&P[0][0]);
+  current_program->setUniform("P",&Perspective[0][0]);
   current_program->setUniform("MV",&MV[0][0]);
 	current_program->setUniform("NMV",&NMV[0][0]);
 
@@ -813,7 +831,8 @@ GLint main(GLint argc, char **argv) {
 
   // initialize programs and buffers
   setup_programs();
-  setup_buffers(file_name.c_str());
+	setup_buffers(file_name.c_str());
+	setup_intial_transforms();
 	setup_globals();
 	set_default_program();
 
