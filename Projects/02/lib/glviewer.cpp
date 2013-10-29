@@ -287,11 +287,6 @@ VectorStream create_gphong_normal_stream( const VectorStream& vecs ) {
 
 		// TODO remove checks
 		NormMap::iterator normal_there = normmap.find( vecs.at(i) );
-		if( normal_there == normmap.end() ) {
-			cerr << "Using uninitialized normal!" << endl;
-		} else {
-			cout << "For vector: " << to_string(vecs.at(i)) << "use this normal: " << to_string(normalize(normal_there->second)) << endl;
-		}
 
 		// TODO normalize unneeded because it is done in vertex shader?
 		normals.push_back( normalize(normmap[vecs.at(i)]) );
