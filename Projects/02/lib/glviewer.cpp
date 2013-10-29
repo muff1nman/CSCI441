@@ -72,6 +72,7 @@ mat4 current_rotation;
 // pick an alpha
 GLfloat alpha = 14.0f;
 GLfloat d;
+GLfloat zoom_factor = 1.0f;
 
 glm::mat4 Perspective;
 glm::mat4 Translate;
@@ -430,7 +431,7 @@ void setup_intial_transforms() {
   // Compute projection matrix; perspective() is a glm function
   // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
   // Camera is located at the origin and points along -Z direction
-  Perspective = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
+  Perspective = perspective(alpha,1.0f, d - 4.0f, d+ 3.0f);
 
 	// calculate what to transform by to get to zero zero
 	vec3 trans( 
@@ -449,7 +450,7 @@ void setup_intial_transforms() {
 	//cout << "Scale is: " << sc << endl;
 
 	// put it into matrix form
-	Scale = scale( mat4(), vec3(sc,sc,sc) );
+	Scale = scale( mat4(), vec3(zoom_factor, zoom_factor, zoom_factor)) * scale( mat4(), vec3(sc,sc,sc) );
 
 	// calculate the translate required to get into camera fov
 	to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
@@ -654,14 +655,26 @@ static const int MENU_DIFFUSE = 5;
 static const int MENU_ZOOM_IN = 6;
 static const int MENU_ZOOM_OUT = 7;
 
-static const GLfloat ZOOM_FACTOR = 10.0f;
+static const GLfloat ZOOM_FACTOR = 0.500f;
 
 void increase_alpha() {
-	alpha -= ZOOM_FACTOR;
+	// I dont like changing the alpha, so instead change the bounding box
+	//alpha = alpha * ( 1.0f + ZOOM_FACTOR );
+	//if( alpha > 89.0f ) {
+		//cout << "capping alpha at 90" << endl;
+		//alpha = 89.0f;
+	//}
+	//cout << "Increasing alpha" << endl;
+	//cout << "alpha is : " << alpha << endl;
+	zoom_factor *= 0.9f;
 }
 
 void decrease_alpha() {
-	alpha += ZOOM_FACTOR;
+	// I dont like changing the alpha, so instead change the bounding box
+	//alpha = alpha * ( 1.0f - ZOOM_FACTOR );
+	//cout << "Decreasing alpha" << endl;
+	//cout << "alpha is : " << alpha << endl;
+	zoom_factor *= 1.1f;
 }
 
 void menu ( int value )
