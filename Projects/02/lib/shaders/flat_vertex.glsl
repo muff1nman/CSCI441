@@ -41,6 +41,10 @@ void main() {
 	// calculate the specular component
 	float specular_base = dot(halfway_vec, normal);
 
+	if( specular_base < 0 ) {
+		specular_base = 0;
+	}
+
 	// calculate triangle color
 	color = KSPEC * pow(specular_base, NSPEC) + KDIFF * diffuse_dot + KAMBIENT;
 	gl_Position = P * gl_Position;

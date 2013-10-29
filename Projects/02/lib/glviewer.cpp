@@ -224,7 +224,12 @@ vec3 compute_normal_at_vec_index( const VectorStream& vecs, size_t i ) {
 	// compute the normal for the given triangle
 	vec3 ab = (vecs.at(3*i + 1) - vecs.at(3*i));
 	vec3 ac = (vecs.at(3*i + 2) - vecs.at(3*i));
-	return normalize(cross(ab, ac));
+	vec3 norm_out = cross(ab, ac);
+	// really we want to use zero but we account for floating point shit
+	if( length(norm_out) < 0.001 ) {
+		return norm_out;
+	}
+	return normalize(norm_out);
 }
 
 // Creates a list of vec3 for normals.  It will output 3 vec3 for each triangle
@@ -239,10 +244,6 @@ VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
 		vec3 norm_out = compute_normal_at_vec_index(vecs, i);
 		// push normals back three times
 		for( size_t i = 0; i < VERTS_PER_TRIANGLE; ++i ) {
-			// make sure that we can compute the normal
-			if( length(norm_out) != 0 ) {
-				norm_out = normalize(norm_out);
-			}
 			///print_vec(norm_out);
 			normals.push_back(norm_out);
 		}
