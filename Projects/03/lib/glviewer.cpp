@@ -382,7 +382,7 @@ Buffer* create_normal_buffer( const VectorStream& norms ) {
 void setup_textures() {
 	texture = createRGBTexture3D(TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE, MARBLE_TEXTURE);
 	texture->linear();
-	texture->repeat();
+	texture->clampToEdge();
 	texture->attach(4);
 
 	texture->on();
@@ -447,7 +447,7 @@ void update_perspective() {
 }
 
 void setup_texture_transform() {
-	texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f));
+	texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f)) * Scale * Translate;
 }
 
 void setup_intial_transforms() {
@@ -456,7 +456,6 @@ void setup_intial_transforms() {
 
 	update_perspective();
 
-	setup_texture_transform();
 
 	// calculate what to transform by to get to zero zero
 	vec3 trans( 
@@ -480,8 +479,7 @@ void setup_intial_transforms() {
 	// calculate the translate required to get into camera fov
 	to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
 
-	//cout << "What is translate? " << to_string( to_view_t) << endl;
-
+	setup_texture_transform();
 
 }
 
