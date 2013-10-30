@@ -423,14 +423,18 @@ void update_d() {
 	d = 1.0f / tan(alpha / 180.0 * M_PI / 2.0f);
 }
 
-void setup_intial_transforms() {
-
-	update_d();
-
+void update_perspective() {
   // Compute projection matrix; perspective() is a glm function
   // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
   // Camera is located at the origin and points along -Z direction
   Perspective = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
+}
+
+void setup_intial_transforms() {
+
+	update_d();
+
+	update_perspective();
 
 	// calculate what to transform by to get to zero zero
 	vec3 trans( 
@@ -482,7 +486,6 @@ void draw()
   // want to use depth test to get visibility right
   glEnable(GL_DEPTH_TEST);
 
-	setup_intial_transforms();
 
 	// join all the matrices together for the complete MV matrix
   mat4 MV = to_view_t * current_rotation * global_rotation * Scale * Translate;
@@ -654,14 +657,16 @@ static const int MENU_DIFFUSE = 5;
 static const int MENU_ZOOM_IN = 6;
 static const int MENU_ZOOM_OUT = 7;
 
-static const GLfloat ZOOM_FACTOR = 10.0f;
+static const GLfloat ZOOM_FACTOR = 0.20f;
 
 void increase_alpha() {
-	alpha -= ZOOM_FACTOR;
+	alpha *=  (1 + ZOOM_FACTOR);
+	update_perspective();
 }
 
 void decrease_alpha() {
-	alpha += ZOOM_FACTOR;
+	alpha *= (1 - ZOOM_FACTOR);
+	update_perspective();
 }
 
 void menu ( int value )
@@ -684,10 +689,10 @@ void menu ( int value )
 			toggle_diffuse();
       break;
     case MENU_ZOOM_IN:
-			increase_alpha();
+			decrease_alpha();
       break;
     case MENU_ZOOM_OUT:
-			decrease_alpha();
+			increase_alpha();
       break;
     }
 
