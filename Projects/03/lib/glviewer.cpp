@@ -40,9 +40,11 @@
 #include "glviewer/gl/program.h"
 #include "glviewer/gl/vertexarray.h"
 #include "glviewer/gl/shader.h"
+#include "glviewer/gl/texture.h"
 #include "glviewer/domain/triangle.h"
 
 #include "shader_locations.h"
+#include "texture_locations.h"
 
 using namespace gl_CSCI441;
 using namespace std;
@@ -77,6 +79,7 @@ glm::mat4 Perspective;
 glm::mat4 Translate;
 glm::mat4 Scale;
 glm::mat4 to_view_t;
+glm::mat4 texture_transform;
 
 
 /* ----------------------------------------------------- */
@@ -85,7 +88,6 @@ bool animate = true;    // animate or not
 float multiplier = 1.0; // controls rotation speed
 int dcounter = 1;       // used to increment the frame counter (set to zero to freeze)
 
-/* ----------------------------------------------------- */
 /* ----------------------------------------------------- */
 
 // all buffer and program objects used 
@@ -105,6 +107,10 @@ Program* gouraud_program = NULL;
 Program* phong_program = NULL;
 // DONT deallocate this one
 Program* current_program = NULL;
+
+/* ----------------------------------------------------- */
+// Texture stuffs
+RGBTexture3D* texture = NULL;
 
 /* ----------------------------------------------------- */
 static vec3 light_source(50.0f,10.0f,100.0f);
@@ -372,6 +378,16 @@ Buffer* create_normal_buffer( const VectorStream& norms ) {
 
 }
 
+
+void setup_textures() {
+	texture = createRGBTexture3D(TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE, MARBLE_TEXTURE);
+	texture->linear();
+	texture->repeat();
+	texture->attach(4);
+
+	texture->on();
+}
+
 void setup_buffers(const char* input_file) {
 	// get a stream of vertices 
 	VectorStream verts = to_vec_stream( input_file );
@@ -430,11 +446,17 @@ void update_perspective() {
   Perspective = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
 }
 
+void setup_texture_transform() {
+	texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f));
+}
+
 void setup_intial_transforms() {
 
 	update_d();
 
 	update_perspective();
+
+	setup_texture_transform();
 
 	// calculate what to transform by to get to zero zero
 	vec3 trans( 
@@ -502,6 +524,7 @@ void draw()
   current_program->setUniform("P",&Perspective[0][0]);
   current_program->setUniform("MV",&MV[0][0]);
 	current_program->setUniform("NMV",&NMV[0][0]);
+	current_program->setUniform("TXT",&texture_transform[0][0]);
 
   // turn on the square program...
   current_program->on();
@@ -838,6 +861,7 @@ GLint main(GLint argc, char **argv) {
   setup_programs();
 	setup_buffers(file_name.c_str());
 	setup_intial_transforms();
+	setup_textures();
 	setup_globals();
 	set_default_program();
 

@@ -11,6 +11,7 @@ uniform vec3 KDIFF;
 uniform vec3 KAMBIENT;
 uniform vec3 KSPEC;
 uniform float NSPEC;
+uniform mat4 TXT; // transform matrix to be applied after MV to convert vertex to texture coords
 
 smooth out vec3 color;
 

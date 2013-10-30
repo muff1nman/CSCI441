@@ -3,6 +3,7 @@ set( SRCS
 	program.cpp
 	shader.cpp
 	vertexarray.cpp
+	texture.cpp
 	)
 
 add_library(glviewer_gl ${SRCS})

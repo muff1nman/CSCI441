@@ -10,5 +10,7 @@
 
 #define DEFAULT_INPUT_FILE "input.t"
 
+#define TEXTURE_SIZE 128
+
 #endif /* !__config_h__ */
 
