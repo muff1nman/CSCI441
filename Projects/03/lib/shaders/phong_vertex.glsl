@@ -2,7 +2,6 @@
 
 layout (location=0) in vec3 model_coord;
 layout (location=1) in vec3 normal_for_coord;
-layout (binding=4) uniform sampler3D tex;
 
 uniform mat4 MV; // modelview matrix in homogenous coordinates
 uniform mat4 P; // projection matrix in homogenous coordinates

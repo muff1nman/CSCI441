@@ -93,17 +93,12 @@ int dcounter = 1;       // used to increment the frame counter (set to zero to f
 // all buffer and program objects used 
 Buffer* vertices = NULL;
 
-VertexArray* flat_vao = NULL;
-Buffer* flat_normals = NULL;
-
 VertexArray* gphong_vao = NULL;
 Buffer* gphong_normals = NULL;
 
 // DONT deallocate this one
 VertexArray* current_vao = NULL;
 
-Program* flat_program = NULL;
-Program* gouraud_program = NULL;
 Program* phong_program = NULL;
 // DONT deallocate this one
 Program* current_program = NULL;
@@ -203,22 +198,8 @@ void set_phong_program() {
 	set_post_program();
 }
 
-void set_gouraud_program() {
-	set_pre_program();
-	current_program = gouraud_program;
-	current_vao = gphong_vao;
-	set_post_program();
-}
-
-void set_flat_program() {
-	set_pre_program();
-	current_program = flat_program;
-	current_vao = flat_vao;
-	set_post_program();
-}
-
 void set_default_program() {
-	set_flat_program();
+	set_phong_program();
 }
 
 // just a handy print helper
@@ -243,27 +224,6 @@ vec3 compute_normal_at_vec_index( const VectorStream& vecs, size_t i ) {
 		return norm_out;
 	}
 	return normalize(norm_out);
-}
-
-// Creates a list of vec3 for normals.  It will output 3 vec3 for each triangle
-// in the given vector stream
-VectorStream create_flat_normal_stream( const VectorStream& vecs ) {
-	check_valid_vecs_size(vecs);
-	VectorStream normals;
-	//cout << "Normals:" << endl;
-	//  Iterate over every third vec3 so that we can treat them as groups of
-	//  triangles
-	for( size_t i = 0; i < (vecs.size() / VERTS_PER_TRIANGLE); ++i ) {
-		vec3 norm_out = compute_normal_at_vec_index(vecs, i);
-		// push normals back three times
-		for( size_t i = 0; i < VERTS_PER_TRIANGLE; ++i ) {
-			///print_vec(norm_out);
-			normals.push_back(norm_out);
-		}
-	}
-
-	//cout << "End normals" << endl;
-	return normals;
 }
 
 bool compare_vecs( const glm::vec3& a, const glm::vec3& b ) {
@@ -383,7 +343,7 @@ void setup_textures() {
 	texture = createRGBTexture3D(TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE, MARBLE_TEXTURE);
 	texture->linear();
 	texture->clampToEdge();
-	texture->attach(4);
+	texture->attach(1);
 
 	texture->on();
 }
@@ -399,13 +359,6 @@ void setup_buffers(const char* input_file) {
 	num_vertices = verts.size();
 
 	vertices = create_triangle_buffer( verts );
-
-  // construct the flat shading VA
-  flat_vao = new VertexArray;
-	// create a stream of normals for flat shading from the vertice stream
-	flat_normals = create_normal_buffer(create_flat_normal_stream( verts ) );
-  flat_vao->attachAttribute(0,vertices);
-	flat_vao->attachAttribute(1,flat_normals);
 
 	// construct the vaos for both phong and gouraud shading models
 	gphong_vao = new VertexArray;
@@ -427,10 +380,6 @@ void setup_programs()
   // prints out the GLSL compiler and linker messages - this is a way to know
   // which of your shaders/programs has a problem.
 
-  cout << "Creating the flat program..." << endl;
-  flat_program = createProgram(FLAT_VERTEX_SHADER,FLAT_FRAGMENT_SHADER);
-	cout << "Creating the gouraud program..." << endl;
-	gouraud_program = createProgram(GOURAUD_VERTEX_SHADER, GOURAUD_FRAGMENT_SHADER);
 	cout << "Creating the phong program..." << endl;
 	phong_program = createProgram(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER);
 }
@@ -694,15 +643,6 @@ void menu ( int value )
 {
   switch(value)
     {
-    case MENU_FLAT:
-			set_flat_program();
-      break;
-    case MENU_GOURAUD:
-			set_gouraud_program();
-      break;
-    case MENU_PHONG:
-			set_phong_program();
-      break;
     case MENU_SPECULAR:
 			toggle_specular();
       break;
@@ -807,9 +747,6 @@ GLint init_glut(GLint *argc, char **argv)
   /* create menu */
   // you'll need to change this to build your menu
   GLint menuID = glutCreateMenu(menu);
-  glutAddMenuEntry("Flat shading",MENU_FLAT);
-  glutAddMenuEntry("Gouraud shading",MENU_GOURAUD);
-  glutAddMenuEntry("Phong shading",MENU_PHONG);
   glutAddMenuEntry("Enable/Disable specular",MENU_SPECULAR);
   glutAddMenuEntry("Enable/Disable diffuse",MENU_DIFFUSE);
   glutAddMenuEntry("Zoom In",MENU_ZOOM_IN);

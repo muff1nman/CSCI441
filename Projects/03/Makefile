@@ -10,14 +10,10 @@ all: cp_execute
 cp_execute: build
 	cp build/lib/glviewer .
 
-.PHONY: build
-
 build: clean
 	mkdir -p build
 	cmake -H. -Bbuild
 	$(MAKE) -C build
-
-.PHONY: clean
 
 clean:
 	rm -rf build

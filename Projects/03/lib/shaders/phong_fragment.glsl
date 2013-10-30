@@ -1,5 +1,5 @@
 #version 420
-layout (binding=4) uniform sampler3D tex;
+layout (binding=1) uniform sampler3D tex;
 
 uniform vec3 LV;
 uniform vec3 KDIFF;
