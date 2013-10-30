@@ -30,7 +30,7 @@ void main() {
 	vec3 location_to_view_ray = normalize( -gl_Position.xyz );
 
 	// halfway vector between light vector and view ray
-	vec3 halfway_vec = (location_to_light_vector + location_to_view_ray) / 2.0;
+	vec3 halfway_vec = normalize(location_to_light_vector + location_to_view_ray);
 
 	// calculate the diffused as dot between normal and direction of light
 	float diffuse_dot = dot(normal, location_to_light_vector);

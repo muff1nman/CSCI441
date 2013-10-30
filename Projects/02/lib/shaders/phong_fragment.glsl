@@ -20,16 +20,16 @@ void main() {
 	vec3 location_to_view_ray = normalize( -position.xyz );
 
 	// halfway vector between light vector and view ray
-	vec3 halfway_vec = (location_to_light_vector + location_to_view_ray) / 2.0;
+	vec3 halfway_vec = normalize(location_to_light_vector + location_to_view_ray);
 
 	// calculate the diffused as dot between normal and direction of light
-	float diffuse_dot = dot(normal, location_to_light_vector);
+	float diffuse_dot = dot(normalize(normal), location_to_light_vector);
 	if(diffuse_dot < 0.0f) {
 		diffuse_dot = 0;
 	} 
 
 	// calculate the specular component
-	float specular_base = dot(halfway_vec, normal);
+	float specular_base = dot(halfway_vec, normalize(normal));
 
 	if( specular_base < 0 ) {
 		specular_base = 0;
