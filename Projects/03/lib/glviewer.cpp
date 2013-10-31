@@ -95,11 +95,16 @@ Buffer* vertices = NULL;
 VertexArray* gphong_vao = NULL;
 Buffer* gphong_normals = NULL;
 
+VertexArray* doughnut_vao = NULL;
+Buffer* doughnut_vertices = NULL;
+Buffer* doughnut_texture_coords = NULL;
+
 // DONT deallocate this one
 VertexArray* current_vao = NULL;
 
 Program* carve_program = NULL;
 Program* environment_program = NULL;
+Program* doughnut_program = NULL;
 // DONT deallocate this one
 Program* current_program = NULL;
 
@@ -483,6 +488,8 @@ void setup_programs()
 	carve_program = createProgram(CARVE_VERTEX_SHADER, CARVE_FRAGMENT_SHADER);
 	cout << "Creating the environment program..." << endl;
 	environment_program = createProgram(ENVIRONMENT_VERTEX_SHADER, ENVIRONMENT_FRAGMENT_SHADER);
+	cout << "Creating the doughnut program..." << endl;
+	doughnut_program = createProgram(DOUGHNUT_VERTEX_SHADER, DOUGHNUT_FRAGMENT_SHADER);
 }
 
 void update_d() {
