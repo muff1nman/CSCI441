@@ -99,7 +99,7 @@ Buffer* gphong_normals = NULL;
 // DONT deallocate this one
 VertexArray* current_vao = NULL;
 
-Program* phong_program = NULL;
+Program* carve_program = NULL;
 // DONT deallocate this one
 Program* current_program = NULL;
 
@@ -191,15 +191,15 @@ void set_post_program() {
 	setup_const_uniforms();
 }
 
-void set_phong_program() {
+void set_carve_program() {
 	set_pre_program();
-	current_program = phong_program;
+	current_program = carve_program;
 	current_vao = gphong_vao;
 	set_post_program();
 }
 
 void set_default_program() {
-	set_phong_program();
+	set_carve_program();
 }
 
 // just a handy print helper
@@ -380,8 +380,8 @@ void setup_programs()
   // prints out the GLSL compiler and linker messages - this is a way to know
   // which of your shaders/programs has a problem.
 
-	cout << "Creating the phong program..." << endl;
-	phong_program = createProgram(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER);
+	cout << "Creating the carve program..." << endl;
+	carve_program = createProgram(CARVE_VERTEX_SHADER, CARVE_FRAGMENT_SHADER);
 }
 
 void update_d() {
