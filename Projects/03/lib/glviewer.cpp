@@ -100,11 +100,12 @@ Buffer* gphong_normals = NULL;
 VertexArray* current_vao = NULL;
 
 Program* carve_program = NULL;
+Program* environment_program = NULL;
 // DONT deallocate this one
 Program* current_program = NULL;
 
 /* ----------------------------------------------------- */
-// Texture stuffs
+// Carve Program
 RGBTexture3D* texture = NULL;
 
 /* ----------------------------------------------------- */
@@ -191,15 +192,58 @@ void set_post_program() {
 	setup_const_uniforms();
 }
 
+/* ----------------------------------------------------------------------------------*/
+
+void setup_texture_transform() {
+	texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f)) * Scale * Translate;
+}
+
+void setup_textures() {
+	texture = createRGBTexture3D(TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE, MARBLE_TEXTURE);
+	texture->linear();
+	texture->clampToEdge();
+	texture->attach(1);
+
+}
+
 void set_carve_program() {
 	set_pre_program();
 	current_program = carve_program;
 	current_vao = gphong_vao;
+	setup_texture_transform();
+	setup_textures();
 	set_post_program();
 }
 
+void program_carve_draw() {
+	current_program->setUniform("TXT",&texture_transform[0][0]);
+	texture->on();
+}
+
+
+/* ----------------------------------------------------------------------------------*/
+void program_environment_draw() {
+
+}
+
+void set_environment_program() {
+	set_pre_program();
+	current_program = environment_program;
+	current_vao = gphong_vao;
+	set_post_program();
+}
+
+/* ----------------------------------------------------------------------------------*/
 void set_default_program() {
 	set_carve_program();
+}
+
+void program_draw() {
+	if( current_program == carve_program ) {
+		program_carve_draw();
+	} else if ( current_program == environment_program ) {
+		program_environment_draw();
+	}
 }
 
 // just a handy print helper
@@ -339,15 +383,6 @@ Buffer* create_normal_buffer( const VectorStream& norms ) {
 }
 
 
-void setup_textures() {
-	texture = createRGBTexture3D(TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE, MARBLE_TEXTURE);
-	texture->linear();
-	texture->clampToEdge();
-	texture->attach(1);
-
-	texture->on();
-}
-
 void setup_buffers(const char* input_file) {
 	// get a stream of vertices 
 	VectorStream verts = to_vec_stream( input_file );
@@ -382,6 +417,8 @@ void setup_programs()
 
 	cout << "Creating the carve program..." << endl;
 	carve_program = createProgram(CARVE_VERTEX_SHADER, CARVE_FRAGMENT_SHADER);
+	cout << "Creating the environment program..." << endl;
+	environment_program = createProgram(ENVIRONMENT_VERTEX_SHADER, ENVIRONMENT_FRAGMENT_SHADER);
 }
 
 void update_d() {
@@ -395,16 +432,11 @@ void update_perspective() {
   Perspective = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
 }
 
-void setup_texture_transform() {
-	texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f)) * Scale * Translate;
-}
-
 void setup_intial_transforms() {
 
 	update_d();
 
 	update_perspective();
-
 
 	// calculate what to transform by to get to zero zero
 	vec3 trans( 
@@ -427,8 +459,6 @@ void setup_intial_transforms() {
 
 	// calculate the translate required to get into camera fov
 	to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
-
-	setup_texture_transform();
 
 }
 
@@ -471,10 +501,11 @@ void draw()
   current_program->setUniform("P",&Perspective[0][0]);
   current_program->setUniform("MV",&MV[0][0]);
 	current_program->setUniform("NMV",&NMV[0][0]);
-	current_program->setUniform("TXT",&texture_transform[0][0]);
 
-  // turn on the square program...
   current_program->on();
+
+	// program specific stuffs
+	program_draw();
 
   // Send vertices 0...5 to pipeline; use the index buffer ix_square.
   // Recall that ix_square contains 0 1 2 0 2 3, which means that 
@@ -619,9 +650,9 @@ GLvoid button_motion(GLint mx, GLint my)
 
 // you'll need to change this one as well...
 
-static const int MENU_FLAT = 1;
-static const int MENU_GOURAUD = 2;
-static const int MENU_PHONG = 3;
+static const int MENU_3DTEXTURE = 1;
+static const int MENU_ENVIRONMENT = 2;
+static const int MENU_DOUGHNUT = 3;
 static const int MENU_SPECULAR = 4;
 static const int MENU_DIFFUSE = 5;
 static const int MENU_ZOOM_IN = 6;
@@ -642,7 +673,13 @@ void decrease_alpha() {
 void menu ( int value )
 {
   switch(value)
-    {
+	{
+		case MENU_3DTEXTURE:
+			set_carve_program();
+			break;
+		case MENU_ENVIRONMENT:
+			set_environment_program();
+			break;
     case MENU_SPECULAR:
 			toggle_specular();
       break;
@@ -747,6 +784,8 @@ GLint init_glut(GLint *argc, char **argv)
   /* create menu */
   // you'll need to change this to build your menu
   GLint menuID = glutCreateMenu(menu);
+	glutAddMenuEntry("3D Texture",MENU_3DTEXTURE);
+	glutAddMenuEntry("Environment",MENU_ENVIRONMENT);
   glutAddMenuEntry("Enable/Disable specular",MENU_SPECULAR);
   glutAddMenuEntry("Enable/Disable diffuse",MENU_DIFFUSE);
   glutAddMenuEntry("Zoom In",MENU_ZOOM_IN);
@@ -796,7 +835,6 @@ GLint main(GLint argc, char **argv) {
   setup_programs();
 	setup_buffers(file_name.c_str());
 	setup_intial_transforms();
-	setup_textures();
 	setup_globals();
 	set_default_program();
 
