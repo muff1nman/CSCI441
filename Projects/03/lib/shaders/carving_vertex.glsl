@@ -19,7 +19,7 @@ void main() {
 	position  = MV * vec4(model_coord, 1);
 
 	// calculate texture coord
-	texture_coord = TXT * vec4(model_coord,1);
+	texture_coord = (TXT * vec4(model_coord,1)).xyz;
 
 	//calculate the transformed normal
 	normal = flip * normalize(NMV * normal_for_coord);

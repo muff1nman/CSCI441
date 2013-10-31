@@ -10,16 +10,12 @@ uniform mat4 TXT; // transform matrix to be applied after MV to convert vertex t
 
 smooth out vec3 normal;
 smooth out vec4 position;
-smooth out vec3 texture_coord;
 
 void main() {	
 	float flip = -1.0;
 
 	// calculate position 
 	position  = MV * vec4(model_coord, 1);
-
-	// calculate texture coord
-	texture_coord = TXT * vec4(model_coord,1);
 
 	//calculate the transformed normal
 	normal = flip * normalize(NMV * normal_for_coord);

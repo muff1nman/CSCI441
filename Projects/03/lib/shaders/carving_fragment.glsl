@@ -14,7 +14,7 @@ smooth in vec4 position;
 smooth in vec3 texture_coord;
 
 void main() {
-	vec3 texture_color = texture(tex, texture_coord);
+	vec4 texture_color = texture(tex, texture_coord);
 
 	// vector from object to light
 	vec3 location_to_light_vector = normalize(LV - position.xyz);
@@ -39,6 +39,6 @@ void main() {
 	}
 
 	// calculate triangle color
-	fragcolor = texture_color * (KSPEC * pow(specular_base, NSPEC) + KDIFF * diffuse_dot +
+	fragcolor = texture_color.xyz * (KSPEC * pow(specular_base, NSPEC) + KDIFF * diffuse_dot +
 			KAMBIENT);
 }

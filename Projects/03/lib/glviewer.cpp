@@ -79,7 +79,6 @@ glm::mat4 Perspective;
 glm::mat4 Translate;
 glm::mat4 Scale;
 glm::mat4 to_view_t;
-glm::mat4 texture_transform;
 
 
 /* ----------------------------------------------------- */
@@ -105,10 +104,7 @@ Program* environment_program = NULL;
 Program* current_program = NULL;
 
 /* ----------------------------------------------------- */
-// Carve Program
-RGBTexture3D* texture = NULL;
 
-/* ----------------------------------------------------- */
 static vec3 light_source(50.0f,10.0f,100.0f);
 static vec3 kdiff(0.4,0.2,0.6);
 static vec3 kambient(0.1,0.1,0.1);
@@ -194,15 +190,20 @@ void set_post_program() {
 
 /* ----------------------------------------------------------------------------------*/
 
-void setup_texture_transform() {
-	texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f)) * Scale * Translate;
+// Carve Program
+RGBTexture3D* carve_texture = NULL;
+glm::mat4 carve_texture_transform;
+
+
+void carve_setup_texture_transform() {
+	carve_texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f)) * Scale * Translate;
 }
 
-void setup_textures() {
-	texture = createRGBTexture3D(TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE, MARBLE_TEXTURE);
-	texture->linear();
-	texture->clampToEdge();
-	texture->attach(1);
+void carve_setup_textures() {
+	carve_texture = createRGBTexture3D(TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE, MARBLE_TEXTURE);
+	carve_texture->linear();
+	carve_texture->clampToEdge();
+	carve_texture->attach(1);
 
 }
 
@@ -210,26 +211,55 @@ void set_carve_program() {
 	set_pre_program();
 	current_program = carve_program;
 	current_vao = gphong_vao;
-	setup_texture_transform();
-	setup_textures();
+	carve_setup_texture_transform();
+	carve_setup_textures();
 	set_post_program();
 }
 
 void program_carve_draw() {
-	current_program->setUniform("TXT",&texture_transform[0][0]);
-	texture->on();
+	current_program->setUniform("TXT",&carve_texture_transform[0][0]);
+	carve_texture->on();
+}
+
+void program_carve_finish_draw() {
+	carve_texture->off();
 }
 
 
 /* ----------------------------------------------------------------------------------*/
-void program_environment_draw() {
 
+// Environment Program
+RGBTexture2D* mirror = NULL;
+glm::mat4 environment_texture_transform;
+
+
+void environment_setup_textures() {
+	mirror = createRGBTexture2D(ENVIRONMENT_TEXTURE);
+	mirror->linear();
+	mirror->repeat();
+	mirror->attach(1);
+}
+
+void environment_setup_texture_transform() {
+	environment_texture_transform = scale(mat4(), vec3(0.5f,0.5f, 0.0f)) * translate(mat4(), vec3(1.0f, 1.0f, 0.0f));
+	cout << "env tex trans is : " << to_string(environment_texture_transform) << endl;
+}
+
+void program_environment_draw() {
+	current_program->setUniform("MIRRORT",&environment_texture_transform[0][0]);
+	mirror->on();
+}
+
+void program_environment_finish_draw() {
+	mirror->off();
 }
 
 void set_environment_program() {
 	set_pre_program();
 	current_program = environment_program;
 	current_vao = gphong_vao;
+	environment_setup_textures();
+	environment_setup_texture_transform();
 	set_post_program();
 }
 
@@ -244,6 +274,15 @@ void program_draw() {
 	} else if ( current_program == environment_program ) {
 		program_environment_draw();
 	}
+}
+
+void program_finish_draw() {
+	if( current_program == carve_program ) {
+		program_carve_finish_draw();
+	} else if ( current_program == environment_program ) {
+		program_environment_finish_draw();
+	}
+
 }
 
 // just a handy print helper
@@ -516,6 +555,8 @@ void draw()
 
   // turn the program off
   current_program->off();
+
+	program_finish_draw();
 
   // make sure all the stuff is drawn
   glFlush();
