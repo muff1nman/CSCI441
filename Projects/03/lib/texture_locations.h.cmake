@@ -13,7 +13,7 @@
 #define MARBLE_TEXTURE_NAME "3D/marble.rgb"
 #define MARBLE_TEXTURE TEXTURE_DIR MARBLE_TEXTURE_NAME
 
-#define ENVIRONMENT_TEXTURE_NAME "EnvMap/campus_probe.ppm"
+#define ENVIRONMENT_TEXTURE_NAME "EnvMap/kitchen_probe.ppm"
 #define ENVIRONMENT_TEXTURE TEXTURE_DIR ENVIRONMENT_TEXTURE_NAME
 
 #endif /* !__texture_locations_h__ */

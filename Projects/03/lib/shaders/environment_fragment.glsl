@@ -43,5 +43,5 @@ void main() {
 
 	// calculate triangle color
 	fragcolor = 
-		texture_color.xyz * (KSPEC * pow(specular_base, NSPEC) + KDIFF * diffuse_dot + KAMBIENT);
+		texture_color.xyz * (KSPEC * pow(specular_base, NSPEC) + KDIFF * diffuse_dot) + KAMBIENT;
 }

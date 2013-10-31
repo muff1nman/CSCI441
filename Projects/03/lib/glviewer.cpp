@@ -106,9 +106,9 @@ Program* current_program = NULL;
 /* ----------------------------------------------------- */
 
 static vec3 light_source(50.0f,10.0f,100.0f);
-static vec3 kdiff(0.4,0.2,0.6);
+static vec3 kdiff(0.4,0.4,0.4);
 static vec3 kambient(0.1,0.1,0.1);
-static vec3 kspec(0.2,0.7,0.5);
+static vec3 kspec(0.7,0.7,0.7);
 static GLfloat nspec = 100;
 static vec3 none(0.0, 0.0, 0.0);
 
@@ -225,7 +225,6 @@ void program_carve_finish_draw() {
 	carve_texture->off();
 }
 
-
 /* ----------------------------------------------------------------------------------*/
 
 // Environment Program
@@ -242,7 +241,6 @@ void environment_setup_textures() {
 
 void environment_setup_texture_transform() {
 	environment_texture_transform = scale(mat4(), vec3(0.5f,0.5f, 0.0f)) * translate(mat4(), vec3(1.0f, 1.0f, 0.0f));
-	cout << "env tex trans is : " << to_string(environment_texture_transform) << endl;
 }
 
 void program_environment_draw() {
@@ -260,6 +258,33 @@ void set_environment_program() {
 	current_vao = gphong_vao;
 	environment_setup_textures();
 	environment_setup_texture_transform();
+	set_post_program();
+}
+
+/* ----------------------------------------------------------------------------------*/
+// Doughnut program
+RGBTexture2D* doughnut_texture = NULL;
+
+void doughnut_setup_textures() {
+	mirror = createRGBTexture2D(ENVIRONMENT_TEXTURE);
+	mirror->linear();
+	mirror->repeat();
+	mirror->attach(1);
+}
+
+void program_doughnut_draw() {
+	doughnut_texture->on();
+}
+
+void program_doughnut_finish_draw() {
+	doughnut_texture->off();
+}
+
+void set_doughnut_program() {
+	set_pre_program();
+	current_program = doughnut_program;
+	current_vao = gphong_vao;
+	doughnut_setup_textures();
 	set_post_program();
 }
 
