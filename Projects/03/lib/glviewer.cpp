@@ -61,24 +61,9 @@ static GLint vph = VPD_DEFAULT;
 
 static const size_t THIRD_DIM = 3;
 
-size_t num_vertices;
-
-vec3 min_bound;
-vec3 max_bound;
+size_t current_num_vertices;
 
 vec3 initial_mouse_point_on_sphere;
-
-mat4 global_rotation;
-mat4 current_rotation;
-
-// pick an alpha
-GLfloat alpha = 14.0f;
-GLfloat d;
-
-glm::mat4 Perspective;
-glm::mat4 Translate;
-glm::mat4 Scale;
-glm::mat4 to_view_t;
 
 
 /* ----------------------------------------------------- */
@@ -94,10 +79,13 @@ Buffer* vertices = NULL;
 
 VertexArray* gphong_vao = NULL;
 Buffer* gphong_normals = NULL;
+size_t gphong_num_vertices;
 
 VertexArray* doughnut_vao = NULL;
 Buffer* doughnut_vertices = NULL;
+Buffer* doughnut_normals = NULL;
 Buffer* doughnut_texture_coords = NULL;
+size_t doughnut_num_vertices;
 
 // DONT deallocate this one
 VertexArray* current_vao = NULL;
@@ -153,12 +141,6 @@ void toggle_diffuse() {
 	on = !on;
 }
 
-void setup_globals() {
-	// no intial rotation
-	global_rotation = mat4();
-
-}
-
 void setup_const_uniforms() {
 	// set the light source location
   current_program->setUniform("LV",&light_source.x);
@@ -193,15 +175,97 @@ void set_post_program() {
 	setup_const_uniforms();
 }
 
+void update_d(GLfloat& d, const GLfloat& angle_in_degrees) {
+	d = 1.0f / tan(angle_in_degrees / 180.0 * M_PI / 2.0f);
+}
+
+void update_perspective(mat4& perspective_transform, const GLfloat& angle_in_degrees, const GLfloat& distance) {
+  // Compute projection matrix; perspective() is a glm function
+  // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
+  // Camera is located at the origin and points along -Z direction
+  perspective_transform = perspective(angle_in_degrees,1.0f, distance - 1.0f, distance + 3.0f);
+}
+
+void setup_intial_transforms(GLfloat& distance, GLfloat& angle_in_degrees, mat4& perspective_transform, mat4& translate_to_zero, mat4& scale_to_unit, mat4& to_view_translate, const vec3& maxbound, const vec3& minbound ) {
+
+	update_d(distance, angle_in_degrees);
+
+	update_perspective(perspective_transform, angle_in_degrees, distance);
+
+	// calculate what to transform by to get to zero zero
+	vec3 trans( 
+			- (maxbound.x + minbound.x) / 2.0f,
+			- (maxbound.y + minbound.y) / 2.0f,
+			- (maxbound.z + minbound.z) / 2.0f);
+	//cout << "translate is: " << to_string(trans) << endl;
+
+	// and form into a matrix
+	translate_to_zero = translate(mat4(), trans);
+
+	// calculatre the scalar to scale by
+	GLfloat sc = 2.0f / std::max( maxbound.x - minbound.x, 
+			std::max( maxbound.y - minbound.y, maxbound.z - minbound.z ));
+
+	//cout << "scale_to_unit is: " << sc << endl;
+
+	// put it into matrix form
+	scale_to_unit = scale( mat4(), vec3(sc,sc,sc) );
+
+	// calculate the translate required to get into camera fov
+	to_view_translate = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - distance));
+
+}
+
+
+/* ----------------------------------------------------------------------------------*/
+void shared_draw_util1( mat4& MV, mat3& NMV, const mat4& to_view_t, const mat4&
+		current_rotation, const mat4& global_rotation, const mat4& Scale, const
+		mat4& Translate ) {
+	// join all the matrices together for the complete MV matrix
+  MV = to_view_t * current_rotation * global_rotation * Scale * Translate;
+
+	// compute the normal matrix from the MV matrix
+	//mat4 NMV = transpose(inverse(MV));
+	//mat4 NMV = current_rotation * global_rotation;
+	NMV = mat3(MV);
+
+  // send matrices P and MV into uniform variables of the program used to render square
+  // &P[0][0] is the pointer to the entries of matrix P, same for MV
+  // Note that it's a coincidence that uniform names are the same as CPU code variable names 
+  //    - they don't have to be the same
+  current_program->setUniform("MV",&MV[0][0]);
+	current_program->setUniform("NMV",&NMV[0][0]);
+}
+
+/* ----------------------------------------------------------------------------------*/
+// Shared variables
+
+mat4 global_rotation = mat4();
+mat4 current_rotation;
+
+// pick an alpha
+GLfloat alpha = 14.0f;
+GLfloat d;
+mat4 Perspective;
+
+mat4 gp_Translate;
+mat4 gp_Scale;
+mat4 gp_to_view_t;
+
+vec3 gp_min_bound;
+vec3 gp_max_bound;
+
+mat4 gp_MV;
+mat3 gp_NMV;
+
 /* ----------------------------------------------------------------------------------*/
 
 // Carve Program
 RGBTexture3D* carve_texture = NULL;
 glm::mat4 carve_texture_transform;
 
-
 void carve_setup_texture_transform() {
-	carve_texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f)) * Scale * Translate;
+	carve_texture_transform = scale(mat4(), vec3(0.5f,0.5f,0.5f)) * translate(mat4(), vec3(1.0f, 1.0f, 1.0f)) * gp_Scale * gp_Translate;
 }
 
 void carve_setup_textures() {
@@ -209,13 +273,14 @@ void carve_setup_textures() {
 	carve_texture->linear();
 	carve_texture->clampToEdge();
 	carve_texture->attach(1);
-
 }
 
 void set_carve_program() {
 	set_pre_program();
 	current_program = carve_program;
 	current_vao = gphong_vao;
+	current_num_vertices = gphong_num_vertices;
+	setup_intial_transforms(d, alpha, Perspective, gp_Translate, gp_Scale, gp_to_view_t, gp_max_bound, gp_min_bound);
 	carve_setup_texture_transform();
 	carve_setup_textures();
 	set_post_program();
@@ -223,7 +288,9 @@ void set_carve_program() {
 
 void program_carve_draw() {
 	current_program->setUniform("TXT",&carve_texture_transform[0][0]);
+  current_program->setUniform("P",&Perspective[0][0]);
 	carve_texture->on();
+	shared_draw_util1(gp_MV, gp_NMV, gp_to_view_t, current_rotation, global_rotation, gp_Scale, gp_Translate);
 }
 
 void program_carve_finish_draw() {
@@ -234,7 +301,7 @@ void program_carve_finish_draw() {
 
 // Environment Program
 RGBTexture2D* mirror = NULL;
-glm::mat4 environment_texture_transform;
+mat4 environment_texture_transform;
 
 
 void environment_setup_textures() {
@@ -250,7 +317,9 @@ void environment_setup_texture_transform() {
 
 void program_environment_draw() {
 	current_program->setUniform("MIRRORT",&environment_texture_transform[0][0]);
+  current_program->setUniform("P",&Perspective[0][0]);
 	mirror->on();
+	shared_draw_util1(gp_MV, gp_NMV, gp_to_view_t, current_rotation, global_rotation, gp_Scale, gp_Translate);
 }
 
 void program_environment_finish_draw() {
@@ -261,6 +330,8 @@ void set_environment_program() {
 	set_pre_program();
 	current_program = environment_program;
 	current_vao = gphong_vao;
+	current_num_vertices = gphong_num_vertices;
+	setup_intial_transforms(d, alpha, Perspective, gp_Translate, gp_Scale, gp_to_view_t, gp_max_bound, gp_min_bound);
 	environment_setup_textures();
 	environment_setup_texture_transform();
 	set_post_program();
@@ -269,16 +340,26 @@ void set_environment_program() {
 /* ----------------------------------------------------------------------------------*/
 // Doughnut program
 RGBTexture2D* doughnut_texture = NULL;
+vec3 doughnut_max_bound;
+vec3 doughnut_min_bound;
+mat4 dn_Translate;
+mat4 dn_Scale;
+mat4 dn_to_view_t;
+mat4 dn_MV;
+mat3 dn_NMV;
+
 
 void doughnut_setup_textures() {
-	mirror = createRGBTexture2D(ENVIRONMENT_TEXTURE);
-	mirror->linear();
-	mirror->repeat();
-	mirror->attach(1);
+	doughnut_texture = createRGBTexture2D(DOUGHNUT_TEXTURE);
+	doughnut_texture->linear();
+	doughnut_texture->repeat();
+	doughnut_texture->attach(1);
 }
 
 void program_doughnut_draw() {
 	doughnut_texture->on();
+  current_program->setUniform("P",&Perspective[0][0]);
+	shared_draw_util1(dn_MV, dn_NMV, dn_to_view_t, current_rotation, global_rotation, dn_Scale, dn_Translate);
 }
 
 void program_doughnut_finish_draw() {
@@ -288,7 +369,9 @@ void program_doughnut_finish_draw() {
 void set_doughnut_program() {
 	set_pre_program();
 	current_program = doughnut_program;
-	current_vao = gphong_vao;
+	current_vao = doughnut_vao;
+	current_num_vertices = doughnut_num_vertices;
+	setup_intial_transforms(d, alpha, Perspective, dn_Translate, dn_Scale, dn_to_view_t, doughnut_max_bound, doughnut_min_bound);
 	doughnut_setup_textures();
 	set_post_program();
 }
@@ -303,6 +386,10 @@ void program_draw() {
 		program_carve_draw();
 	} else if ( current_program == environment_program ) {
 		program_environment_draw();
+	} else if ( current_program == doughnut_program ) {
+		program_doughnut_draw();
+	} else {
+		exit(1);
 	}
 }
 
@@ -311,6 +398,10 @@ void program_finish_draw() {
 		program_carve_finish_draw();
 	} else if ( current_program == environment_program ) {
 		program_environment_finish_draw();
+	} else if ( current_program == doughnut_program ) {
+		program_doughnut_finish_draw();
+	} else {
+		exit(1);
 	}
 
 }
@@ -382,7 +473,7 @@ VectorStream create_gphong_normal_stream( const VectorStream& vecs ) {
 
 }
 
-Buffer* create_triangle_buffer( const VectorStream& verts ) {
+Buffer* create_triangle_buffer( const VectorStream& verts, vec3& max_bound, vec3& min_bound) {
 	// Loop over all the vertex vec's and output three times to the coordinate
 	// buffer, once for each coordinate in a vec3.  Also find the max and min
 	// bounds while we're at it
@@ -451,24 +542,157 @@ Buffer* create_normal_buffer( const VectorStream& norms ) {
 
 }
 
+/*
+ * P(ψ, φ) = Rφc(ψ) = ((R+r cos ψ) cos φ, (R+r cos ψ) sin φ, r sin ψ)
+ *
+ * where:
+ *   φ (phi) is the angle about the circle
+ *   ψ (psi) is the angle about the z axis to rotate the circle through the space to
+ *     form the doughnut
+ *   R is the radius of the doughnut
+ *   r is the radius of the circle
+ *
+ */
+vec3 doughnut_position(float psi, float phi, float r, float R) {
+	vec3 ret;
+	ret.x = (R + r * cos( psi )) * cos( phi );
+	ret.y = (R + r * cos( psi )) * sin( phi );
+	ret.z = r * sin( psi );
+	return ret;
+}
+
+vec3 doughnut_normal(float psi, float phi, float r, float R ) {
+	vec3 partial_by_psi;
+	partial_by_psi.x = -r * sin(psi) * cos(phi);
+	partial_by_psi.y = -r * sin(psi) * sin(phi);
+	partial_by_psi.z = r * cos(psi);
+
+	vec3 partial_by_phi;
+	partial_by_phi.x = - sin(phi) * ( r * cos(psi) + R);
+	partial_by_phi.y = cos(phi) * ( r * cos(psi) + R);
+	partial_by_phi.z = 0;
+
+	return normalize(cross(partial_by_phi, partial_by_psi));
+}
+
+void index_to_float_division( const size_t i, const size_t j, const float width_and_height_of_rect, float& x, float& y) {
+	x = i * width_and_height_of_rect;
+	y = j * width_and_height_of_rect;
+}
+
+void add_coord_to_texture_list( const GLfloat& x, const GLfloat& y, CoordBuffer& tex_coords, size_t i, size_t j, size_t RECTS, size_t data_per_rect, size_t& offset ) {
+	//size_t index = (( i * RECTS) + j)*data_per_rect + offset;
+	tex_coords[ offset++ ] = x;
+	tex_coords[ offset++ ] = y;
+}
+
+void internal_do_vertex_doughnut( CoordBuffer& tex_coords, VectorStream& doughnut_vectors, VectorStream& doughnut_normals, float r, float R, size_t i, size_t j, size_t RECTS, size_t data_per_rect, size_t& offset ) {
+	float x,y;
+	float psi,phi;
+	static float division = 1.0f / RECTS;
+
+	index_to_float_division(i, j, division, x, y);
+	psi = x * 2 * M_PI;
+	phi = y * 2 * M_PI;
+
+	vec3 pos = doughnut_position(psi,phi,r,R);
+	//cout << "When psi is " << x << " * 2pi" << endl;
+	//cout << "When phi is " << y << " * 2pi" << endl;
+	//cout << "Pos is: " << to_string(pos) << endl;
+	doughnut_vectors.push_back( pos );
+	vec3 norm = doughnut_normal(psi,phi,r,R);
+	doughnut_normals.push_back(norm);
+	add_coord_to_texture_list(x,y,tex_coords,i,j,RECTS,data_per_rect,offset);
+}
+
+// where size of doughnut_texture_coords is three times larger than
+// doughnut_vectors (an array of vectors vs an array of coordinates)
+void internal_create_doughnut( VectorStream& doughnut_vectors, VectorStream& doughnut_normals, Buffer*& doughnut_texture_coords ) {
+
+	const size_t RECTS = 50;
+	const float r = 5.0f;
+	const float R = 50.0f;
+
+	// ensure empty
+	doughnut_vectors.clear();
+	doughnut_normals.clear();
+
+	size_t tex_dimension = 2;
+	size_t triangles_per_rect = 2;
+	size_t data_per_rect = triangles_per_rect * VERTS_PER_TRIANGLE * tex_dimension;
+	size_t size_of_tex_coords = pow(RECTS,2) * data_per_rect;
+	CoordBuffer tex_coords = new Coord[size_of_tex_coords];
+
+	size_t offset = 0;
+	for( size_t i = 0; i < RECTS; ++i ) {
+		for( size_t j = 0; j < RECTS; ++j ) {
+			/*
+			 * divide up rect like so:
+			 *  0      1
+			 *   ------
+			 *   |\ b |
+			 *   | \  |
+			 *   |  \ |
+			 *   | a \|
+			 *   ------
+			 *  2      3
+			 *
+			 *  a: 0, 3, 2
+			 *  b: 0, 1, 3
+			 */
+
+			// a
+			internal_do_vertex_doughnut( tex_coords, doughnut_vectors, doughnut_normals, r, R, i, j, RECTS, data_per_rect, offset );
+			internal_do_vertex_doughnut( tex_coords, doughnut_vectors, doughnut_normals, r, R, i + 1, j + 1, RECTS, data_per_rect, offset );
+			internal_do_vertex_doughnut( tex_coords, doughnut_vectors, doughnut_normals, r, R, i, j + 1, RECTS, data_per_rect, offset );
+
+			// b
+			internal_do_vertex_doughnut( tex_coords, doughnut_vectors, doughnut_normals, r, R, i, j, RECTS, data_per_rect, offset );
+			internal_do_vertex_doughnut( tex_coords, doughnut_vectors, doughnut_normals, r, R, i + 1, j, RECTS, data_per_rect, offset );
+			internal_do_vertex_doughnut( tex_coords, doughnut_vectors, doughnut_normals, r, R, i + 1, j + 1, RECTS, data_per_rect, offset );
+
+		}
+	}
+
+	doughnut_texture_coords = new Buffer(tex_dimension,doughnut_vectors.size(),tex_coords);
+}
+
+void create_doughnut(Buffer*& doughnut_vertices, Buffer*& doughnut_normals, Buffer*& doughnut_texture_coords) {
+	VectorStream doughnut_vectors;
+	VectorStream doughnut_vec_normals;
+	internal_create_doughnut(doughnut_vectors, doughnut_vec_normals, doughnut_texture_coords);
+
+	doughnut_num_vertices = doughnut_vectors.size();
+
+	doughnut_vertices = create_triangle_buffer( doughnut_vectors, doughnut_max_bound, doughnut_min_bound );
+
+	doughnut_normals = create_normal_buffer(doughnut_vec_normals);
+
+}
+
 
 void setup_buffers(const char* input_file) {
+	/*--------------------------------------------------*/
 	// get a stream of vertices 
 	VectorStream verts = to_vec_stream( input_file );
-	
-	// create a stream of normals for phong/gouraud shading
-	//VectorStream gphong_norms = create_gphong_normal_stream( verts );
-
 	// assuming flat_norms.size() == verts.size() == gphong_norms.size()
-	num_vertices = verts.size();
+	gphong_num_vertices = verts.size();
 
-	vertices = create_triangle_buffer( verts );
+	vertices = create_triangle_buffer( verts, gp_max_bound, gp_min_bound );
 
 	// construct the vaos for both phong and gouraud shading models
 	gphong_vao = new VertexArray;
 	gphong_normals = create_normal_buffer(create_gphong_normal_stream( verts ));
 	gphong_vao->attachAttribute(0,vertices);
 	gphong_vao->attachAttribute(1,gphong_normals);
+
+	/*--------------------------------------------------*/
+
+	doughnut_vao = new VertexArray;
+	create_doughnut(doughnut_vertices, doughnut_normals, doughnut_texture_coords);
+	doughnut_vao->attachAttribute(0,doughnut_vertices);
+	doughnut_vao->attachAttribute(1,doughnut_normals);
+	doughnut_vao->attachAttribute(2,doughnut_texture_coords);
 
 }
 
@@ -490,47 +714,6 @@ void setup_programs()
 	environment_program = createProgram(ENVIRONMENT_VERTEX_SHADER, ENVIRONMENT_FRAGMENT_SHADER);
 	cout << "Creating the doughnut program..." << endl;
 	doughnut_program = createProgram(DOUGHNUT_VERTEX_SHADER, DOUGHNUT_FRAGMENT_SHADER);
-}
-
-void update_d() {
-	d = 1.0f / tan(alpha / 180.0 * M_PI / 2.0f);
-}
-
-void update_perspective() {
-  // Compute projection matrix; perspective() is a glm function
-  // Arguments: field of view in DEGREES(!), aspect ratio (1 if square window), distance to front and back clipping plane
-  // Camera is located at the origin and points along -Z direction
-  Perspective = perspective(alpha,1.0f, d - 1.0f, d+ 3.0f);
-}
-
-void setup_intial_transforms() {
-
-	update_d();
-
-	update_perspective();
-
-	// calculate what to transform by to get to zero zero
-	vec3 trans( 
-			- (max_bound.x + min_bound.x) / 2.0f,
-			- (max_bound.y + min_bound.y) / 2.0f,
-			- (max_bound.z + min_bound.z) / 2.0f);
-	//cout << "translate is: " << to_string(trans) << endl;
-
-	// and form into a matrix
-	Translate = translate(mat4(), trans);
-
-	// calculatre the scalar to scale by
-	GLfloat sc = 2.0f / std::max( max_bound.x - min_bound.x, 
-			std::max( max_bound.y - min_bound.y, max_bound.z - min_bound.z ));
-
-	//cout << "Scale is: " << sc << endl;
-
-	// put it into matrix form
-	Scale = scale( mat4(), vec3(sc,sc,sc) );
-
-	// calculate the translate required to get into camera fov
-	to_view_t = translate(mat4(), vec3(0.0f, 0.0f, -1.0f - d));
-
 }
 
 
@@ -557,22 +740,6 @@ void draw()
   glEnable(GL_DEPTH_TEST);
 
 
-	// join all the matrices together for the complete MV matrix
-  mat4 MV = to_view_t * current_rotation * global_rotation * Scale * Translate;
-
-	// compute the normal matrix from the MV matrix
-	//mat4 NMV = transpose(inverse(MV));
-	//mat4 NMV = current_rotation * global_rotation;
-	mat3 NMV = mat3(MV);
-
-  // send matrices P and MV into uniform variables of the program used to render square
-  // &P[0][0] is the pointer to the entries of matrix P, same for MV
-  // Note that it's a coincidence that uniform names are the same as CPU code variable names 
-  //    - they don't have to be the same
-  current_program->setUniform("P",&Perspective[0][0]);
-  current_program->setUniform("MV",&MV[0][0]);
-	current_program->setUniform("NMV",&NMV[0][0]);
-
   current_program->on();
 
 	// program specific stuffs
@@ -583,7 +750,7 @@ void draw()
   // vertices with data at indices 0 1 2 0 2 3 in the buffers attached to the 
   // vertex array are going to be generated.
   // The first argument instructs the pipeline how to set up triangles; GL_TRIANGLES=triangle soup
-	current_vao->sendToPipeline(GL_TRIANGLES,0, num_vertices );
+	current_vao->sendToPipeline(GL_TRIANGLES,0, current_num_vertices );
 
   // turn the program off
   current_program->off();
@@ -735,12 +902,12 @@ static const GLfloat ZOOM_FACTOR = 0.20f;
 
 void increase_alpha() {
 	alpha *=  (1 + ZOOM_FACTOR);
-	update_perspective();
+	update_perspective(Perspective, alpha, d);
 }
 
 void decrease_alpha() {
 	alpha *= (1 - ZOOM_FACTOR);
-	update_perspective();
+	update_perspective(Perspective, alpha, d);
 }
 
 void menu ( int value )
@@ -752,6 +919,9 @@ void menu ( int value )
 			break;
 		case MENU_ENVIRONMENT:
 			set_environment_program();
+			break;
+		case MENU_DOUGHNUT:
+			set_doughnut_program();
 			break;
     case MENU_SPECULAR:
 			toggle_specular();
@@ -859,6 +1029,7 @@ GLint init_glut(GLint *argc, char **argv)
   GLint menuID = glutCreateMenu(menu);
 	glutAddMenuEntry("3D Texture",MENU_3DTEXTURE);
 	glutAddMenuEntry("Environment",MENU_ENVIRONMENT);
+	glutAddMenuEntry("Doughnut",MENU_DOUGHNUT);
   glutAddMenuEntry("Enable/Disable specular",MENU_SPECULAR);
   glutAddMenuEntry("Enable/Disable diffuse",MENU_DIFFUSE);
   glutAddMenuEntry("Zoom In",MENU_ZOOM_IN);
@@ -907,8 +1078,6 @@ GLint main(GLint argc, char **argv) {
   // initialize programs and buffers
   setup_programs();
 	setup_buffers(file_name.c_str());
-	setup_intial_transforms();
-	setup_globals();
 	set_default_program();
 
   // Main loop: keep processing events.

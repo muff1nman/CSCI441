@@ -16,6 +16,12 @@ if(DEBUG)
 	set( LOG_LEVEL 0 )
 endif(DEBUG)
 
+if(DEBUG)
+	set( CMAKE_BUILD_TYPE debug)
+else()
+	set( CMAKE_BUILD_TYPE release)
+endif(DEBUG)
+
 # Not needed if using the options above
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLOG=1 -DDEBUG=1")
 

@@ -1,12 +1,12 @@
 #version 420
-layout (binding=1) uniform sampler2D mirror;
+layout (binding=1) uniform sampler2D texture_image;
+layout (location=2) in vec2 texture_coord;
 
 uniform vec3 LV;
 uniform vec3 KDIFF;
 uniform vec3 KAMBIENT;
 uniform vec3 KSPEC;
 uniform float NSPEC;
-uniform mat4 MIRRORT;
 
 out vec3 fragcolor;
 
@@ -14,10 +14,7 @@ smooth in vec3 normal;
 smooth in vec4 position;
 
 void main() {
-	vec4 normalxy = vec4(normalize(normal), 0.0f);
-	normalxy.w = 1.0;
-	vec4 texture_coord = (MIRRORT * normalxy);
-	vec4 texture_color = texture(mirror, texture_coord.xy);
+	vec4 texture_color = texture(texture_image, texture_coord);
 
 	// vector from object to light
 	vec3 location_to_light_vector = normalize(LV - position.xyz);
@@ -44,4 +41,5 @@ void main() {
 	// calculate triangle color
 	fragcolor = 
 		texture_color.xyz * (KSPEC * pow(specular_base, NSPEC) + KDIFF * diffuse_dot) + KAMBIENT;
+
 }
