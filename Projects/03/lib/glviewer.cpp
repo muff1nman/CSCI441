@@ -582,8 +582,8 @@ void index_to_float_division( const size_t i, const size_t j, const float width_
 
 void add_coord_to_texture_list( const GLfloat& x, const GLfloat& y, CoordBuffer& tex_coords, size_t i, size_t j, size_t RECTS, size_t data_per_rect, size_t& offset ) {
 	//size_t index = (( i * RECTS) + j)*data_per_rect + offset;
-	tex_coords[ offset++ ] = x;
 	tex_coords[ offset++ ] = y;
+	tex_coords[ offset++ ] = x;
 }
 
 void internal_do_vertex_doughnut( CoordBuffer& tex_coords, VectorStream& doughnut_vectors, VectorStream& doughnut_normals, float r, float R, size_t i, size_t j, size_t RECTS, size_t data_per_rect, size_t& offset ) {
@@ -609,8 +609,8 @@ void internal_do_vertex_doughnut( CoordBuffer& tex_coords, VectorStream& doughnu
 // doughnut_vectors (an array of vectors vs an array of coordinates)
 void internal_create_doughnut( VectorStream& doughnut_vectors, VectorStream& doughnut_normals, Buffer*& doughnut_texture_coords ) {
 
-	const size_t RECTS = 50;
-	const float r = 5.0f;
+	const size_t RECTS = 300;
+	const float r = 20.0f;
 	const float R = 50.0f;
 
 	// ensure empty

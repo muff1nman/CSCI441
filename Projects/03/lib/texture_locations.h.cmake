@@ -16,7 +16,7 @@
 #define ENVIRONMENT_TEXTURE_NAME "EnvMap/kitchen_probe.ppm"
 #define ENVIRONMENT_TEXTURE TEXTURE_DIR ENVIRONMENT_TEXTURE_NAME
 
-#define DOUGHNUT_TEXTURE_NAME "Tilable/tilable-1.ppm"
+#define DOUGHNUT_TEXTURE_NAME "Tilable/tilable-4.ppm"
 #define DOUGHNUT_TEXTURE TEXTURE_DIR DOUGHNUT_TEXTURE_NAME
 
 #endif /* !__texture_locations_h__ */

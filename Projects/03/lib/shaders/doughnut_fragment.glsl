@@ -1,6 +1,5 @@
 #version 420
 layout (binding=1) uniform sampler2D texture_image;
-layout (location=2) in vec2 texture_coord;
 
 uniform vec3 LV;
 uniform vec3 KDIFF;
@@ -12,6 +11,7 @@ out vec3 fragcolor;
 
 smooth in vec3 normal;
 smooth in vec4 position;
+smooth in vec2 texture_coord;
 
 void main() {
 	vec4 texture_color = texture(texture_image, texture_coord);
