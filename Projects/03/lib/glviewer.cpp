@@ -312,7 +312,9 @@ void environment_setup_textures() {
 }
 
 void environment_setup_texture_transform() {
-	environment_texture_transform = scale(mat4(), vec3(0.5f,0.5f, 0.0f)) * translate(mat4(), vec3(1.0f, 1.0f, 0.0f));
+	// flip the coordinates so that the axis is correct
+	mat4 flip = scale(mat4(), vec3(1.0f, -1.0f, 1.0f));
+	environment_texture_transform = scale(mat4(), vec3(0.5f,0.5f, 0.0f)) * translate(mat4(), vec3(1.0f, 1.0f, 0.0f)) * flip;
 }
 
 void program_environment_draw() {
