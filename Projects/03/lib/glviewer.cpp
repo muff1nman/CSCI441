@@ -598,8 +598,21 @@ void internal_do_vertex_doughnut( CoordBuffer& tex_coords, VectorStream& doughnu
 	float psi,phi;
 	static float division = 1.0f / RECTS;
 
+	// a little bit about these next four lines:
+	//   index_to_float_division will give us back x and y coordinates
+	//   
+	//   we then add these x and y coordinates as the texture coordinates.
+	//
+	//   but then we recalculate x and y with new i and j that have been modded to
+	//   ensure they show up at the left or bottom border if they were at the top
+	//   or right border.  This is to ensure that positions have the same floating
+	//   errors
+	index_to_float_division(i, j, division, x, y);
+	add_coord_to_texture_list(x,y,tex_coords,i,j,RECTS,data_per_rect,offset);
+
 	keep_edges_same(i,j, RECTS);
 	index_to_float_division(i, j, division, x, y);
+
 	psi = x * 2 * M_PI;
 	phi = y * 2 * M_PI;
 
@@ -610,7 +623,6 @@ void internal_do_vertex_doughnut( CoordBuffer& tex_coords, VectorStream& doughnu
 	doughnut_vectors.push_back( pos );
 	vec3 norm = doughnut_normal(psi,phi,r,R);
 	doughnut_normals.push_back(norm);
-	add_coord_to_texture_list(x,y,tex_coords,i,j,RECTS,data_per_rect,offset);
 }
 
 // where size of doughnut_texture_coords is three times larger than
