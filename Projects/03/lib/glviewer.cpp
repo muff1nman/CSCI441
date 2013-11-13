@@ -588,12 +588,31 @@ void add_coord_to_texture_list( const GLfloat& x, const GLfloat& y, CoordBuffer&
 	tex_coords[ offset++ ] = x;
 }
 
+void keep_edges_same( size_t& i, size_t& j, size_t RECTS ) {
+	i = i % (RECTS - 1);
+	j = j % (RECTS - 1);
+}
+
 void internal_do_vertex_doughnut( CoordBuffer& tex_coords, VectorStream& doughnut_vectors, VectorStream& doughnut_normals, float r, float R, size_t i, size_t j, size_t RECTS, size_t data_per_rect, size_t& offset ) {
 	float x,y;
 	float psi,phi;
 	static float division = 1.0f / RECTS;
 
+	// a little bit about these next four lines:
+	//   index_to_float_division will give us back x and y coordinates
+	//   
+	//   we then add these x and y coordinates as the texture coordinates.
+	//
+	//   but then we recalculate x and y with new i and j that have been modded to
+	//   ensure they show up at the left or bottom border if they were at the top
+	//   or right border.  This is to ensure that positions have the same floating
+	//   errors
 	index_to_float_division(i, j, division, x, y);
+	add_coord_to_texture_list(x,y,tex_coords,i,j,RECTS,data_per_rect,offset);
+
+	keep_edges_same(i,j, RECTS);
+	index_to_float_division(i, j, division, x, y);
+
 	psi = x * 2 * M_PI;
 	phi = y * 2 * M_PI;
 
@@ -604,13 +623,11 @@ void internal_do_vertex_doughnut( CoordBuffer& tex_coords, VectorStream& doughnu
 	doughnut_vectors.push_back( pos );
 	vec3 norm = doughnut_normal(psi,phi,r,R);
 	doughnut_normals.push_back(norm);
-	add_coord_to_texture_list(x,y,tex_coords,i,j,RECTS,data_per_rect,offset);
 }
 
 // where size of doughnut_texture_coords is three times larger than
 // doughnut_vectors (an array of vectors vs an array of coordinates)
 void internal_create_doughnut( VectorStream& doughnut_vectors, VectorStream& doughnut_normals, Buffer*& doughnut_texture_coords ) {
-
 	const size_t RECTS = 300;
 	const float r = 20.0f;
 	const float R = 50.0f;
