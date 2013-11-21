@@ -1,0 +1,44 @@
+Answers:
+1. f(4/3,4/3) = f(4/3,5/3) = 2 and f(5/3,4/3)=f(5/3,5/3) = 3. Just use the process described in the slides to get these values. All points are in the square extending from (1,1) to (2,2), and the values along the vertical edges are the same (1 and 4), so the calculation boils down to linear interpolation along the horizontal direction.
+The interpolated function is piecewise linear. It does not depend on y, so bilinear reduces to linear in x for the given values.
+2) The algorithm for rendering a mirror surface works as follows. For a vertex v, find a point in the texture at which the normal [for the object shown in the texture] is the same as normal at v and use its coordinates in the image as texture coordinates (I am glossing over scaling issues here). In order for this to work, for any given vector n we need to be able to find a point on the object in the texture image with normal n. This is possible for an ellipsoid, but not for cube (which only has 6 different normals) or cylinder.
+A simple way to visualize this is the Gauss map (look for it in wikipedia), the mapping that takes a point on the surface into its unit normal (which can be thought of as a point on the unit sphere). The Gauss map is surjective only for an ellipsoid. For a cube, you get 6 points as its possible values, and for a cylinder -- a great circle of values. In both cases, there are normal vector directions for which the texture does not contain suitable color information.
+To sum up, the answer is a) no b) yes c) no
+3) To find the point p, intersect the line passing through the last two control points of A and the line passing through the first control points of C. Result: (0,2). Techincally, you need to verify that the point where A and B meet is between (0,2) and the second last control point of A (which is true) and a similar condition for B and C. In this case, everything is fine and the curves join smoothly.
+4) 
+a) B-spline of degree 1 is defined on [0,100] and is a linear curve connecting p and p+100v, i.e. has the formula B_1(t) = p+tv. Because of the locations of the control point, this represents a trajectory of a point moving from p with constant velocity v.
+b) ... If you apply averaging to B_1, you still get a curve moving with constant velocity v (since point moves with that velocity all the time, so do its average location over a moving window of time of length 1). So, B_2 is also a linear curve, representing a point moving with velocity v. The domain is [0,99] and the curve starts at p+0.5v and ends at p+99.5v
+c) By the same argument, the curve represents a point moving with constant velocity v, with domain [0,98]. The curve starts and ends at p+v and p+99v. Formula: B_3(t)=p+(1+t)v.
+5) The tree looks just like the thing:
+              node2
+             /
+        node1
+       /     \
+      /       node3
+     /              
+root 
+     \
+      \       node4
+       \     /
+        node2
+             \
+              node5
+To get transformation on each edge, rotate and then translate by (b,0). So, at each edge you should have 
+T_(b,0) R_angle. 
+For each edge the angle is represented by a different parameter.
+The transformation for the top left piece should be 
+T_(b,0) R_angle1 T_(b,0) R_angle2
+6) See one of the slides in the shadows set. 
+The procedure can first look at the triangle and make sure it appears counterclockwise from the lightsource:
+if ((b-a)x(c-a)) dot (light-a) < 0 then swap a and b
+Then, compute points at infinity:
+a_i = (a_x-l_x,a_y-l_y,a_z-l_z,0)
+b_i = (b_x-l_x,b_y-l_y,b_z-l_z,0)
+c_i = (c_x-l_x,c_y-l_y,c_z-l_z,0)
+Now, here are vertices you need to "draw" shadow of the edge ab (i.e. quad a b b_i a_i):
+b,a,a_i,a_i,b,b_i.
+You also need to render shadows of bc and ca:
+c,b,b_i,b_i,c,c_i and a,c,c_i,c_i,a,a_i.
+When you output a, b or c you should append homogenous coordinate of 1 to the coordinates.
+7) Double once, then average, average and average. Result: 
+(0,4) (1,7) (4,8) (7,7) (8,4) (9,1) (12,0)
