@@ -16,7 +16,7 @@ a file named "input.t" in the *current working directory* so you will have to
 copy an input file into the build directory if you wish to use the default file
 name.
 
-Or using the makefile:
+Or build and run using the makefile:
 ---------
 make
 ./glviewer [input-file]
