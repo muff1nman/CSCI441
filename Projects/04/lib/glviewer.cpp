@@ -412,6 +412,14 @@ void voronoi_setup_textures() {
 void voronoi_setup_texture_transform() {
 }
 
+void increase_number_of_sites() {
+	size_t new_number_of_sites = number_of_sites * 2;
+	if( new_number_of_sites  < MAXIMUM_NUMBER_SITES ) {
+		number_of_sites = new_number_of_sites;
+		cout << "Number of sites: " << number_of_sites << endl;
+	}
+}
+
 void program_voronoi_draw() {
   //current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4);
 	current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4,number_of_sites);
@@ -1019,6 +1027,8 @@ void menu ( int value )
 {
 	switch(value) {
 		case MENU_MORE_POINTS:
+			increase_number_of_sites();
+			break;
 		case MENU_TOGGLE_HIDE_SITES:
 		case MENU_RESET:
 		case MENU_ANIMATE:
