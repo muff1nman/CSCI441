@@ -14,5 +14,7 @@
 
 #define DEFAULT_NUMBER_SITES 32
 
+#define MAXIMUM_NUMBER_SITES 65536
+
 #endif /* !__config_h__ */
 

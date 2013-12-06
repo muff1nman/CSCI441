@@ -9,6 +9,7 @@
 flat in vec3 col;
 flat in vec2 site_location;
 noperspective in vec2 frag_pos;
+flat in int instance;
 
 /* ----------- OUTPUT VARIABLES ----------------- */
 /* For `simple' rendering we do here, there is    */ 
@@ -37,5 +38,5 @@ void main() {
   // col is also an instanced attribute - color each instance
   // using a constant color
 
-  fragcolor = (1 - gl_FragDepth) * col;
+  fragcolor = col;
 }

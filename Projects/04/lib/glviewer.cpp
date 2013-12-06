@@ -395,6 +395,16 @@ void set_doughnut_program() {
 /* ----------------------------------------------------------------------------------*/
 // Voronoi program
 float max_window_distance = 1;
+size_t number_of_sites = DEFAULT_NUMBER_SITES;
+
+CoordBuffer sites_internal = NULL;
+Buffer* site_buffer = NULL;
+
+CoordBuffer colors_internal = NULL;
+Buffer* color_buffer = NULL;
+
+CoordBuffer angular_velocities_internal = NULL;
+Buffer* angular_velocities_buffer = NULL;
 
 void voronoi_setup_textures() {
 }
@@ -403,25 +413,64 @@ void voronoi_setup_texture_transform() {
 }
 
 void program_voronoi_draw() {
-  current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4);
-  //current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4,3);
+  //current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4);
+	current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4,number_of_sites);
 }
 
 void program_voronoi_finish_draw() {
 }
 
-//void update_uniform_distance() {
-	////max_window_distance = current_diagonal_length();
-	//max_window_distance = current_diagonal_length();
-	//if(current_program == voronoi_program ) {
-		//current_program->setUniform("MAX_D",&max_window_distance);
-	//}
-//}
+GLfloat	randomfloat() {
+	return rand() / (float) RAND_MAX;
+}
+
+GLfloat randfloat_in_box() {
+	return 1.0f - 2.0f * randomfloat();
+}
+
+CoordBuffer generate_random_data(size_t size, size_t DIM) {
+	CoordBuffer coords = new Coord[size * DIM];
+	for( size_t site = 0; site < size; ++site ) {
+		for( size_t dim = 0; dim < DIM; ++dim) {
+			coords[site*DIM + dim] = randfloat_in_box();
+			//cout << "rand num: " << coords[site*DIM + dim] << endl;
+		}
+	}
+
+	return coords;
+}
+
+typedef Buffer* BufferPtr;
+
+void generate_random_buffer( BufferPtr& buffer, CoordBuffer& internal, size_t size, size_t DIM ) {
+	if(buffer != NULL) {
+		delete buffer;
+	}
+	if( internal != NULL ) {
+		delete internal;
+	}
+
+	internal = generate_random_data(size, DIM);
+	buffer = new Buffer(DIM, size, internal);
+
+}
 
 void set_voronoi_program() {
 	set_pre_program();
 	current_program = voronoi_program;
 	current_vao = va_square;
+
+	// sites
+	generate_random_buffer(site_buffer, sites_internal, MAXIMUM_NUMBER_SITES,2);
+	current_vao->attachAttribute(2,site_buffer,1);
+
+	// colors
+	generate_random_buffer(color_buffer, colors_internal, MAXIMUM_NUMBER_SITES, 3);
+	current_vao->attachAttribute(3,color_buffer,1);
+
+	// angular velocities
+	//generate_random_buffer(angular_velocities_buffer, angular_velocities_internal, MAXIMUM_NUMBER_SITES, 3);
+	//current_vao->attachAttribute(4,angular_velocities_buffer,1);
 
 	//update_uniform_distance();
 
@@ -948,13 +997,11 @@ GLvoid button_motion(GLint mx, GLint my)
 
 // you'll need to change this one as well...
 
-static const int MENU_3DTEXTURE = 1;
-static const int MENU_ENVIRONMENT = 2;
-static const int MENU_DOUGHNUT = 3;
-static const int MENU_SPECULAR = 4;
-static const int MENU_DIFFUSE = 5;
-static const int MENU_ZOOM_IN = 6;
-static const int MENU_ZOOM_OUT = 7;
+static const int MENU_MORE_POINTS = 1;
+static const int MENU_TOGGLE_HIDE_SITES = 2;
+static const int MENU_RESET = 3;
+static const int MENU_ANIMATE = 4;
+static const int MENU_TOGGLE_COLOR = 5;
 
 static const GLfloat ZOOM_FACTOR = 0.20f;
 
@@ -970,30 +1017,15 @@ void decrease_alpha() {
 
 void menu ( int value )
 {
-  switch(value)
-	{
-		case MENU_3DTEXTURE:
-			set_carve_program();
-			break;
-		case MENU_ENVIRONMENT:
-			set_environment_program();
-			break;
-		case MENU_DOUGHNUT:
-			set_doughnut_program();
-			break;
-    case MENU_SPECULAR:
-			toggle_specular();
-      break;
-    case MENU_DIFFUSE:
-			toggle_diffuse();
-      break;
-    case MENU_ZOOM_IN:
-			decrease_alpha();
-      break;
-    case MENU_ZOOM_OUT:
-			increase_alpha();
-      break;
-    }
+	switch(value) {
+		case MENU_MORE_POINTS:
+		case MENU_TOGGLE_HIDE_SITES:
+		case MENU_RESET:
+		case MENU_ANIMATE:
+		case MENU_TOGGLE_COLOR:
+		default:
+			cout << "Unknown menu entry" << endl;
+	}
 
   // and again, in case any rendering paramters changed, redraw
   glutPostRedisplay();
@@ -1087,13 +1119,11 @@ GLint init_glut(GLint *argc, char **argv)
   /* create menu */
   // you'll need to change this to build your menu
   GLint menuID = glutCreateMenu(menu);
-	glutAddMenuEntry("3D Texture",MENU_3DTEXTURE);
-	glutAddMenuEntry("Environment",MENU_ENVIRONMENT);
-	glutAddMenuEntry("Doughnut",MENU_DOUGHNUT);
-  glutAddMenuEntry("Enable/Disable specular",MENU_SPECULAR);
-  glutAddMenuEntry("Enable/Disable diffuse",MENU_DIFFUSE);
-  glutAddMenuEntry("Zoom In",MENU_ZOOM_IN);
-  glutAddMenuEntry("Zoom Out",MENU_ZOOM_OUT);
+	glutAddMenuEntry("Spray More Points", MENU_MORE_POINTS);
+	glutAddMenuEntry("Show/hide sites", MENU_TOGGLE_HIDE_SITES);
+	glutAddMenuEntry("Reset", MENU_RESET);
+	glutAddMenuEntry("Move points", MENU_ANIMATE);
+	glutAddMenuEntry("Toggle Color", MENU_TOGGLE_COLOR);
   glutSetMenu(menuID);
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 
@@ -1134,6 +1164,9 @@ GLint main(GLint argc, char **argv) {
       cout << "OpenGL 4.0 not supported" << endl;;
       return 1;
     }
+
+	// setup random
+	srand(6);
 
   // initialize programs and buffers
   setup_programs();

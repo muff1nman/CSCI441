@@ -9,7 +9,8 @@
 /* ---------------------------------------------- */
 
 layout (location=0) in vec2 model_coord;
-/*layout (location=2) in vec3 color;*/
+layout (location=2) in vec2 site;
+layout (location=3) in vec3 color;
 
 /* -------------- OUTPUT VARIABLES -------------- */
 /* Attributes of the processed vertices           */
@@ -32,7 +33,7 @@ flat out vec2 site_location;
 
 // if = 2 we will rotate the wave in the fragment shader
 
-//flat out int instance;
+flat out int instance;
 
 /* ---------------------------------------------- */
 /* ----------- MAIN FUNCTION -------------------- */
@@ -47,9 +48,8 @@ void main()
 
   /*param = model_coord;*/
   /*wdir = wave_dir;*/
-  /*col = color;*/
-	col = vec3(0.4,0.3,0.2);
-	site_location = vec2(1.0f,1.0f);
+  col = color;
+	site_location = site;
 	frag_pos = vec2(model_coord);
 
   // gl_InstanceID is a built-in input variable that tells
@@ -58,7 +58,7 @@ void main()
   //  a nice thing to know that it exists :)
   // see GLSL specification for other built-in variables
 
-  //instance = gl_InstanceID;
+  instance = gl_InstanceID;
 
   // just add 0 z-coordinate and 1 homogenous coordinate
 
