@@ -8,7 +8,7 @@
 #ifndef __config_h__
 #define __config_h__
 
-#define DEFAULT_INPUT_FILE "input.t"
+#define DEFAULT_INPUT_FILE "input.ppm"
 
 #define TEXTURE_SIZE 128
 
