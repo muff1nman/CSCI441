@@ -19,6 +19,8 @@
 #include "glviewer/gl/vertexarray.h"
 #include "glviewer/gl/shader.h"
 #include "glviewer/gl/texture.h"
+#include "glviewer/shader_locations.h"
+#include "glviewer/texture_locations.h"
 
 using namespace gl_CSCI441;
 using namespace std;
@@ -88,7 +90,7 @@ void setup_textures()
 {
   // reads a PPM image from file and create a texture object
   //  last three values are border color (in the project, there is no need to use borders)
-  t2D = createRGBTexture2D("textures/mines.ppm",0.5,0.25,0.25);
+  t2D = createRGBTexture2D(MINES_TEXTURE,0.5,0.25,0.25);
   t2D->linear();        // request bilinear interpolation
   t2D->attach(1);       // attach to TAP #1; must match the binding parameter in the shaders
                         // see `layout (binding=1) uniform sampler2D tex;' in fsh_square.glsl
@@ -141,7 +143,7 @@ void setup_buffers()
 void setup_programs()
 {
   cout << "Creating the square program..." << endl;
-  square_program = createProgram("shaders/vsh_square.glsl","shaders/fsh_square.glsl");
+  square_program = createProgram(SQUARE_VERTEX_SHADER,SQUARE_FRAGMENT_SHADER);
 }
 
 /* ----------------------------------------------------- */

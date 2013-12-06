@@ -43,8 +43,8 @@
 #include "glviewer/gl/texture.h"
 #include "glviewer/domain/triangle.h"
 
-#include "shader_locations.h"
-#include "texture_locations.h"
+#include "glviewer/shader_locations.h"
+#include "glviewer/texture_locations.h"
 
 using namespace gl_CSCI441;
 using namespace std;

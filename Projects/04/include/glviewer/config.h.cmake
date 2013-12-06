@@ -12,5 +12,7 @@
 
 #define TEXTURE_SIZE 128
 
+#define DEFAULT_NUMBER_SITES 32
+
 #endif /* !__config_h__ */
 
