@@ -61,8 +61,6 @@ static GLint vph = VPD_DEFAULT;
 
 static const size_t THIRD_DIM = 3;
 
-size_t current_num_vertices;
-
 vec3 initial_mouse_point_on_sphere;
 
 
@@ -87,14 +85,26 @@ Buffer* doughnut_normals = NULL;
 Buffer* doughnut_texture_coords = NULL;
 size_t doughnut_num_vertices;
 
+VertexArray *va_square = NULL;
+GLfloat square_vertices[] = {
+  -1, -1,
+  -1,  1,
+   1, -1,
+   1,  1
+};
+Buffer* sites = NULL;
+Buffer* buf_square_vertices = NULL;
+
 // DONT deallocate this one
 VertexArray* current_vao = NULL;
 
 Program* carve_program = NULL;
 Program* environment_program = NULL;
 Program* doughnut_program = NULL;
+Program* voronoi_program = NULL;
 // DONT deallocate this one
 Program* current_program = NULL;
+
 
 /* ----------------------------------------------------- */
 
@@ -119,6 +129,10 @@ void turn_on_specular() {
 
 void turn_off_specular() {
 	current_program->setUniform("KSPEC", &none.x);
+}
+
+float current_diagonal_length() {
+	return sqrt(pow(vpw,2) + pow(vph,2));
 }
 
 void toggle_specular() {
@@ -279,7 +293,6 @@ void set_carve_program() {
 	set_pre_program();
 	current_program = carve_program;
 	current_vao = gphong_vao;
-	current_num_vertices = gphong_num_vertices;
 	setup_intial_transforms(d, alpha, Perspective, gp_Translate, gp_Scale, gp_to_view_t, gp_max_bound, gp_min_bound);
 	carve_setup_texture_transform();
 	carve_setup_textures();
@@ -291,6 +304,7 @@ void program_carve_draw() {
   current_program->setUniform("P",&Perspective[0][0]);
 	carve_texture->on();
 	shared_draw_util1(gp_MV, gp_NMV, gp_to_view_t, current_rotation, global_rotation, gp_Scale, gp_Translate);
+	current_vao->sendToPipeline(GL_TRIANGLES,0, gphong_num_vertices );
 }
 
 void program_carve_finish_draw() {
@@ -322,6 +336,7 @@ void program_environment_draw() {
   current_program->setUniform("P",&Perspective[0][0]);
 	mirror->on();
 	shared_draw_util1(gp_MV, gp_NMV, gp_to_view_t, current_rotation, global_rotation, gp_Scale, gp_Translate);
+	current_vao->sendToPipeline(GL_TRIANGLES,0, gphong_num_vertices);
 }
 
 void program_environment_finish_draw() {
@@ -332,7 +347,6 @@ void set_environment_program() {
 	set_pre_program();
 	current_program = environment_program;
 	current_vao = gphong_vao;
-	current_num_vertices = gphong_num_vertices;
 	setup_intial_transforms(d, alpha, Perspective, gp_Translate, gp_Scale, gp_to_view_t, gp_max_bound, gp_min_bound);
 	environment_setup_textures();
 	environment_setup_texture_transform();
@@ -362,6 +376,7 @@ void program_doughnut_draw() {
 	doughnut_texture->on();
   current_program->setUniform("P",&Perspective[0][0]);
 	shared_draw_util1(dn_MV, dn_NMV, dn_to_view_t, current_rotation, global_rotation, dn_Scale, dn_Translate);
+	current_vao->sendToPipeline(GL_TRIANGLES,0, doughnut_num_vertices);
 }
 
 void program_doughnut_finish_draw() {
@@ -372,15 +387,52 @@ void set_doughnut_program() {
 	set_pre_program();
 	current_program = doughnut_program;
 	current_vao = doughnut_vao;
-	current_num_vertices = doughnut_num_vertices;
 	setup_intial_transforms(d, alpha, Perspective, dn_Translate, dn_Scale, dn_to_view_t, doughnut_max_bound, doughnut_min_bound);
 	doughnut_setup_textures();
 	set_post_program();
 }
+/* ----------------------------------------------------------------------------------*/
+// Voronoi program
+float max_window_distance = 1;
+
+void voronoi_setup_textures() {
+}
+
+void voronoi_setup_texture_transform() {
+}
+
+void program_voronoi_draw() {
+  current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4);
+  //current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4,3);
+}
+
+void program_voronoi_finish_draw() {
+}
+
+void update_uniform_distance() {
+	max_window_distance = current_diagonal_length();
+	if(current_program == voronoi_program ) {
+		current_program->setUniform("MAX_D",&max_window_distance);
+	}
+}
+
+void set_voronoi_program() {
+	set_pre_program();
+	current_program = voronoi_program;
+	current_vao = va_square;
+
+	update_uniform_distance();
+
+	//setup_intial_transforms(d, alpha, Perspective, gp_Translate, gp_Scale, gp_to_view_t, gp_max_bound, gp_min_bound);
+	voronoi_setup_textures();
+	voronoi_setup_texture_transform();
+	set_post_program();
+}
 
 /* ----------------------------------------------------------------------------------*/
+
 void set_default_program() {
-	set_carve_program();
+	set_voronoi_program();
 }
 
 void program_draw() {
@@ -390,6 +442,8 @@ void program_draw() {
 		program_environment_draw();
 	} else if ( current_program == doughnut_program ) {
 		program_doughnut_draw();
+	} else if ( current_program == voronoi_program ) {
+		program_voronoi_draw();
 	} else {
 		exit(1);
 	}
@@ -402,6 +456,8 @@ void program_finish_draw() {
 		program_environment_finish_draw();
 	} else if ( current_program == doughnut_program ) {
 		program_doughnut_finish_draw();
+	} else if ( current_program == voronoi_program ) {
+		program_voronoi_finish_draw();
 	} else {
 		exit(1);
 	}
@@ -688,6 +744,7 @@ void setup_buffers(const char* input_file) {
 	gphong_vao->attachAttribute(0,vertices);
 	gphong_vao->attachAttribute(1,gphong_normals);
 
+  buf_square_vertices = new Buffer(2,4,square_vertices);
 	/*--------------------------------------------------*/
 
 	doughnut_vao = new VertexArray;
@@ -696,6 +753,9 @@ void setup_buffers(const char* input_file) {
 	doughnut_vao->attachAttribute(1,doughnut_normals);
 	doughnut_vao->attachAttribute(2,doughnut_texture_coords);
 
+
+  va_square = new VertexArray;
+  va_square->attachAttribute(0,buf_square_vertices);
 }
 
 /* ----------------------------------------------------- */
@@ -716,6 +776,8 @@ void setup_programs()
 	environment_program = createProgram(ENVIRONMENT_VERTEX_SHADER, ENVIRONMENT_FRAGMENT_SHADER);
 	cout << "Creating the doughnut program..." << endl;
 	doughnut_program = createProgram(DOUGHNUT_VERTEX_SHADER, DOUGHNUT_FRAGMENT_SHADER);
+	cout << "Creating the voronoi program..." << endl;
+	voronoi_program = createProgram(VORONOI_VERTEX_SHADER, VORONOI_FRAGMENT_SHADER);
 }
 
 
@@ -741,18 +803,10 @@ void draw()
   // want to use depth test to get visibility right
   glEnable(GL_DEPTH_TEST);
 
-
   current_program->on();
 
 	// program specific stuffs
 	program_draw();
-
-  // Send vertices 0...5 to pipeline; use the index buffer ix_square.
-  // Recall that ix_square contains 0 1 2 0 2 3, which means that 
-  // vertices with data at indices 0 1 2 0 2 3 in the buffers attached to the 
-  // vertex array are going to be generated.
-  // The first argument instructs the pipeline how to set up triangles; GL_TRIANGLES=triangle soup
-	current_vao->sendToPipeline(GL_TRIANGLES,0, current_num_vertices );
 
   // turn the program off
   current_program->off();
@@ -974,6 +1028,8 @@ GLvoid reshape(GLint sizex, GLint sizey)
   vpw = sizex < sizey ? sizex : sizey;
   vph = vpw;
 
+	update_uniform_distance();
+
   glViewport(0, 0, vpw, vph);
   glutReshapeWindow(vpw, vph);
 
@@ -1090,5 +1146,4 @@ GLint main(GLint argc, char **argv) {
 
   return 0;
 }
-
 
