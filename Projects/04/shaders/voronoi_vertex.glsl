@@ -11,8 +11,6 @@
 layout (location=0) in vec2 model_coord;
 /*layout (location=2) in vec3 color;*/
 
-uniform float MAX_D;
-
 /* -------------- OUTPUT VARIABLES -------------- */
 /* Attributes of the processed vertices           */
 /* Interpolated by the rasterizer and sent with   */
@@ -31,7 +29,6 @@ noperspective out vec2 param;
 
 flat out vec3 col;
 flat out vec2 site_location;
-flat out float maximum_distance;
 
 // if = 2 we will rotate the wave in the fragment shader
 
@@ -52,8 +49,6 @@ void main()
   /*wdir = wave_dir;*/
   /*col = color;*/
 	col = vec3(0.4,0.3,0.2);
-
-	maximum_distance = MAX_D;
 
   // gl_InstanceID is a built-in input variable that tells
   //  which instance the vertex belongs to

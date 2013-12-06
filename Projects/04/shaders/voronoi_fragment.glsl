@@ -8,7 +8,6 @@
 
 flat in vec3 col;
 flat in vec2 site_location;
-flat in float maximum_distance;
 
 /* ----------- OUTPUT VARIABLES ----------------- */
 /* For `simple' rendering we do here, there is    */ 
@@ -24,6 +23,7 @@ out vec3 fragcolor;
 /* ---------------------------------------------- */
 
 void main() {
+	float maximum_distance = 3.0f;
 
   // alter depth depending on where you are (param) and 
   // dir (which is an instanced attribute value passed here

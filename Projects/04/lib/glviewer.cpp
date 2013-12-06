@@ -131,9 +131,10 @@ void turn_off_specular() {
 	current_program->setUniform("KSPEC", &none.x);
 }
 
-float current_diagonal_length() {
-	return sqrt(pow(vpw,2) + pow(vph,2));
-}
+//float current_diagonal_length() {
+	////return sqrt(pow(vpw,2) + pow(vph,2));
+	//return 3;
+//}
 
 void toggle_specular() {
 	static bool on = true;
@@ -409,19 +410,20 @@ void program_voronoi_draw() {
 void program_voronoi_finish_draw() {
 }
 
-void update_uniform_distance() {
-	max_window_distance = current_diagonal_length();
-	if(current_program == voronoi_program ) {
-		current_program->setUniform("MAX_D",&max_window_distance);
-	}
-}
+//void update_uniform_distance() {
+	////max_window_distance = current_diagonal_length();
+	//max_window_distance = current_diagonal_length();
+	//if(current_program == voronoi_program ) {
+		//current_program->setUniform("MAX_D",&max_window_distance);
+	//}
+//}
 
 void set_voronoi_program() {
 	set_pre_program();
 	current_program = voronoi_program;
 	current_vao = va_square;
 
-	update_uniform_distance();
+	//update_uniform_distance();
 
 	//setup_intial_transforms(d, alpha, Perspective, gp_Translate, gp_Scale, gp_to_view_t, gp_max_bound, gp_min_bound);
 	voronoi_setup_textures();
@@ -1028,7 +1030,7 @@ GLvoid reshape(GLint sizex, GLint sizey)
   vpw = sizex < sizey ? sizex : sizey;
   vph = vpw;
 
-	update_uniform_distance();
+	//update_uniform_distance();
 
   glViewport(0, 0, vpw, vph);
   glutReshapeWindow(vpw, vph);
