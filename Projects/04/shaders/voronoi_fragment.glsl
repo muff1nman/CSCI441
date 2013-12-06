@@ -8,6 +8,7 @@
 
 flat in vec3 col;
 flat in vec2 site_location;
+noperspective in vec2 frag_pos;
 
 /* ----------- OUTPUT VARIABLES ----------------- */
 /* For `simple' rendering we do here, there is    */ 
@@ -30,10 +31,11 @@ void main() {
   // from the vertex shader)
 
   //gl_FragDepth = 0.5*(1+sin(10/(0.3+abs(dot(param,dir)))));
-	gl_FragDepth = distance(site_location, gl_FragCoord.xy) / maximum_distance;
+	//gl_FragDepth = distance(site_location, gl_FragCoord.xy) / maximum_distance;
+	gl_FragDepth = distance(site_location, frag_pos) / maximum_distance;
 
   // col is also an instanced attribute - color each instance
   // using a constant color
 
-  fragcolor = col;
+  fragcolor = (1 - gl_FragDepth) * col;
 }

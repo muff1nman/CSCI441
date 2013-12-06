@@ -23,7 +23,7 @@ layout (location=0) in vec2 model_coord;
 // as perspectively correct interpolation (and cheaper),
 // so this is what we are requesting here
 
-noperspective out vec2 param;
+noperspective out vec2 frag_pos;
 
 // same for color
 
@@ -49,6 +49,8 @@ void main()
   /*wdir = wave_dir;*/
   /*col = color;*/
 	col = vec3(0.4,0.3,0.2);
+	site_location = vec2(1.0f,1.0f);
+	frag_pos = vec2(model_coord);
 
   // gl_InstanceID is a built-in input variable that tells
   //  which instance the vertex belongs to
