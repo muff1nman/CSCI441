@@ -124,6 +124,7 @@ size_t number_of_sites;
 float some_time;
 float speed = 0.01f;
 bool is_rotate;
+int color_mode;
 RGBTexture2D* voronoi_texture;
 
 int show_sites;
@@ -154,17 +155,13 @@ void increase_number_of_sites() {
 	}
 }
 
-//void update_rotation_matrix() {
-	//rotating = rotate(mat4(),some_time,vec3(0,0,1));
-	//cout << "rotating : " << rotating[0][0] << endl;
-//}
-
 void set_default_voronoi() {
 	number_of_sites = DEFAULT_NUMBER_SITES;
 	show_sites = false;
 	//rotating = mat4();
 	some_time = 0.0f;
 	is_rotate = false;
+	color_mode = false;
 }
 
 void toggle_site_display() {
@@ -176,11 +173,16 @@ void toggle_rotate() {
 	is_rotate = !is_rotate;
 }
 
+void toggle_color_mode() {
+	color_mode = !color_mode;
+}
+
 void program_voronoi_draw() {
 	voronoi_texture->on();
 	current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4,number_of_sites);
   current_program->setUniform("SITEDISPLAY",&show_sites);
 	current_program->setUniform("time",&some_time);
+	current_program->setUniform("COLORMODE",&color_mode);
 	if(is_rotate) {
 		increment_time();
 	}
@@ -446,6 +448,7 @@ void menu ( int value )
 			toggle_rotate();
 			break;
 		case MENU_TOGGLE_COLOR:
+			toggle_color_mode();
 		default:
 			cout << "Unknown menu entry" << endl;
 	}

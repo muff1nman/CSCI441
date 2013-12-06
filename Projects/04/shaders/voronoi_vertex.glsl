@@ -15,9 +15,10 @@ layout (location=4) in float angular;
 
 layout (binding=1) uniform sampler2D tex;
 
-uniform int SITEDISPLAY = 1;
+uniform int SITEDISPLAY;
 //uniform mat4 ROT;
 uniform float time;
+uniform int COLORMODE;
 
 /* -------------- OUTPUT VARIABLES -------------- */
 /* Attributes of the processed vertices           */
@@ -57,7 +58,6 @@ void main()
 
   /*param = model_coord;*/
   /*wdir = wave_dir;*/
-  col = color;
 
 	float angle = angular * time;
 	mat3 site_speed = mat3(
@@ -68,7 +68,11 @@ void main()
 
 	site_location = (site_speed * vec3(site,0.0f)).xy;
 
-	col = texture(tex, (vec2(1.0f) + vec2(1.0,-1.0) * site_location)/2).xyz;
+	if(COLORMODE == 1) {
+		col = texture(tex, (vec2(1.0f) + vec2(1.0,-1.0) * site_location)/2).xyz;
+	} else {
+		col = color;
+	}
 
 	frag_pos = vec2(model_coord);
 
