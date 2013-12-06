@@ -12,6 +12,8 @@ layout (location=0) in vec2 model_coord;
 layout (location=2) in vec2 site;
 layout (location=3) in vec3 color;
 
+uniform int SITEDISPLAY = 1;
+
 /* -------------- OUTPUT VARIABLES -------------- */
 /* Attributes of the processed vertices           */
 /* Interpolated by the rasterizer and sent with   */
@@ -30,6 +32,8 @@ noperspective out vec2 frag_pos;
 
 flat out vec3 col;
 flat out vec2 site_location;
+
+flat out int show;
 
 // if = 2 we will rotate the wave in the fragment shader
 
@@ -51,6 +55,8 @@ void main()
   col = color;
 	site_location = site;
 	frag_pos = vec2(model_coord);
+
+	show = SITEDISPLAY;
 
   // gl_InstanceID is a built-in input variable that tells
   //  which instance the vertex belongs to

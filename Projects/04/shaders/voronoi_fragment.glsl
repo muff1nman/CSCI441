@@ -10,6 +10,7 @@ flat in vec3 col;
 flat in vec2 site_location;
 noperspective in vec2 frag_pos;
 flat in int instance;
+flat in int show;
 
 /* ----------- OUTPUT VARIABLES ----------------- */
 /* For `simple' rendering we do here, there is    */ 
@@ -39,4 +40,10 @@ void main() {
   // using a constant color
 
   fragcolor = col;
+
+	if(show == 1) {
+		if(gl_FragDepth < 0.004f) {
+			fragcolor = vec3(0.0f,0.0f,0.0f);
+		}
+	}
 }

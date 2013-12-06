@@ -395,7 +395,9 @@ void set_doughnut_program() {
 /* ----------------------------------------------------------------------------------*/
 // Voronoi program
 float max_window_distance = 1;
-size_t number_of_sites = DEFAULT_NUMBER_SITES;
+size_t number_of_sites;
+
+int show_sites;
 
 CoordBuffer sites_internal = NULL;
 Buffer* site_buffer = NULL;
@@ -419,13 +421,22 @@ void increase_number_of_sites() {
 		cout << "Number of sites: " << number_of_sites << endl;
 	}
 }
+
 void set_default_voronoi() {
 	number_of_sites = DEFAULT_NUMBER_SITES;
+	show_sites = false;
+
+}
+
+void toggle_site_display() {
+	show_sites = !show_sites;
+	cout << "Show sites: " << show_sites << endl;
 }
 
 void program_voronoi_draw() {
   //current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4);
 	current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4,number_of_sites);
+  current_program->setUniform("SITEDISPLAY",&show_sites);
 }
 
 void program_voronoi_finish_draw() {
@@ -439,11 +450,13 @@ GLfloat randfloat_in_box() {
 	return 1.0f - 2.0f * randomfloat();
 }
 
-CoordBuffer generate_random_data(size_t size, size_t DIM) {
+typedef GLfloat (*RandFun)();
+
+CoordBuffer generate_random_data(size_t size, size_t DIM, RandFun func) {
 	CoordBuffer coords = new Coord[size * DIM];
 	for( size_t site = 0; site < size; ++site ) {
 		for( size_t dim = 0; dim < DIM; ++dim) {
-			coords[site*DIM + dim] = randfloat_in_box();
+			coords[site*DIM + dim] = func();
 			//cout << "rand num: " << coords[site*DIM + dim] << endl;
 		}
 	}
@@ -453,7 +466,7 @@ CoordBuffer generate_random_data(size_t size, size_t DIM) {
 
 typedef Buffer* BufferPtr;
 
-void generate_random_buffer( BufferPtr& buffer, CoordBuffer& internal, size_t size, size_t DIM ) {
+void generate_random_buffer( BufferPtr& buffer, CoordBuffer& internal, size_t size, size_t DIM, RandFun func = &randfloat_in_box) {
 	if(buffer != NULL) {
 		delete buffer;
 	}
@@ -461,7 +474,7 @@ void generate_random_buffer( BufferPtr& buffer, CoordBuffer& internal, size_t si
 		delete internal;
 	}
 
-	internal = generate_random_data(size, DIM);
+	internal = generate_random_data(size, DIM, func);
 	buffer = new Buffer(DIM, size, internal);
 
 }
@@ -476,8 +489,10 @@ void set_voronoi_program() {
 	current_vao->attachAttribute(2,site_buffer,1);
 
 	// colors
-	generate_random_buffer(color_buffer, colors_internal, MAXIMUM_NUMBER_SITES, 3);
+	generate_random_buffer(color_buffer, colors_internal, MAXIMUM_NUMBER_SITES, 3, randomfloat);
 	current_vao->attachAttribute(3,color_buffer,1);
+
+	set_default_voronoi();
 
 	// angular velocities
 	//generate_random_buffer(angular_velocities_buffer, angular_velocities_internal, MAXIMUM_NUMBER_SITES, 3);
@@ -1033,6 +1048,8 @@ void menu ( int value )
 			increase_number_of_sites();
 			break;
 		case MENU_TOGGLE_HIDE_SITES:
+			toggle_site_display();
+			break;
 		case MENU_RESET:
 			set_default_voronoi();
 			break;
@@ -1181,7 +1198,7 @@ GLint main(GLint argc, char **argv) {
     }
 
 	// setup random
-	srand(6);
+	srand(16);
 
   // initialize programs and buffers
   setup_programs();
