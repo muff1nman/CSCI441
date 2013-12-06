@@ -419,6 +419,9 @@ void increase_number_of_sites() {
 		cout << "Number of sites: " << number_of_sites << endl;
 	}
 }
+void set_default_voronoi() {
+	number_of_sites = DEFAULT_NUMBER_SITES;
+}
 
 void program_voronoi_draw() {
   //current_vao->sendToPipeline(GL_TRIANGLE_STRIP,0,4);
@@ -1031,6 +1034,8 @@ void menu ( int value )
 			break;
 		case MENU_TOGGLE_HIDE_SITES:
 		case MENU_RESET:
+			set_default_voronoi();
+			break;
 		case MENU_ANIMATE:
 		case MENU_TOGGLE_COLOR:
 		default:
